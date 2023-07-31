@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Sidenav Light - SB Admin</title>
+        <link href="css/styles.css" rel="stylesheet" />
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    </head>
+    <body class="sb-nav-fixed">
+        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+            <!-- Navbar Brand-->
+            <a class="navbar-brand ps-3" href="index.html">Home Page</a>
+            <!-- Sidebar Toggle-->
+            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+            <!-- Navbar Search-->
+            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+                <div class="input-group">
+                    <input class="form-control" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
+                    <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
+                </div>
+            </form>
+            <!-- Navbar-->
+            <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="#!">Settings</a></li>
+                        <li><a class="dropdown-item" href="#!">Activity Log</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li><a class="dropdown-item" href="#!">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
+                    <div class="sb-sidenav-menu">
+                        <div class="nav">
+                            <div class="sb-sidenav-menu-heading">Nursing Station</div>
+                            <a class="nav-link" href="index.html">
+                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                Assistance
+                            </a>
+                            <a class="nav-link" href="layout-sidenav-light.html">
+                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                                List of Patients
+                            </a>
+                            <a class="nav-link" href="nurse-list.html">
+                                <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
+                                Nurse Management
+                            </a>
+                        </div>
+                    </div>
+                    <div class="sb-sidenav-footer">
+                        <div class="small">Logged in as:</div>
+                        Start Bootstrap
+                    </div>
+                </nav>
+            </div>
+            <div id="layoutSidenav_content">
+                <main> 
+                    <div class="container-fluid px-4">
+                        <h1 class="mt-4">List of Patients</h1>
+                        <ol class="breadcrumb mb-4">
+                            <li class="breadcrumb-item"><a href="index.html">Assistance</a></li>
+                        </ol>
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-table me-1"></i>
+                                PATIENT LIST
+                            </div>
+                            <br/>
+                            <form style="margin-left: 16px;">
+                                <input type="submit" value="Add Patient" />
+                                <br/>
+                                <br/>
+                                <P><b>Filter</b></P>
+                            <form>
+                                <input type="submit" value="View All Patient" />
+                            <form>
+                                    <input type="submit" value="Discharged Patient" />
+                            <form>
+                                    <input type="submit" value="Admitted Patient" />
+                                <br/>
+                            </form>  
+                            <div class="card-body">
+                                <table id="datatablesSimple">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Assigned Nurse</th>
+                                            <th>Date of Admit</th>
+                                            <th>Age</th>
+                                            <th>Diseases</th>
+                                            <th>Room No</th>
+                                            <th>View Information</th>
+                                            <th>View Report</th>
+                                            <th>Edit Patient</th>
+                                            <th>Patient Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Assigned Nurse</th>
+                                            <th>Date of Admit</th>
+                                            <th>Age</th>
+                                            <th>Diseases</th>
+                                            <th>Room No</th>
+                                            <th>View Information</th>
+                                            <th>View Report</th>
+                                            <th>Edit Patient</th>
+                                            <th>Patient Status</th>
+                                        </tr>
+                                    </tfoot> 
+                                    <tbody>
+                                        <tr>
+                                            <td>Tiger Nixon</td>
+                                            <td>Nurse Josh</td>
+                                            <td>27/05/2023</td>
+                                            <td>61</td>
+                                            <td>INFLUENZA</td>
+                                            <td>103</td> 
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="View Information" />
+                                                </form>  
+                                            </td> 
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="View Report" />
+                                                </form>  
+                                            </td> 
+                                            <td>
+                                            <form>
+                                                <input type="submit" value="Edit Patient" />
+                                            </form>   
+                                            </td>        
+                                            <td>Discharged</td> 
+                                        </tr>
+                                        <tr>
+                                            <td>Garrett Winters</td>
+                                            <td>Nurse Kelly</td>
+                                            <td>27/11/2023</td>
+                                            <td>63</td>
+                                            <td>CHOLERA</td>
+                                            <td>102</td>
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="View Information" />
+                                                </form>  
+                                            </td> 
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="View Report" />
+                                                </form>  
+                                            </td> 
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="Edit Patient" />
+                                                </form>   
+                                            </td> 
+                                            <td>Discharged</td> 
+                                        </tr>
+                                        <tr>
+                                            <td>Ashton Cox</td>
+                                            <td>Nurse Justine</td>
+                                            <td>13/09/2023</td>
+                                            <td>66</td>
+                                            <td>AMOEBIASIS</td>
+                                            <td>108</td>
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="View Information" />
+                                                </form>  
+                                            </td> 
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="View Report" />
+                                                </form>  
+                                            </td> 
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="Edit Patient" />
+                                                </form>   
+                                            </td> 
+                                            <td>Admitted</td> 
+                                        </tr>
+                                        <tr>
+                                            <td>Cedric Kelly</td>
+                                            <td>Nurse Nicole</td>
+                                            <td>11/02/2023</td>
+                                            <td>22</td>
+                                            <td>JAUNDICE</td>
+                                            <td>106</td>
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="View Information" />
+                                                </form>  
+                                            </td> 
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="View Report" />
+                                                </form>  
+                                            </td> 
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="Edit Patient" />
+                                                </form>   
+                                            </td> 
+                                            <td>Admitted</td> 
+                                        </tr>
+                                        <tr>
+                                            <td>Airi Satou</td>
+                                            <td>Nurse Miguel</td>
+                                            <td>29/12/2022</td>
+                                            <td>33</td>
+                                            <td>MALARIA</td>
+                                            <td>101</td>
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="View Information" />
+                                                </form>  
+                                            </td> 
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="View Report" />
+                                                </form>  
+                                            </td> 
+                                            <td>
+                                                <form>
+                                                    <input type="submit" value="Edit Patient" />
+                                                </form>   
+                                            </td> 
+                                            <td>Discharged</td> 
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                    </div>
+                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+                    <script src="js/scripts.js"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+                    <script src="assets/demo/chart-area-demo.js"></script>
+                    <script src="assets/demo/chart-bar-demo.js"></script>
+                    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+                    <script src="js/datatables-simple-demo.js"></script>
+                </main>
+                <footer class="py-4 bg-light mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="d-flex align-items-center justify-content-between small">
+                            <div class="text-muted">Copyright &copy; Your Website 2023</div>
+                            <div>
+                                <a href="#">Privacy Policy</a>
+                                &middot;
+                                <a href="#">Terms &amp; Conditions</a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="js/scripts.js"></script>
+    </body>
+</html>

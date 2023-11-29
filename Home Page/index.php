@@ -133,7 +133,9 @@
                             <li class="breadcrumb-item active">Immediate Assistance</li>
                         </ol>
                         <div class="row" id = "refresh">
- 
+                        <?php
+                            require_once('assistanceCards.php');
+                        ?>
                         
                     </div>
 

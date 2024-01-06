@@ -10,6 +10,11 @@ $dbuser = "userthesis2";
 $dbpass = "dbThesis123";
 $dbname = "dbthesis2";
 
+// $dbhost = "sql207.infinityfree.com";
+// $dbuser = "if0_35733375";
+// $dbpass = "gXGcjb07QLy3";
+// $dbname = "if0_35733375_Thesis2";
+
 if (!$con = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname))
 {
     die("failed to connect!");

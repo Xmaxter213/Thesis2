@@ -5,21 +5,19 @@ require_once('../../dbConnection/connection.php');
 //This code runs after the NursesList.php page i think
 if(isset($_POST['add']))
 {
-    // echo"<script>";
-    // echo"window.addEventListener('load', event => {";
-    // echo"    showSnackbar('added');";
-    // echo"});";
-    // echo"</script>";
-
-    //echo"<body onload='showSnackbar('added')'> </body>";
+    $patient_ID = $_POST['patient_ID'];
+    $patient_Name = $_POST['patient_Name'];
+    $room_Number = $_POST['room_Number'];
+    $age = $_POST['age'];
+    $reason_Admission = $_POST['reason_Admission'];
+    $admission_Status = $_POST['admission_Status'];
     $nurse_Name = $_POST['nurse_Name'];
-    $nurse_Age = $_POST['nurse_Age'];
-    $shift_Status = $_POST['shift_Status'];
-    $employment_Status = $_POST['employment_Status'];
-    $date_Employment = $_POST['date_Employment'];
+    $assistanceStatus = $_POST['assistanceStatus'];
+    $deviceAssigned = $_POST['deviceAssigned'];
     //$date_Employment = sha1($_POST['date_Employment']);
 
-    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, nurse_Age, shift_Status, employment_Status, date_Employment) VALUES (NULL,'$nurse_Name', '$nurse_Age','$shift_Status','$employment_Status', '$date_Employment')";
+    $query = "INSERT INTO patient_Information (patient_ID, patient_Name, room_Number, age, reason_Admission, admission_Status, nurse_Name, assistanceStatus, deviceAssigned) 
+    VALUES (NULL,'$patient_ID', '$patient_Name','$room_Number','$age', '$reason_Admission', '$admission_Status', '$nurse_Name', '$assistanceStatus', '$deviceAssigned')";
     $query_run = mysqli_query($con, $query);
 
     if($query_run)

@@ -3,23 +3,23 @@
 require_once('../../dbConnection/connection.php');
 //include('message.php');
 
-if(isset($_POST['nurseDelete']))
+if(isset($_POST['patientDelete']))
 {
-    $nurse_ID = $_POST['nurseDelete'];
+    $patient_ID = $_POST['patientDelete'];
 
-    $query = "DELETE FROM staff_List WHERE nurse_ID ='$nurse_ID'";
+    $query = "DELETE FROM patient_List WHERE patient_ID ='$patient_ID'";
     $query_run = mysqli_query($con, $query);
 
     if($query_run)
     {
-        $_SESSION['message'] = "Catagory Deleted  Successfully";
-        header('Location: NursesList.php');
+        $_SESSION['message'] = "Catagory Deleted Successfully";
+        header('Location: PatientsList.php');
         exit(0);
     }
     else
     {
-        $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: NursesList.php');
+        $_SESSION['message'] = "Someting Went Wrong!";
+        header('Location: PatientsList.php');
         exit(0);
     }
 

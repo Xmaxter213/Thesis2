@@ -1,17 +1,20 @@
 <?php
 #bg-primary blue, bg-warning yellow, bg-success green, bg-danger red
-function assistanceCard($patient_ID, $gloves_ID, $patient_Name, $room_Number, $age, $admission_Status, $nurse_Name, $assistanceStatus){
-    if ($assistanceStatus == "Unassigned")
+function assistanceCard($patient_ID, $patient_Name, $room_Number, $age, $admission_Status, $nurse_Name, $assistance_Status, $device_Assigned){
+    if ($assistance_Status == "Unassigned")
     {
-        $assistanceColor = "bg-danger";
+        $assistance_Color = "bg-danger";
     }
-    else if ($assistanceStatus == "On the way")
+    else if ($assistance_Status == "On the way")
     {
-        $assistanceColor = "bg-primary";
+        $assistance_Color = "bg-primary";
+    } else
+    {
+        $assistance_Color = NULL;
     }
 
     $element ="<div class=\"col-xl-3 col-md-6\">
-                                <div class=\"card $assistanceColor text-white mb-4\">
+                                <div class=\"card $assistance_Color text-white mb-4\">
                                     <div class=\"card-body\">Patient Name: $patient_Name</div>
                                     <div class=\"card-body\">Room #: $room_Number</div>
                                     <form action=\"index.php\">

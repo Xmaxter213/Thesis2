@@ -12,13 +12,13 @@ if(isset($_POST['nurseDelete']))
 
     if($query_run)
     {
-        $_SESSION['message'] = "Catagory Deleted  Successfully";
+        $_SESSION['message'] = "Catagory Deleted Successfully";
         header('Location: NursesList.php');
         exit(0);
     }
     else
     {
-        $_SESSION['message'] = "Someting Went Wrong !";
+        $_SESSION['message'] = "Someting Went Wrong!";
         header('Location: NursesList.php');
         exit(0);
     }

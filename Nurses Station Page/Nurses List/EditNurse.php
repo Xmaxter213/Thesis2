@@ -79,7 +79,7 @@ require_once('../../dbConnection/connection.php');
             <div class = "col-md-12 mb-3">
 
             <br>
-            <button onclick="showSnackbar('save nurse')" type = "submit" class = "btn btn-primary" name = "edit" >Edit</button>
+            <button onclick="showSnackbar('save nurse')" type = "submit" class = "btn btn-primary" name = "edit" >Save</button>
             </div>
         </form>
 <?php

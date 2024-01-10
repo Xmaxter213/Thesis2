@@ -27,13 +27,11 @@ if(isset($_POST['add']))
         $_SESSION['message'] = "Catagory Added Successfully";
         header('Location: NursesList.php');
         exit(0);
-        showSnackbar('added');
     }
     else
     {
         $_SESSION['message'] = "Someting Went Wrong !";
         header('Location: NursesList.php');
-        showSnackbar('error');
         exit(0);
     }
 }
@@ -57,14 +55,12 @@ if(isset($_POST['edit']))
            
             $_SESSION['message'] = "Catagory Updated Successfully";
             header('Location: NursesList.php');
-            showSnackbar('edited');
             exit(0);
         }
         else
         {
             $_SESSION['message'] = "Someting Went Wrong !";
             header('Location: NursesList.php');
-            showSnackbar('error');
             exit(0);
         }
     
@@ -82,7 +78,7 @@ if(isset($_POST['edit']))
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>F.O.O.D - Tables</title>
+    <title>Helping Hand - Tables</title>
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -99,6 +95,8 @@ if(isset($_POST['edit']))
     <!-- Custom styles for this page -->
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
+    <!-- For fontawesome -->
+    <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
 </head>
 
 <body id="page-top">
@@ -114,7 +112,7 @@ if(isset($_POST['edit']))
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">F.O.O.D</div>
+                <div class="fa-regular fa-hand"> Helping Hand </div>
             </a>
 
             <!-- Divider -->
@@ -125,7 +123,7 @@ if(isset($_POST['edit']))
 
             <!-- Nav Item - Tables -->
             <li class="nav-item active">
-                <a class="nav-link" href="NursesList.php">
+                <a onclick="showSnackbar('redirect to nurses list page')"  class="nav-link" href="NursesList.php">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Nurses List</span></a>
             </li>
@@ -134,7 +132,7 @@ if(isset($_POST['edit']))
             <hr class="sidebar-divider d-none d-md-block">
 
             <li class="nav-item">
-                <a class="nav-link" href="../Nurses List/NursesList.php">
+                <a onclick="showSnackbar('redirect to patients list page')"  class="nav-link" href="../Patients List/PatientsList.php">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Patients List</span></a>
             </li>
@@ -419,6 +417,10 @@ if(isset($_POST['edit']))
             document.getElementById("snackbar").innerHTML = "Item is being deleted...";
         } else if (msg.includes('error')) {
             document.getElementById("snackbar").innerHTML = "Error.. Please try again.";
+        } else if (msg.includes('redirect to nurses list page')) {
+            document.getElementById("snackbar").innerHTML = "Refreshing nurses list page...";
+        } else if (msg.includes('redirect to patients list page')) {
+            document.getElementById("snackbar").innerHTML = "Opening patients list page...";
         }
 
         // Add the "show" class to DIV

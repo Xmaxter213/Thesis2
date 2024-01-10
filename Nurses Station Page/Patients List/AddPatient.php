@@ -25,47 +25,50 @@ require_once('../../dbConnection/connection.php');
     <div class="card">
         <div class="card-header">
             <h4> Add Nurse Staff
-            <a onclick="showSnackbar('back')" href="NursesList.php" class="btn btn-danger float-end" >BACK</a>
+            <a onclick="showSnackbar('back')" href="PatientsList.php" class="btn btn-danger float-end" >BACK</a>
             </h4>
         </div> 
         <div class="card-body">
 
-    <form action ="NursesList.php" method="POST" >
+    <form action ="PatientsList.php" method="POST" >
         <div>
-            <label>Nurse Name</label>
-            <input type="text" name="nurse_Name"  class="form-control" placeholder="Enter Nurse Name" required>
+            <label>Patient Name</label>
+            <input type="text" name="patient_Name"  class="form-control" placeholder="Enter Patient Name" required>
         </div>
         <div>
-            <label>Nurse Age</label>
-            <input type="text" id="nurse_Age" class="form-control" name="nurse_Age" placeholder="Enter Nurse Age" required pattern ="[0-9]+" title="Must only contain numbers"/>
-            <!--<input type="text" id="username" class="form-control" name="username" placeholder="Enter Nurse Age" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters and numbers"/> -->
+            <label>Room Number</label>
+            <input type="text" class="form-control" name="room_Number" placeholder="Enter Room Number" required pattern ="[0-9]+" title="Must only contain numbers"/>
+        </div>
+        <div>
+            <label>Patient Age</label>
+            <input type="text" class="form-control" name="age" placeholder="Enter Patient Age" required pattern ="[0-9]+" title="Must only contain numbers"/>
+        </div>
+        <div>
+            <label>Reason for Admission</label>
+            <input type="text" class="form-control" name="reason_Admission" placeholder="Enter Reason for Admission" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters & numbers"/>
+        </div>
+        <div>
+            <label>Admission Status</label>
+            <input type="text" class="form-control" name="admission_Status" placeholder="Enter Admission Status" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters"/>
+        </div>
+        <div>
+            <label>Assigned Nurse Name</label>
+            <input type="text" class="form-control" name="nurse_Name" placeholder="Enter Assigned Nurse Name" required pattern ="\S(.*\S)?[A-Za-z]+" title="Must only contain letters"/>
         </div>
         <br>
         <div>
-            <label>Shift Status</label>
-            <select id="shift_Status" name="shift_Status">
-                <option value="On Shift">On Shift</option>
-                <option value="Off Shift">Off Shift</option>
+            <label>Assistance Status</label>
+            <select id="assistance_Status" name="assistance_Status">
+                <option value="Unassigned">Unassigned</option>
             </select>
         </div>
         <br>
         <div>
-            <label>Employment Status</label>
-            <select id="employment_Status" name="employment_Status">
-                <option value="Employed">Employed</option>
-                <option value="Unemployed">Unemployed</option>
-            </select>
+            <label>Device ID Assigned</label>
+            <input type="text" class="form-control" name="device_Assigned" placeholder="Enter Assistance Status" required pattern ="[0-9]+" title="Must only numbers"/>
         </div>
         <br>
-        <div>
-            <label>Date of Employment</label>
-            <input type="date" id="start" name="date_Employment" value="" min="2018-01-01" max="2030-12-31" />
-        </div>
-
-        <div class = "col-md-12 mb-3">
-
-        <br>
-        <button onclick="showSnackbar('add nurse')" type = "submit" class = "btn btn-primary" name = "add" >Add</button>
+        <button onclick="showSnackbar('add patient')" type = "submit" class = "btn btn-primary" name = "add" >Add</button>
         </div>
     </form>
 
@@ -78,8 +81,8 @@ require_once('../../dbConnection/connection.php');
         var x = document.getElementById("snackbar");
 
         //Change text
-        if (msg.includes('add nurse')) {
-            document.getElementById("snackbar").innerHTML = "Adding new nurse data to database...";
+        if (msg.includes('add patient')) {
+            document.getElementById("snackbar").innerHTML = "Adding new patient data to database...";
         } else if (msg.includes('back')) {
             document.getElementById("snackbar").innerHTML = "Going back to Admin Page...";
         } else if (msg.includes('error')) {

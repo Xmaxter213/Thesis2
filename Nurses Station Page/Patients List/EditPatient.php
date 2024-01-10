@@ -24,64 +24,70 @@ require_once('../../dbConnection/connection.php');
 
     <div class="card">
         <div class="card-header">
-            <h4> Edit Admin
-            <a onclick="showSnackbar('back')" href="NursesList.php" class="btn btn-danger float-end" >BACK</a>
+            <h4> Edit Patient
+            <a onclick="showSnackbar('back')" href="PatientsList.php" class="btn btn-danger float-end" >BACK</a>
             </h4>
         </div> 
         <div class="card-body">
 <?php
-    if(isset($_GET['nurse_ID']))
+    if(isset($_GET['patient_ID']))
     {
-        $nurse_ID = $_GET['nurse_ID'];
-        $edit ="SELECT * FROM staff_List WHERE nurse_ID = '$nurse_ID' LIMIT 1";
+        $patient_ID = $_GET['patient_ID'];
+        $edit ="SELECT * FROM patient_List WHERE patient_ID = '$patient_ID' LIMIT 1";
         $run = mysqli_query($con, $edit);
 
         if(mysqli_num_rows($run) > 0)
         {
             $row = mysqli_fetch_array($run);
             ?>
-
-        <form action ="NursesList.php" method="POST" enctype="multipart/form-data">
-            <div>
-                <input type="hidden" name="nurse_ID" value="<?=  $row['nurse_ID'] ?>">
-            </div>
-            <div>
-                <label>Nurse Name</label>
-                <input type="text" name="nurse_Name" value="<?=  $row['nurse_Name'] ?>" class="form-control" placeholder="Enter Nurse Name" required>
-            </div>
-            <div>
-                <label>Nurse Age</label>
-                <input type="text" id="nurse_Age" class="form-control" name="nurse_Age" value="<?=  $row['nurse_Age'] ?>" placeholder="Enter Nurse Age" required pattern ="[0-9]+" title="Must only contain numbers"/>
-                <!--<input type="text" id="username" class="form-control" name="username" placeholder="Enter Nurse Age" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters and numbers"/> -->
-            </div>
-            <br>
-            <div>
-                <label>Shift Status</label>
-                <select id="shift_Status" name="shift_Status" value="<?=  $row['shift_Status'] ?>">
-                    <option value="On Shift">On Shift</option>
-                    <option value="Off Shift">Off Shift</option>
-                </select>
-            </div>
-            <br>
-            <div>
-                <label>Employment Status</label>
-                <select id="employment_Status" name="employment_Status" value="<?=  $row['employment_Status'] ?>">
-                    <option value="Employed">Employed</option>
-                    <option value="Unemployed">Unemployed</option>
-                </select>
-            </div>
-            <br>
-            <div>
-                <label>Date of Employment</label>
-                <input type="date" id="start" name="date_Employment" value="<?=  $row['date_Employment'] ?>" min="2018-01-01" max="2030-12-31" />
-            </div>
-
-            <div class = "col-md-12 mb-3">
-
-            <br>
-            <button onclick="showSnackbar('save nurse')" type = "submit" class = "btn btn-primary" name = "edit" >Edit</button>
-            </div>
-        </form>
+        
+        <form action ="PatientsList.php" method="POST" >
+        <div>
+            <input type="hidden" name="patient_ID" value="<?=  $row['patient_ID'] ?>">
+        </div>
+        <div>
+            <label>Patient Name</label>
+            <input type="text" name="patient_Name" value="<?=  $row['patient_Name'] ?>" class="form-control" placeholder="Enter Patient Name" required>
+        </div>
+        <div>
+            <label>Room Number</label>
+            <input type="text" class="form-control" name="room_Number" value="<?=  $row['room_Number'] ?>" placeholder="Enter Room Number" required pattern ="[0-9]+" title="Must only contain numbers"/>
+        </div>
+        <div>
+            <label>Patient Age</label>
+            <input type="text" class="form-control" name="age" value="<?=  $row['age'] ?>" placeholder="Enter Patient Age" required pattern ="[0-9]+" title="Must only contain numbers"/>
+        </div>
+        <div>
+            <label>Reason for Admission</label>
+            <input type="text" class="form-control" name="reason_Admission" value="<?=  $row['reason_Admission'] ?>" placeholder="Enter Reason for Admission" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters & numbers"/>
+        </div>
+        <div>
+            <label>Admission Status</label>
+            <input type="text" class="form-control" name="admission_Status" value="<?=  $row['admission_Status'] ?>" placeholder="Enter Admission Status" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters"/>
+        </div>
+        <div>
+            <label>Assigned Nurse Name</label>
+            <input type="text" class="form-control" name="nurse_Name" value="<?=  $row['nurse_Name'] ?>" placeholder="Enter Assigned Nurse Name" required pattern ="\S(.*\S)?[A-Za-z]+" title="Must only contain letters"/>
+        </div>
+        <div>
+            <label>Assistance Status</label>
+            <input type="text" class="form-control" name="assistance_Status" value="<?=  $row['assistance_Status'] ?>" placeholder="Enter Assistance Status" required pattern ="\S(.*\S)?[A-Za-z]+" title="Must only contain letters"/>
+        </div>
+        <div>
+            <label>Device ID Assigned</label>
+            <?php 
+            $device_Assigned_Variable = NULL;
+            if ($row['device_Assigned'] != NULL)
+            {
+                $device_Assigned_Variable == $row['device_Assigned'];
+            }
+            ?>
+            <input type="text" class="form-control" name="device_Assigned" value="<?=  $device_Assigned_Variable ?>" placeholder="Enter Assistance Status" required pattern ="[0-9]+" title="Must only numbers"/>
+        </div>
+        <br>
+        <button onclick="showSnackbar('save patient')" type = "submit" class = "btn btn-primary" name = "edit" >Save</button>
+        </div>
+    </form>
 <?php
 }
         else
@@ -103,7 +109,7 @@ require_once('../../dbConnection/connection.php');
         var x = document.getElementById("snackbar");
 
         //Change text
-        if (msg.includes('save nurse')) {
+        if (msg.includes('save patient')) {
             document.getElementById("snackbar").innerHTML = "Updating nurse data...";
         } else if (msg.includes('back')) {
             document.getElementById("snackbar").innerHTML = "Going back to Admin Page...";

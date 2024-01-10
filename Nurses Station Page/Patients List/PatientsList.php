@@ -5,6 +5,36 @@ require_once('../../dbConnection/connection.php');
 //This code runs after the NursesList.php page i think
 if(isset($_POST['add']))
 {
+    $patient_Name = $_POST['patient_Name'];
+    $room_Number = $_POST['room_Number'];
+    $age = $_POST['age'];
+    $reason_Admission = $_POST['reason_Admission'];
+    $admission_Status = $_POST['admission_Status'];
+    $nurse_Name = $_POST['nurse_Name'];
+    $assistance_Status = $_POST['assistance_Status'];
+    $device_Assigned = $_POST['device_Assigned'];
+    //$date_Employment = sha1($_POST['date_Employment']);
+
+    $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, age, reason_Admission, admission_Status, nurse_Name, assistance_Status, device_Assigned) 
+    VALUES (NULL, '$patient_Name','$room_Number','$age', '$reason_Admission', '$admission_Status', '$nurse_Name', '$assistance_Status', $device_Assigned)";
+    $query_run = mysqli_query($con, $query);
+
+    if($query_run)
+    {
+        $_SESSION['message'] = "Catagory Added Successfully";
+        header('Location: PatientsList.php');
+        exit(0);
+    }
+    else
+    {
+        $_SESSION['message'] = "Someting Went Wrong !";
+        header('Location: PatientsList.php');
+        exit(0);
+    }
+}
+
+if(isset($_POST['edit']))
+{
     $patient_ID = $_POST['patient_ID'];
     $patient_Name = $_POST['patient_Name'];
     $room_Number = $_POST['room_Number'];
@@ -12,41 +42,12 @@ if(isset($_POST['add']))
     $reason_Admission = $_POST['reason_Admission'];
     $admission_Status = $_POST['admission_Status'];
     $nurse_Name = $_POST['nurse_Name'];
-    $assistanceStatus = $_POST['assistanceStatus'];
-    $deviceAssigned = $_POST['deviceAssigned'];
-    //$date_Employment = sha1($_POST['date_Employment']);
-
-    $query = "INSERT INTO patient_Information (patient_ID, patient_Name, room_Number, age, reason_Admission, admission_Status, nurse_Name, assistanceStatus, deviceAssigned) 
-    VALUES (NULL,'$patient_ID', '$patient_Name','$room_Number','$age', '$reason_Admission', '$admission_Status', '$nurse_Name', '$assistanceStatus', '$deviceAssigned')";
-    $query_run = mysqli_query($con, $query);
-
-    if($query_run)
-    {
-        $_SESSION['message'] = "Catagory Added Successfully";
-        header('Location: NursesList.php');
-        exit(0);
-        showSnackbar('added');
-    }
-    else
-    {
-        $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: NursesList.php');
-        showSnackbar('error');
-        exit(0);
-    }
-}
-
-if(isset($_POST['edit']))
-{
-    $nurse_ID = $_POST['nurse_ID'];
-    $nurse_Name = $_POST['nurse_Name'];
-    $nurse_Age = $_POST['nurse_Age'];
-    $shift_Status = $_POST['shift_Status'];
-    $employment_Status = $_POST['employment_Status'];
-    $date_Employment = $_POST['date_Employment'];
+    $assistance_Status = $_POST['assistance_Status'];
+    $device_Assigned = $_POST['device_Assigned'];
     //$password = sha1($_POST['password']);
 
-        $query="UPDATE staff_List SET nurse_Name='$nurse_Name', nurse_Age ='$nurse_Age', shift_Status='$shift_Status', employment_Status='$employment_Status', date_Employment='$date_Employment' WHERE nurse_ID='$nurse_ID'";
+        $query="UPDATE patient_List SET patient_Name ='$patient_Name', room_Number='$room_Number', age='$age', reason_Admission='$reason_Admission', 
+        admission_Status='$admission_Status', nurse_Name='$nurse_Name', assistance_Status='$assistance_Status', device_Assigned='$device_Assigned' WHERE patient_ID='$patient_ID'";
         $query_run = mysqli_query($con, $query);
 
         if($query_run)
@@ -54,15 +55,13 @@ if(isset($_POST['edit']))
             
            
             $_SESSION['message'] = "Catagory Updated Successfully";
-            header('Location: NursesList.php');
-            showSnackbar('edited');
+            header('Location: PatientsList.php');
             exit(0);
         }
         else
         {
             $_SESSION['message'] = "Someting Went Wrong !";
-            header('Location: NursesList.php');
-            showSnackbar('error');
+            header('Location: PatientsList.php');
             exit(0);
         }
     
@@ -80,7 +79,7 @@ if(isset($_POST['edit']))
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>F.O.O.D - Tables</title>
+    <title>Helping Hand - Tables</title>
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -97,10 +96,13 @@ if(isset($_POST['edit']))
     <!-- Custom styles for this page -->
     <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
+    <!-- For fontawesome -->
+    <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
 </head>
 
 <body id="page-top">
-
+    <!-- Font Awesome -->
+    <script src="js/scripts.js"></script>
     <!-- Page Wrapper -->
     <div id="wrapper">
 
@@ -112,7 +114,7 @@ if(isset($_POST['edit']))
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">F.O.O.D</div>
+                <div class="fa-regular fa-hand"> Helping Hand </div>
             </a>
 
             <!-- Divider -->
@@ -122,8 +124,8 @@ if(isset($_POST['edit']))
             
 
             <!-- Nav Item - Tables -->
-            <li class="nav-item active">
-                <a class="nav-link" href="NursesList.php">
+            <li class="nav-item">
+                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Nurses List/NursesList.php">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Nurses List</span></a>
             </li>
@@ -131,8 +133,8 @@ if(isset($_POST['edit']))
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
-            <li class="nav-item">
-                <a class="nav-link" href="../Nurses List/NursesList.php">
+            <li class="nav-item active">
+                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="PatientsList.php">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Patients List</span></a>
             </li>
@@ -246,7 +248,7 @@ if(isset($_POST['edit']))
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
-                            <a onclick="showSnackbar('add nurse')" href= "AddNurse.php" class="btn btn-primary float-end">Add</a>
+                            <a onclick="showSnackbar('add nurse')" href= "AddPatient.php" class="btn btn-primary float-end">Add</a>
                         </div>
                         <div class="card-body">
                            
@@ -254,7 +256,7 @@ if(isset($_POST['edit']))
 
                              <?php
                                             $count =0;
-                                            $sql = "SELECT * FROM staff_List";
+                                            $sql = "SELECT * FROM patient_List";
                                             $result = mysqli_query($con, $sql);
                                             if (mysqli_num_rows($result) > 0) {
                                                 echo "";
@@ -264,24 +266,30 @@ if(isset($_POST['edit']))
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
-                                            <th>Nurse ID</th>
-                                            <th>Nurse Name</th>
-                                            <th>Nurse Age</th>
-                                            <th>Shift Status</th>
-                                            <th>Employment Status</th>
-                                            <th>Date of Employment</th>
+                                            <th>Patient ID</th>
+                                            <th>Patient Name</th>
+                                            <th>Room Number</th>
+                                            <th>Age</th>
+                                            <th>Reason for Admission</th>
+                                            <th>Admission Status</th>
+                                            <th>Assigned Nurse Name</th>
+                                            <th>Assistance Status</th>
+                                            <th>Device Assigned</th>
                                             <th>Edit</th>
                                             <th>Delete</th>
                                         </tr>
                                     </thead>
                                     <tfoot>
                                         <tr>
-                                            <th>Nurse ID</th>
-                                            <th>Nurse Name</th>
-                                            <th>Nurse Age</th>
-                                            <th>Shift Status</th>
-                                            <th>Employment Status</th>
-                                            <th>Date of Employment</th>
+                                            <th>Patient ID</th>
+                                            <th>Patient Name</th>
+                                            <th>Room Number</th>
+                                            <th>Age</th>
+                                            <th>Reason for Admission</th>
+                                            <th>Admission Status</th>
+                                            <th>Assigned Nurse Name</th>
+                                            <th>Assistance Status</th>
+                                            <th>Device Assigned</th>
                                             <th>Edit</th>
                                             <th>Delete</th>
                                         </tr>
@@ -295,22 +303,24 @@ if(isset($_POST['edit']))
                                             ?>
                                        
                                             <tr>
-                                            <td><?php echo $row['nurse_ID'];?></td>
+                                            <td><?php echo $row['patient_ID'];?></td>
+                                            <td><?php echo $row['patient_Name'];?></td>
+                                            <td><?php echo $row['room_Number'];?></td>
+                                            <td><?php echo $row['age'];?></td>
+                                            <td><?php echo $row['reason_Admission'];?></td>
+                                            <td><?php echo $row['admission_Status'];?></td>
                                             <td><?php echo $row['nurse_Name'];?></td>
-                                            <td><?php echo $row['nurse_Age'];?></td>
-                                            <td><?php echo $row['shift_Status'];?></td>
-                                            <td><?php echo $row['employment_Status'];?></td>
-                                            <td><?php echo $row['date_Employment'];?></td>
+                                            <td><?php echo $row['assistance_Status'];?></td>
+                                            <td><?php echo $row['device_Assigned'];?></td>
                                             <td>
-                                                
-                                                    <a onclick="showSnackbar('edit nurse')" href="EditNurse.php?nurse_ID=<?= $row['nurse_ID'] ?>" class="btn btn-info">Edit</a>
+                                                    <a onclick="showSnackbar('edit nurse')" href="EditPatient.php?patient_ID=<?= $row['patient_ID'] ?>" class="btn btn-info">Edit</a>
                                                 
                                             </td>
                                             
                                             <td>
-                                                    <form action="DeleteNurse.php" method="POST">
+                                                    <form action="DeletePatient.php" method="POST">
                                                 
-                                                    <button onclick="showSnackbar('delete nurse')" type="submit" name="nurseDelete" value="<?= $row['nurse_ID'] ?>" class="btn btn-danger">Delete</a>
+                                                    <button onclick="showSnackbar('delete nurse')" type="submit" name="patientDelete" value="<?= $row['patient_ID'] ?>" class="btn btn-danger">Delete</a>
                                                     </form>
                                             </td>
                                             </tr>  
@@ -417,6 +427,10 @@ if(isset($_POST['edit']))
             document.getElementById("snackbar").innerHTML = "Item is being deleted...";
         } else if (msg.includes('error')) {
             document.getElementById("snackbar").innerHTML = "Error.. Please try again.";
+        } else if (msg.includes('redirect to nurses list page')) {
+            document.getElementById("snackbar").innerHTML = "Opening nurses list page...";
+        } else if (msg.includes('redirect to patients list page')) {
+            document.getElementById("snackbar").innerHTML = "Refreshing patients list page...";
         }
 
         // Add the "show" class to DIV

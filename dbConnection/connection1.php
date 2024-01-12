@@ -6,9 +6,9 @@ session_start();
 // $dbname = "advweb";
 
 $dbhost = "db4free.net";
-$dbuser = "userthesis2";
-$dbpass = "dbThesis123";
-$dbname = "dbthesis2";
+$dbuser = "dbhospital1";
+$dbpass = "dbhospital1";
+$dbname = "dbhospital1";
 
 // $dbhost = "sql207.infinityfree.com";
 // $dbuser = "if0_35733375";

@@ -1,5 +1,8 @@
 <?php
 require_once('../../dbConnection/connection.php');
+
+//The functions for the encryption
+include('../../dbConnection/AES encryption.php');
 ?>
 
 <!DOCTYPE html>
@@ -39,7 +42,14 @@ require_once('../../dbConnection/connection.php');
         if(mysqli_num_rows($run) > 0)
         {
             $row = mysqli_fetch_array($run);
+
+            //Decrypt data
+            $dec_nurse_Name = decryptthis($row['nurse_Name'], $key);
+            $dec_nurse_Age = decryptthis($row['nurse_Age'], $key);
+            $dec_employment_Status = decryptthis($row['employment_Status'], $key);
             ?>
+
+        
 
         <form action ="NursesList.php" method="POST" enctype="multipart/form-data">
             <div>
@@ -47,11 +57,11 @@ require_once('../../dbConnection/connection.php');
             </div>
             <div>
                 <label>Nurse Name</label>
-                <input type="text" name="nurse_Name" value="<?=  $row['nurse_Name'] ?>" class="form-control" placeholder="Enter Nurse Name" required>
+                <input type="text" name="nurse_Name" value="<?=  $dec_nurse_Name ?>" class="form-control" placeholder="Enter Nurse Name" required>
             </div>
             <div>
                 <label>Nurse Age</label>
-                <input type="text" id="nurse_Age" class="form-control" name="nurse_Age" value="<?=  $row['nurse_Age'] ?>" placeholder="Enter Nurse Age" required pattern ="[0-9]+" title="Must only contain numbers"/>
+                <input type="text" id="nurse_Age" class="form-control" name="nurse_Age" value="<?=  $dec_nurse_Age ?>" placeholder="Enter Nurse Age" required pattern ="[0-9]+" title="Must only contain numbers"/>
                 <!--<input type="text" id="username" class="form-control" name="username" placeholder="Enter Nurse Age" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters and numbers"/> -->
             </div>
             <br>
@@ -65,7 +75,7 @@ require_once('../../dbConnection/connection.php');
             <br>
             <div>
                 <label>Employment Status</label>
-                <select id="employment_Status" name="employment_Status" value="<?=  $row['employment_Status'] ?>">
+                <select id="employment_Status" name="employment_Status" value="<?=  $dec_employment_Status ?>">
                     <option value="Employed">Employed</option>
                     <option value="Unemployed">Unemployed</option>
                 </select>

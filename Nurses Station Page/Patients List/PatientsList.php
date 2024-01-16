@@ -2,21 +2,32 @@
 require_once('../../dbConnection/connection.php');
 //include('message.php');
 
+//The functions for the encryption
+include('../../dbConnection/AES encryption.php');
+
 //This code runs after the NursesList.php page i think
 if(isset($_POST['add']))
 {
-    $patient_Name = $_POST['patient_Name'];
+    $patient_ID = $_POST['patient_ID'];
+    $patient_first_Name = $_POST['patient_first_Name'];
+    $patient_last_Name = $_POST['patient_last_Name'];
+    $patient_full_Name = $patient_first_Name.", ".$patient_last_Name;
     $room_Number = $_POST['room_Number'];
-    $age = $_POST['age'];
+    $patient_birth_Date = $_POST['patient_birth_Date'];
     $reason_Admission = $_POST['reason_Admission'];
     $admission_Status = $_POST['admission_Status'];
-    $nurse_Name = $_POST['nurse_Name'];
+    $nurse_ID = $_POST['nurse_ID'];
     $assistance_Status = $_POST['assistance_Status'];
     $device_Assigned = $_POST['device_Assigned'];
     //$date_Employment = sha1($_POST['date_Employment']);
 
-    $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, age, reason_Admission, admission_Status, nurse_Name, assistance_Status, device_Assigned) 
-    VALUES (NULL, '$patient_Name','$room_Number','$age', '$reason_Admission', '$admission_Status', '$nurse_Name', '$assistance_Status', $device_Assigned)";
+    //Encrypt data from form
+    $enc_patient_Name = encryptthis($patient_full_Name, $key);
+    $enc_patient_birth_Date = encryptthis($patient_birth_Date, $key);
+    $enc_reason_Admission = encryptthis($reason_Admission, $key);
+
+    $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID) 
+    VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', '$nurse_ID', '$assistance_Status', $device_Assigned)";
     $query_run = mysqli_query($con, $query);
 
     if($query_run)
@@ -36,18 +47,25 @@ if(isset($_POST['add']))
 if(isset($_POST['edit']))
 {
     $patient_ID = $_POST['patient_ID'];
-    $patient_Name = $_POST['patient_Name'];
+    $patient_first_Name = $_POST['patient_first_Name'];
+    $patient_last_Name = $_POST['patient_last_Name'];
+    $patient_full_Name = $patient_first_Name.", ".$patient_last_Name;
     $room_Number = $_POST['room_Number'];
-    $age = $_POST['age'];
+    $patient_birth_Date = $_POST['patient_birth_Date'];
     $reason_Admission = $_POST['reason_Admission'];
     $admission_Status = $_POST['admission_Status'];
-    $nurse_Name = $_POST['nurse_Name'];
+    $nurse_ID = $_POST['nurse_ID'];
     $assistance_Status = $_POST['assistance_Status'];
-    $device_Assigned = $_POST['device_Assigned'];
+    $device_Assigned = $_POST['gloves_ID'];
     //$password = sha1($_POST['password']);
 
-        $query="UPDATE patient_List SET patient_Name ='$patient_Name', room_Number='$room_Number', age='$age', reason_Admission='$reason_Admission', 
-        admission_Status='$admission_Status', nurse_Name='$nurse_Name', assistance_Status='$assistance_Status', device_Assigned='$device_Assigned' WHERE patient_ID='$patient_ID'";
+    //Encrypt data from form
+    $enc_patient_Name = encryptthis($patient_full_Name, $key);
+    $enc_patient_birth_Date = encryptthis($patient_birth_Date, $key);
+    $enc_reason_Admission = encryptthis($reason_Admission, $key);
+
+        $query="UPDATE patient_List SET patient_Name ='$enc_patient_Name', room_Number='$room_Number', birth_Date='$enc_patient_birth_Date', reason_Admission='$enc_reason_Admission', 
+        admission_Status='$admission_Status', nurse_ID='$nurse_ID', assistance_Status='$assistance_Status', gloves_ID='$device_Assigned' WHERE patient_ID='$patient_ID'";
         $query_run = mysqli_query($con, $query);
 
         if($query_run)
@@ -272,9 +290,9 @@ if(isset($_POST['edit']))
                                             <th>Age</th>
                                             <th>Reason for Admission</th>
                                             <th>Admission Status</th>
-                                            <th>Assigned Nurse Name</th>
+                                            <th>Assigned Nurse ID</th>
                                             <th>Assistance Status</th>
-                                            <th>Device Assigned</th>
+                                            <th>Device Assigned ID</th>
                                             <th>Edit</th>
                                             <th>Delete</th>
                                         </tr>
@@ -287,31 +305,45 @@ if(isset($_POST['edit']))
                                             <th>Age</th>
                                             <th>Reason for Admission</th>
                                             <th>Admission Status</th>
-                                            <th>Assigned Nurse Name</th>
+                                            <th>Assigned Nurse ID</th>
                                             <th>Assistance Status</th>
-                                            <th>Device Assigned</th>
+                                            <th>Device Assigned ID</th>
                                             <th>Edit</th>
                                             <th>Delete</th>
                                         </tr>
                                     </tfoot>
                                     <tbody>
                                             <?php
-                                                    while($row = mysqli_fetch_array($result)) 
-                                                    {   
-                                                        $count = $count + 1;
-                                            
+                                                while($row = mysqli_fetch_array($result)) 
+                                                {   
+                                                    $count = $count + 1;
+                                                
+                                                //Decrypt data from db
+                                                $dec_patient_Name = decryptthis($row['patient_Name'], $key);
+                                                $dec_patient_birth_Date = decryptthis($row['birth_Date'], $key);
+                                                echo $dec_patient_birth_Date;
+                                                //date in mm/dd/yyyy format; or it can be in other formats as well
+                                                $birthDate = $dec_patient_birth_Date;
+                                                //explode the date to get month, day and year
+                                                $birthDate = explode("-", $birthDate);
+                                                //get age from date or birthdate
+                                                $patient_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
+                                                    ? ((date("Y") - $birthDate[0]) - 1)
+                                                    : (date("Y") - $birthDate[0]));
+
+                                                $dec_reason_Admission = decryptthis($row['reason_Admission'], $key);
                                             ?>
                                        
                                             <tr>
-                                            <td><?php echo $row['patient_ID'];?></td>
-                                            <td><?php echo $row['patient_Name'];?></td>
-                                            <td><?php echo $row['room_Number'];?></td>
-                                            <td><?php echo $row['age'];?></td>
-                                            <td><?php echo $row['reason_Admission'];?></td>
-                                            <td><?php echo $row['admission_Status'];?></td>
-                                            <td><?php echo $row['nurse_Name'];?></td>
-                                            <td><?php echo $row['assistance_Status'];?></td>
-                                            <td><?php echo $row['device_Assigned'];?></td>
+                                            <td><?php echo $row['patient_ID']; ?></td>
+                                            <td><?php echo $dec_patient_Name ?></td>
+                                            <td><?php echo $row['room_Number']; ?></td>
+                                            <td><?php echo $patient_Age ?></td>
+                                            <td><?php echo $dec_reason_Admission ?></td>
+                                            <td><?php echo $row['admission_Status']; ?></td>
+                                            <td><?php echo $row['nurse_ID']; ?></td>
+                                            <td><?php echo $row['assistance_Status']; ?></td>
+                                            <td><?php echo $row['gloves_ID']; ?></td>
                                             <td>
                                                     <a onclick="showSnackbar('edit nurse')" href="EditPatient.php?patient_ID=<?= $row['patient_ID'] ?>" class="btn btn-info">Edit</a>
                                                 

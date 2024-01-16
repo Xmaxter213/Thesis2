@@ -8,19 +8,22 @@ include('../../dbConnection/AES encryption.php');
 //This code runs after the NursesList.php page i think
 if(isset($_POST['add']))
 {
-    $nurse_Name = $_POST['nurse_Name'];
-    $nurse_Age = $_POST['nurse_Age'];
-    $shift_Status = $_POST['shift_Status'];
+    $nurse_first_Name = $_POST['nurse_first_Name'];
+    $nurse_last_Name = $_POST['nurse_last_Name'];
+    $nurse_full_Name = $nurse_last_Name.", ".$nurse_first_Name;
+    $nurse_birth_Date = $_POST['nurse_birth_Date'];
+    $shift_Schedule = $_POST['shift_Schedule'];
     $employment_Status = $_POST['employment_Status'];
     $date_Employment = $_POST['date_Employment'];
     //$date_Employment = sha1($_POST['date_Employment']);
 
     //Encrypt data from form
-    $enc_nurse_Name = encryptthis($nurse_Name, $key);
-    $enc_nurse_Age = encryptthis($nurse_Age, $key);
+    $enc_nurse_Name = encryptthis($nurse_full_Name, $key);
+    $enc_nurse_birth_Date = encryptthis($nurse_birth_Date, $key);
     $enc_employment_Status = encryptthis($employment_Status, $key);
+    $enc_date_Employment = encryptthis($date_Employment, $key);
 
-    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, nurse_Age, shift_Status, employment_Status, date_Employment) VALUES (NULL,'$enc_nurse_Name', '$enc_nurse_Age','$shift_Status','$enc_employment_Status', '$date_Employment')";
+    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment) VALUES (NULL,'$enc_nurse_Name', '$enc_nurse_birth_Date','$shift_Schedule','$enc_employment_Status', '$enc_date_Employment')";
     $query_run = mysqli_query($con, $query);
 
     if($query_run)
@@ -40,19 +43,22 @@ if(isset($_POST['add']))
 if(isset($_POST['edit']))
 {
     $nurse_ID = $_POST['nurse_ID'];
-    $nurse_Name = $_POST['nurse_Name'];
-    $nurse_Age = $_POST['nurse_Age'];
-    $shift_Status = $_POST['shift_Status'];
+    $nurse_first_Name = $_POST['nurse_first_Name'];
+    $nurse_last_Name = $_POST['nurse_last_Name'];
+    $nurse_full_Name = $nurse_last_Name.", ".$nurse_first_Name;
+    $nurse_birth_Date = $_POST['nurse_birth_Date'];
+    $shift_Schedule = $_POST['shift_Schedule'];
     $employment_Status = $_POST['employment_Status'];
     $date_Employment = $_POST['date_Employment'];
     //$password = sha1($_POST['password']);
 
     //Encrypt data from form
-    $enc_nurse_Name = encryptthis($nurse_Name, $key);
-    $enc_nurse_Age = encryptthis($nurse_Age, $key);
+    $enc_nurse_Name = encryptthis($nurse_full_Name, $key);
+    $enc_nurse_birth_Date = encryptthis($nurse_birth_Date, $key);
     $enc_employment_Status = encryptthis($employment_Status, $key);
+    $enc_date_Employment = encryptthis($date_Employment, $key);
 
-        $query="UPDATE staff_List SET nurse_Name='$enc_nurse_Name', nurse_Age ='$enc_nurse_Age', shift_Status='$shift_Status', employment_Status='$enc_employment_Status', date_Employment='$date_Employment' WHERE nurse_ID='$nurse_ID'";
+        $query="UPDATE staff_List SET nurse_Name='$enc_nurse_Name', nurse_birth_Date ='$enc_nurse_birth_Date', shift_Schedule='$shift_Schedule', employment_Status='$enc_employment_Status', date_Employment='$enc_date_Employment' WHERE nurse_ID='$nurse_ID'";
         $query_run = mysqli_query($con, $query);
 
         if($query_run)
@@ -272,7 +278,7 @@ if(isset($_POST['edit']))
                                             <th>Nurse ID</th>
                                             <th>Nurse Name</th>
                                             <th>Nurse Age</th>
-                                            <th>Shift Status</th>
+                                            <th>Shift Schedule</th>
                                             <th>Employment Status</th>
                                             <th>Date of Employment</th>
                                             <th>Edit</th>
@@ -284,7 +290,7 @@ if(isset($_POST['edit']))
                                             <th>Nurse ID</th>
                                             <th>Nurse Name</th>
                                             <th>Nurse Age</th>
-                                            <th>Shift Status</th>
+                                            <th>Shift Schedule</th>
                                             <th>Employment Status</th>
                                             <th>Date of Employment</th>
                                             <th>Edit</th>
@@ -296,19 +302,29 @@ if(isset($_POST['edit']))
                                                     while($row = mysqli_fetch_array($result)) 
                                                     {   
                                                         $count = $count + 1;
-                                                    //Decrypt data from form
+                                                    //Decrypt data from db
                                                     $dec_nurse_Name = decryptthis($row['nurse_Name'], $key);
-                                                    $dec_nurse_Age = decryptthis($row['nurse_Age'], $key);
+                                                    $dec_nurse_birth_Date = decryptthis($row['nurse_birth_Date'], $key);
+                                                    //date in mm/dd/yyyy format; or it can be in other formats as well
+                                                    $birthDate = $dec_nurse_birth_Date;
+                                                    //explode the date to get month, day and year
+                                                    $birthDate = explode("-", $birthDate);
+                                                    //get age from date or birthdate
+                                                    $dec_nurse_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
+                                                        ? ((date("Y") - $birthDate[0]) - 1)
+                                                        : (date("Y") - $birthDate[0]));
+
                                                     $dec_employment_Status = decryptthis($row['employment_Status'], $key);
+                                                    $dec_date_Employment = decryptthis($row['date_Employment'], $key);
                                             ?>
                                        
                                             <tr>
-                                            <td><?php echo $row['nurse_ID']?></td>
+                                            <td><?php echo $row['nurse_ID'] ?></td>
                                             <td><?php echo $dec_nurse_Name ?></td>
                                             <td><?php echo $dec_nurse_Age ?></td>
-                                            <td><?php echo $row['shift_Status'];?></td>
+                                            <td><?php echo $row['shift_Schedule']; ?></td>
                                             <td><?php echo $dec_employment_Status ?></td>
-                                            <td><?php echo $row['date_Employment'];?></td>
+                                            <td><?php echo $dec_date_Employment ?></td>
                                             <td>
                                                 
                                                     <a onclick="showSnackbar('edit nurse')" href="EditNurse.php?nurse_ID=<?= $row['nurse_ID'] ?>" class="btn btn-info">Edit</a>

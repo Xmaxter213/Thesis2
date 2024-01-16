@@ -32,40 +32,47 @@ require_once('../../dbConnection/connection.php');
 
     <form action ="PatientsList.php" method="POST" >
         <div>
-            <label>Patient Name</label>
-            <input type="text" name="patient_Name"  class="form-control" placeholder="Enter Patient Name" required>
+            <label>Patient First Name</label>
+            <input type="text" name="patient_first_Name" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Patient's First Name" required title="Must only contain letters">
+        </div>
+
+        <div>
+            <label>Patient Last Name</label>
+            <input type="text" name="patient_last_Name" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Patient's Last Name" required title="Must only contain letters">
         </div>
         <div>
             <label>Room Number</label>
             <input type="text" class="form-control" name="room_Number" placeholder="Enter Room Number" required pattern ="[0-9]+" title="Must only contain numbers"/>
         </div>
         <div>
-            <label>Patient Age</label>
-            <input type="text" class="form-control" name="age" placeholder="Enter Patient Age" required pattern ="[0-9]+" title="Must only contain numbers"/>
+            <br>
+            <label>Patient Birth Date</label>
+            <input type="date" id="patient_birth_Date" name="patient_birth_Date" min='01/01/1899' max='13/13/2000'/>
         </div>
+        <br>
         <div>
             <label>Reason for Admission</label>
             <input type="text" class="form-control" name="reason_Admission" placeholder="Enter Reason for Admission" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters & numbers"/>
         </div>
+        <br>
         <div>
-            <label>Admission Status</label>
-            <input type="text" class="form-control" name="admission_Status" placeholder="Enter Admission Status" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters"/>
-        </div>
-        <div>
-            <label>Assigned Nurse Name</label>
-            <input type="text" class="form-control" name="nurse_Name" placeholder="Enter Assigned Nurse Name" required pattern ="\S(.*\S)?[A-Za-z]+" title="Must only contain letters"/>
+        <label>Admission Status</label>
+        <select id="admission_Status" name="admission_Status">
+            <option value="Admitted">Admitted</option>
+            <option value="Discharged">Discharged</option>
+        </select>
         </div>
         <br>
         <div>
-            <label>Assistance Status</label>
-            <select id="assistance_Status" name="assistance_Status">
-                <option value="Unassigned">Unassigned</option>
-            </select>
+            <label>Assigned Nurse ID</label>
+            <input type="text" class="form-control" name="nurse_ID" placeholder="Enter Assigned Nurse ID" required pattern ="[0-9]+" title="Must only contain numbers"/>
         </div>
-        <br>
+        <div>
+            <input type="hidden" name="assistance_Status" value="Unassigned">
+        </div>
         <div>
             <label>Device ID Assigned</label>
-            <input type="text" class="form-control" name="device_Assigned" placeholder="Enter Assistance Status" required pattern ="[0-9]+" title="Must only numbers"/>
+            <input type="text" class="form-control" name="device_Assigned" placeholder="Enter Assistance Status" required pattern ="[0-9]+" title="Must only contain numbers"/>
         </div>
         <br>
         <button onclick="showSnackbar('add patient')" type = "submit" class = "btn btn-primary" name = "add" >Add</button>

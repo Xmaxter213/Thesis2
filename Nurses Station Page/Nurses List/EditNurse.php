@@ -45,8 +45,14 @@ include('../../dbConnection/AES encryption.php');
 
             //Decrypt data
             $dec_nurse_Name = decryptthis($row['nurse_Name'], $key);
-            $dec_nurse_Age = decryptthis($row['nurse_Age'], $key);
+            //explode the date to get month, day and year
+            $exploded_nurse_Name = explode(", ", $dec_nurse_Name);
+            $nurse_last_Name = $exploded_nurse_Name[0];
+            $nurse_first_Name = $exploded_nurse_Name[1];
+
+            $dec_nurse_birth_Date = decryptthis($row['nurse_birth_Date'], $key);
             $dec_employment_Status = decryptthis($row['employment_Status'], $key);
+            $dec_date_Employment = decryptthis($row['date_Employment'], $key);
             ?>
 
         
@@ -56,20 +62,31 @@ include('../../dbConnection/AES encryption.php');
                 <input type="hidden" name="nurse_ID" value="<?=  $row['nurse_ID'] ?>">
             </div>
             <div>
-                <label>Nurse Name</label>
-                <input type="text" name="nurse_Name" value="<?=  $dec_nurse_Name ?>" class="form-control" placeholder="Enter Nurse Name" required>
+                <label>Nurse First Name</label>
+                <input type="text" name="nurse_first_Name" value="<?=  $nurse_first_Name ?>" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Nurse's First Name" required title="Must only contain letters">
+            </div>
+
+            <div>
+                <label>Nurse Last Name</label>
+                <input type="text" name="nurse_last_Name" value="<?=  $nurse_last_Name ?>" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters">
             </div>
             <div>
-                <label>Nurse Age</label>
-                <input type="text" id="nurse_Age" class="form-control" name="nurse_Age" value="<?=  $dec_nurse_Age ?>" placeholder="Enter Nurse Age" required pattern ="[0-9]+" title="Must only contain numbers"/>
-                <!--<input type="text" id="username" class="form-control" name="username" placeholder="Enter Nurse Age" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters and numbers"/> -->
+                <br>
+                <label>Birth Date</label>
+                <input type="date" id="nurse_birth_Date" value="<?=  $dec_nurse_birth_Date ?>" name="nurse_birth_Date" min='01/01/1899' max='13/13/2000'/>
             </div>
+            <script>
+                //Make date today the max value
+                var today = new Date().toISOString().split('T')[0];
+                document.getElementById("nurse_birth_Date").setAttribute("max", today);
+            </script>
             <br>
             <div>
                 <label>Shift Status</label>
-                <select id="shift_Status" name="shift_Status" value="<?=  $row['shift_Status'] ?>">
-                    <option value="On Shift">On Shift</option>
-                    <option value="Off Shift">Off Shift</option>
+                <select id="shift_Schedule" name="shift_Schedule" value="<?=  $row['shift_Schedule']?>">
+                    <option value="Morning Shift">Morning Shift, 6AM - 2PM</option>
+                    <option value="Afternoon Shift">Night Shift, 2PM - 10PM</option>
+                    <option value="Graveyard Shift">Graveyard Shift, 10PM - 6AM</option>
                 </select>
             </div>
             <br>
@@ -83,8 +100,12 @@ include('../../dbConnection/AES encryption.php');
             <br>
             <div>
                 <label>Date of Employment</label>
-                <input type="date" id="start" name="date_Employment" value="<?=  $row['date_Employment'] ?>" min="2018-01-01" max="2030-12-31" />
+                <input type="date" id="date_Employment" name="date_Employment" value="<?=  $dec_date_Employment ?>" min="2018-01-01" max="2030-12-31" />
             </div>
+            <script>
+                //Make date today the max value
+                document.getElementById("date_Employment").setAttribute("max", today);
+            </script>
 
             <div class = "col-md-12 mb-3">
 

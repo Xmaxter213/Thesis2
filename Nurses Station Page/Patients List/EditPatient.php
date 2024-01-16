@@ -1,5 +1,8 @@
 <?php
 require_once('../../dbConnection/connection.php');
+
+//The functions for the encryption
+include('../../dbConnection/AES encryption.php');
 ?>
 
 <!DOCTYPE html>
@@ -39,6 +42,16 @@ require_once('../../dbConnection/connection.php');
         if(mysqli_num_rows($run) > 0)
         {
             $row = mysqli_fetch_array($run);
+
+            //Decrypt data
+            $dec_patient_Name = decryptthis($row['patient_Name'], $key);
+            //explode the date to get month, day and year
+            $exploded_patient_Name = explode(", ", $dec_patient_Name);
+            $patient_first_Name = $exploded_patient_Name[0];
+            $patient_last_Name = $exploded_patient_Name[1];
+
+            $dec_patient_birth_Date = decryptthis($row['birth_Date'], $key);
+            $dec_reason_Admision = decryptthis($row['reason_Admission'], $key);
             ?>
         
         <form action ="PatientsList.php" method="POST" >
@@ -46,43 +59,62 @@ require_once('../../dbConnection/connection.php');
             <input type="hidden" name="patient_ID" value="<?=  $row['patient_ID'] ?>">
         </div>
         <div>
-            <label>Patient Name</label>
-            <input type="text" name="patient_Name" value="<?=  $row['patient_Name'] ?>" class="form-control" placeholder="Enter Patient Name" required>
+            <label>Patient First Name</label>
+            <input type="text" name="patient_first_Name" value="<?=  $patient_first_Name ?>" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Patient's First Name" required title="Must only contain letters">
         </div>
+
+        <div>
+            <label>Patient Last Name</label>
+            <input type="text" name="patient_last_Name" value="<?=  $patient_last_Name ?>" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Patient's Last Name" required title="Must only contain letters">
+        </div>
+        <div>
+
         <div>
             <label>Room Number</label>
             <input type="text" class="form-control" name="room_Number" value="<?=  $row['room_Number'] ?>" placeholder="Enter Room Number" required pattern ="[0-9]+" title="Must only contain numbers"/>
         </div>
         <div>
-            <label>Patient Age</label>
-            <input type="text" class="form-control" name="age" value="<?=  $row['age'] ?>" placeholder="Enter Patient Age" required pattern ="[0-9]+" title="Must only contain numbers"/>
+            <br>
+            <label>Birth Date</label>
+            <input type="date" id="nurse_birth_Date" value="<?=  $dec_patient_birth_Date ?>" name="patient_birth_Date" min='01/01/1899' max='13/13/2000'/>
         </div>
+        <br> 
         <div>
             <label>Reason for Admission</label>
-            <input type="text" class="form-control" name="reason_Admission" value="<?=  $row['reason_Admission'] ?>" placeholder="Enter Reason for Admission" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters & numbers"/>
+            <input type="text" class="form-control" name="reason_Admission" value="<?=  $dec_reason_Admision ?>" placeholder="Enter Reason for Admission" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters & numbers"/>
         </div>
+        <br>
         <div>
-            <label>Admission Status</label>
-            <input type="text" class="form-control" name="admission_Status" value="<?=  $row['admission_Status'] ?>" placeholder="Enter Admission Status" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters"/>
+        <label>Admission Status</label>
+        <select id="admission_Status" name="admission_Status" value="<?=  $row['admission_Status'] ?>">
+            <option value="Admitted">Admitted</option>
+            <option value="Discharged">Discharged</option>
+        </select>
         </div>
+        <br>
         <div>
-            <label>Assigned Nurse Name</label>
-            <input type="text" class="form-control" name="nurse_Name" value="<?=  $row['nurse_Name'] ?>" placeholder="Enter Assigned Nurse Name" required pattern ="\S(.*\S)?[A-Za-z]+" title="Must only contain letters"/>
+            <label>Assigned Nurse ID</label>
+            <input type="text" class="form-control" name="nurse_ID" value="<?=  $row['nurse_ID'] ?>" placeholder="Enter Assigned Nurse Name" required pattern ="[0-9]+" title="Must only contain letters"/>
         </div>
+        <br>
         <div>
-            <label>Assistance Status</label>
-            <input type="text" class="form-control" name="assistance_Status" value="<?=  $row['assistance_Status'] ?>" placeholder="Enter Assistance Status" required pattern ="\S(.*\S)?[A-Za-z]+" title="Must only contain letters"/>
+        <label>Assistance Status</label>
+            <select id="assistance_Status" name="assistance_Status" value="<?=  $row['assistance_Status'] ?>">
+                <option value="Unassigned">Unassigned</option>
+                <option value="On The Way">On The Way</option>
+            </select>
         </div>
+        <br>
         <div>
             <label>Device ID Assigned</label>
             <?php 
             $device_Assigned_Variable = NULL;
-            if ($row['device_Assigned'] != NULL)
+            if ($row['gloves_ID'] != NULL)
             {
-                $device_Assigned_Variable == $row['device_Assigned'];
+                $device_Assigned_Variable = $row['gloves_ID'];
             }
             ?>
-            <input type="text" class="form-control" name="device_Assigned" value="<?=  $device_Assigned_Variable ?>" placeholder="Enter Assistance Status" required pattern ="[0-9]+" title="Must only numbers"/>
+            <input type="text" class="form-control" name="gloves_ID" value="<?=  $device_Assigned_Variable ?>" placeholder="Enter Assistance Status" required pattern ="[0-9]+" title="Must only numbers"/>
         </div>
         <br>
         <button onclick="showSnackbar('save patient')" type = "submit" class = "btn btn-primary" name = "edit" >Save</button>

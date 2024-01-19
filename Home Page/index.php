@@ -1,7 +1,31 @@
 <?php
 #require_once('../dbConnection/connection.php');
 require_once('../dbConnection/connection.php');
-?>
+
+
+    if(isset($_GET['logout']))
+        {
+            session_destroy();
+            unset($_SESSION);
+            header("location: ../MainHospital/login_new.php");
+        }
+
+        if(!isset($_SESSION['userID']))
+        {
+            header("location: ../MainHospital/login_new.php");
+        }
+        else
+        {
+            $status = $_SESSION['userStatus'];
+
+            $name = $_SESSION['userID'];
+
+            if($status === 'Nurse')
+            {
+                header("location: ../dumHomePage/index.php");
+            }
+        }
+    ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -53,7 +77,7 @@ require_once('../dbConnection/connection.php');
                     <li>
                         <hr class="dropdown-divider" />
                     </li>
-                    <li><a class="dropdown-item" href="#!">Logout</a></li>
+                    <li><a class="dropdown-item" href="?logout=1">Logout</a></li>
                 </ul>
             </li>
         </ul>
@@ -124,7 +148,9 @@ require_once('../dbConnection/connection.php');
                 </div>
                 <div class="sb-sidenav-footer">
                     <div class="small">Logged in as:</div>
-                    Start Bootstrap
+                    <?php
+                        echo htmlspecialchars($name);
+                    ?>
                 </div>
             </nav>
         </div>

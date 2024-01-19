@@ -10,11 +10,18 @@
 
 	if(!isset($_SESSION['userID']))
     {
-
+    	header("location: ../MainHospital/login_new.php");
     }
     else
     {
+    	$status = $_SESSION['userStatus'];
+
         $name = $_SESSION['userID'];
+
+        if($status === 'Admin')
+        {
+        	header("location: ../Home Page/index.php");
+        }
 	}
 
 ?>

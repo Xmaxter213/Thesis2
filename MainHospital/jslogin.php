@@ -44,6 +44,23 @@ if ($database && $getuserID->num_rows > 0) {
 }
 
 $getuserID->close();
+
+$sqlgetuserStatus = "SELECT status FROM userLogin WHERE email = ? AND password = ? LIMIT 1";
+$getuserStatus = $con->prepare($sqlgetuserStatus);
+$getuserStatus->bind_param("ss", $email, $password);
+$database = $getuserStatus->execute();
+$getuserStatus->store_result();
+
+if ($database && $getuserStatus->num_rows > 0) {
+    $getuserStatus->bind_result($userStatus);
+    $getuserStatus->fetch();
+
+    $_SESSION['userStatus'] = $userStatus;  // Assuming userName is the correct field you want to store
+} else {
+    echo 'Error getting userStatus';
+}
+
+$getuserStatus->close();
 mysqli_close($con);
 		
 

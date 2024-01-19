@@ -1,6 +1,5 @@
 <?php 
-	
-	session_start();
+	require_once('../dbConnection/connection.php');
 
 	if(isset($_SESSION['userID']))
 	{

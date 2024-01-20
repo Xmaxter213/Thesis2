@@ -109,6 +109,9 @@ if(isset($_POST['edit']))
 
     <!-- For fontawesome -->
     <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
+
+    <!-- For table sorting -->
+    <link rel="stylesheet" href="../Table Sorting/tablesort.css">
 </head>
 
 <body id="page-top">
@@ -264,15 +267,39 @@ if(isset($_POST['edit']))
                            
                             <div class="table-responsive"> 
 
-                             <?php
-                                            $count =0;
-                                            $sql = "SELECT * FROM staff_List";
-                                            $result = mysqli_query($con, $sql);
-                                            if (mysqli_num_rows($result) > 0) {
-                                                echo "";
-                                                ?>
+                            <?php
+
+                                $count =0;
+                                $sql = "SELECT * FROM staff_List";
+                                $result = mysqli_query($con, $sql);
+
+                                //This is for pagination
+                                // define how many results you want per page
+                                $results_per_page = 3;
+                                $number_of_results = mysqli_num_rows($result);
+
+                                // determine number of total pages available
+                                $number_of_pages = ceil($number_of_results/$results_per_page);
+
+                                // determine which page number visitor is currently on
+                                if (!isset($_GET['page'])) {
+                                    $page = 1;
+                                } else {
+                                    $page = $_GET['page'];
+                                }
+
+                                // determine the sql LIMIT starting number for the results on the displaying page
+                                $this_page_first_result = ($page-1)*$results_per_page;
+
+                                // retrieve selected results from database and display them on page
+                                $sql='SELECT * FROM staff_List LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
+                                $result = mysqli_query($con, $sql);
+
+                                if (mysqli_num_rows($result) > 0) {
+                                    echo "";
+                            ?>
                                 
-                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
                                             <th>Nurse ID</th>
@@ -285,23 +312,12 @@ if(isset($_POST['edit']))
                                             <th>Delete</th>
                                         </tr>
                                     </thead>
-                                    <tfoot>
-                                        <tr>
-                                            <th>Nurse ID</th>
-                                            <th>Nurse Name</th>
-                                            <th>Nurse Age</th>
-                                            <th>Shift Schedule</th>
-                                            <th>Employment Status</th>
-                                            <th>Date of Employment</th>
-                                            <th>Edit</th>
-                                            <th>Delete</th>
-                                        </tr>
-                                    </tfoot>
                                     <tbody>
                                             <?php
                                                     while($row = mysqli_fetch_array($result)) 
                                                     {   
-                                                        $count = $count + 1;
+                                                    $count = $count + 1;
+
                                                     //Decrypt data from db
                                                     $dec_nurse_Name = decryptthis($row['nurse_Name'], $key);
                                                     $dec_nurse_birth_Date = decryptthis($row['nurse_birth_Date'], $key);
@@ -328,7 +344,6 @@ if(isset($_POST['edit']))
                                             <td>
                                                 
                                                     <a onclick="showSnackbar('edit nurse')" href="EditNurse.php?nurse_ID=<?= $row['nurse_ID'] ?>" class="btn btn-info">Edit</a>
-                                                
                                             </td>
                                             
                                             <td>
@@ -349,11 +364,14 @@ if(isset($_POST['edit']))
                                                 echo "No Record Found";
                                             }
                                         ?>
-                                       
-                                        
-                                    
                                     </tbody>
                                 </table>
+                                <?php
+                                    // display the links to the pages
+                                    for ($page=1;$page<=$number_of_pages;$page++) {
+                                        echo '<a class="btn btn-primary btn-sm" href="NursesList.php?page=' . $page . '">' . $page . '</a> ';
+                                    }
+                                ?>
                             </div>
                         </div>
                     </div>
@@ -454,6 +472,7 @@ if(isset($_POST['edit']))
         setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
     }
     </script>
+    <script src="../Table Sorting/tablesort.js"></script>
 </body>
 
 </html>

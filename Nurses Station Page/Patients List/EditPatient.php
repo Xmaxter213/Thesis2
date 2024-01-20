@@ -78,6 +78,14 @@ include('../../dbConnection/AES encryption.php');
             <label>Birth Date</label>
             <input type="date" id="nurse_birth_Date" value="<?=  $dec_patient_birth_Date ?>" name="patient_birth_Date" min='01/01/1899' max='13/13/2000'/>
         </div>
+        <script>
+            //Make date today the max value
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById("nurse_birth_Date").setAttribute("max", today);
+
+            //Date picker filled required
+            document.getElementById("nurse_birth_Date").required = true;
+        </script>
         <br> 
         <div>
             <label>Reason for Admission</label>

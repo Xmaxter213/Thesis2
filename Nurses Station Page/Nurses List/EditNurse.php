@@ -79,6 +79,9 @@ include('../../dbConnection/AES encryption.php');
                 //Make date today the max value
                 var today = new Date().toISOString().split('T')[0];
                 document.getElementById("nurse_birth_Date").setAttribute("max", today);
+
+                //Date picker filled required
+                document.getElementById("nurse_birth_Date").required = true;
             </script>
             <br>
             <div>
@@ -105,6 +108,9 @@ include('../../dbConnection/AES encryption.php');
             <script>
                 //Make date today the max value
                 document.getElementById("date_Employment").setAttribute("max", today);
+
+                //Date picker filled required
+                document.getElementById("date_Employment").required = true;
             </script>
 
             <div class = "col-md-12 mb-3">

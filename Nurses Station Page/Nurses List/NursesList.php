@@ -5,6 +5,9 @@ require_once('../../dbConnection/connection.php');
 //The functions for the encryption
 include('../../dbConnection/AES encryption.php');
 
+//This is to make sure that deactivated accounts that are due for deletion are deleted
+include('nurseDeleteEntriesDue.php');
+
 //This code runs after the NursesList.php page i think
 if(isset($_POST['add']))
 {
@@ -15,6 +18,7 @@ if(isset($_POST['add']))
     $shift_Schedule = $_POST['shift_Schedule'];
     $employment_Status = $_POST['employment_Status'];
     $date_Employment = $_POST['date_Employment'];
+    $activated = $_POST['activated'];
     //$date_Employment = sha1($_POST['date_Employment']);
 
     //Encrypt data from form
@@ -23,7 +27,7 @@ if(isset($_POST['add']))
     $enc_employment_Status = encryptthis($employment_Status, $key);
     $enc_date_Employment = encryptthis($date_Employment, $key);
 
-    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment) VALUES (NULL,'$enc_nurse_Name', '$enc_nurse_birth_Date','$shift_Schedule','$enc_employment_Status', '$enc_date_Employment')";
+    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', '$enc_nurse_birth_Date','$shift_Schedule','$enc_employment_Status', '$enc_date_Employment', '$activated')";
     $query_run = mysqli_query($con, $query);
 
     if($query_run)
@@ -58,23 +62,23 @@ if(isset($_POST['edit']))
     $enc_employment_Status = encryptthis($employment_Status, $key);
     $enc_date_Employment = encryptthis($date_Employment, $key);
 
-        $query="UPDATE staff_List SET nurse_Name='$enc_nurse_Name', nurse_birth_Date ='$enc_nurse_birth_Date', shift_Schedule='$shift_Schedule', employment_Status='$enc_employment_Status', date_Employment='$enc_date_Employment' WHERE nurse_ID='$nurse_ID'";
-        $query_run = mysqli_query($con, $query);
+    $query="UPDATE staff_List SET nurse_Name='$enc_nurse_Name', nurse_birth_Date ='$enc_nurse_birth_Date', shift_Schedule='$shift_Schedule', employment_Status='$enc_employment_Status', date_Employment='$enc_date_Employment' WHERE nurse_ID='$nurse_ID'";
+    $query_run = mysqli_query($con, $query);
 
-        if($query_run)
-        {
-            
-           
-            $_SESSION['message'] = "Catagory Updated Successfully";
-            header('Location: NursesList.php');
-            exit(0);
-        }
-        else
-        {
-            $_SESSION['message'] = "Someting Went Wrong !";
-            header('Location: NursesList.php');
-            exit(0);
-        }
+    if($query_run)
+    {
+        
+        
+        $_SESSION['message'] = "Catagory Updated Successfully";
+        header('Location: NursesList.php');
+        exit(0);
+    }
+    else
+    {
+        $_SESSION['message'] = "Someting Went Wrong !";
+        header('Location: NursesList.php');
+        exit(0);
+    }
     
 } 
 ?>
@@ -292,7 +296,7 @@ if(isset($_POST['edit']))
                                 $this_page_first_result = ($page-1)*$results_per_page;
 
                                 // retrieve selected results from database and display them on page
-                                $sql='SELECT * FROM staff_List LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
+                                $sql='SELECT * FROM staff_List WHERE activated = 1 LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
                                 $result = mysqli_query($con, $sql);
 
                                 if (mysqli_num_rows($result) > 0) {

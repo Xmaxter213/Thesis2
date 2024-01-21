@@ -88,7 +88,9 @@ require_once('../../dbConnection/connection.php');
             //Date picker filled required
             document.getElementById("date_Employment").required = true;
         </script>
-
+        <div>
+            <input type="hidden" name="activated" value=1>
+            </div>
         <div class = "col-md-12 mb-3">
 
         <br>

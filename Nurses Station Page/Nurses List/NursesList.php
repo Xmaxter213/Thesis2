@@ -270,7 +270,6 @@ if(isset($_POST['edit']))
                         <div class="card-body">
                            
                             <div class="table-responsive"> 
-
                             <?php
 
                                 $count =0;
@@ -302,16 +301,15 @@ if(isset($_POST['edit']))
                                 if (mysqli_num_rows($result) > 0) {
                                     echo "";
                             ?>
-                                
                                 <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
-                                            <th>Nurse ID</th>
-                                            <th>Nurse Name</th>
-                                            <th>Nurse Age</th>
-                                            <th>Shift Schedule</th>
-                                            <th>Employment Status</th>
-                                            <th>Date of Employment</th>
+                                            <th>Nurse ID <input type="text" class="search-input" placeholder="Nurse ID"></th>
+                                            <th>Nurse Name <input type="text" class="search-input" placeholder="Nurse Name"></th>
+                                            <th>Nurse Age <input type="text" class="search-input" placeholder="Nurse Age"></th>
+                                            <th>Shift Schedule <input type="text" class="search-input" placeholder="Shift Schedule"></th>
+                                            <th>Employment Status <input type="text" class="search-input" placeholder="Employment Status"></th>
+                                            <th>Date of Employment <input type="text" class="search-input" placeholder="Date of Employment"></th>
                                             <th>Edit</th>
                                             <th>Delete</th>
                                         </tr>
@@ -370,6 +368,7 @@ if(isset($_POST['edit']))
                                         ?>
                                     </tbody>
                                 </table>
+                                <script> src="../Table Sorting/searchTable.js"</script>
                                 <?php
                                     // display the links to the pages
                                     for ($page=1;$page<=$number_of_pages;$page++) {
@@ -436,7 +435,7 @@ if(isset($_POST['edit']))
     <script src="js/demo/datatables-demo.js"></script>
 
     <!-- Use a button to open the snackbar -->
-    <button onclick="showSnackbar('added')">Show Snackbar</button>
+    <!-- button onclick="showSnackbar('added')">Show Snackbar</button> -->
     
     <!-- The actual snackbar -->
     <div id="snackbar">Some text some message..</div>
@@ -477,6 +476,37 @@ if(isset($_POST['edit']))
     }
     </script>
     <script src="../Table Sorting/tablesort.js"></script>
+    <script>
+    //Script for searching
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".search-input").forEach((inputField) => {
+            const tableRows = inputField
+            .closest("table")
+            .querySelectorAll("tbody > tr");
+            const headerCell = inputField.closest("th");
+            const otherHeaderCells = headerCell.closest("tr").children;
+            const columnIndex = Array.from(otherHeaderCells).indexOf(headerCell);
+            const searchableCells = Array.from(tableRows).map(
+            (row) => row.querySelectorAll("td")[columnIndex]
+            );
+
+            inputField.addEventListener("input", () => {
+                const searchQuery = inputField.value.toLowerCase();
+
+                for (const tableCell of searchableCells) {
+                const row = tableCell.closest("tr");
+                const value = tableCell.textContent.toLowerCase().replace(",", "");
+
+                row.style.visibility = null;
+
+                    if (value.search(searchQuery) === -1) {
+                        row.style.visibility = "collapse";
+                    }
+                }
+            });
+        });
+    });
+    </script>
 </body>
 
 </html>

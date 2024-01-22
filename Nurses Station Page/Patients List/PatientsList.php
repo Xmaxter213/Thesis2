@@ -119,6 +119,9 @@ if(isset($_POST['edit']))
 
     <!-- For table sorting -->
     <link rel="stylesheet" href="../Table Sorting/tablesort.css">
+
+    <!-- For table sorting -->
+    <link rel="stylesheet" href="../Table Sorting/tablesort.css">
 </head>
 
 <body id="page-top">
@@ -307,18 +310,18 @@ if(isset($_POST['edit']))
                                     
                             ?>
                                 
-                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
-                                            <th>Patient ID</th>
-                                            <th>Patient Name</th>
-                                            <th>Room Number</th>
-                                            <th>Age</th>
-                                            <th>Reason for Admission</th>
-                                            <th>Admission Status</th>
-                                            <th>Assigned Nurse ID</th>
-                                            <th>Assistance Status</th>
-                                            <th>Device Assigned ID</th>
+                                            <th>Patient ID <input type="text" class="search-input" placeholder="Patient ID"></th>
+                                            <th>Patient Name <input type="text" class="search-input" placeholder="Patient Name"></th>
+                                            <th>Room Number <input type="text" class="search-input" placeholder="Room Number"></th>
+                                            <th>Age <input type="text" class="search-input" placeholder="Age"></th>
+                                            <th>Reason for Admission <input type="text" class="search-input" placeholder="Reason for Admission"></th>
+                                            <th>Admission Status <input type="text" class="search-input" placeholder="Admission Status"></th>
+                                            <th>Assigned Nurse ID <input type="text" class="search-input" placeholder="Assigned Nurse ID"></th>
+                                            <th>Assistance Status <input type="text" class="search-input" placeholder="Assistance Status"></th>
+                                            <th>Device Assigned ID <input type="text" class="search-input" placeholder="Device Assigned ID"></th>
                                             <th>Edit</th>
                                             <th>Delete</th>
                                         </tr>
@@ -503,6 +506,37 @@ if(isset($_POST['edit']))
     }
     </script>
     <script src="../Table Sorting/tablesort.js"></script>
+    <script>
+    //Script for searching
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".search-input").forEach((inputField) => {
+            const tableRows = inputField
+            .closest("table")
+            .querySelectorAll("tbody > tr");
+            const headerCell = inputField.closest("th");
+            const otherHeaderCells = headerCell.closest("tr").children;
+            const columnIndex = Array.from(otherHeaderCells).indexOf(headerCell);
+            const searchableCells = Array.from(tableRows).map(
+            (row) => row.querySelectorAll("td")[columnIndex]
+            );
+
+            inputField.addEventListener("input", () => {
+                const searchQuery = inputField.value.toLowerCase();
+
+                for (const tableCell of searchableCells) {
+                const row = tableCell.closest("tr");
+                const value = tableCell.textContent.toLowerCase().replace(",", "");
+
+                row.style.visibility = null;
+
+                    if (value.search(searchQuery) === -1) {
+                        row.style.visibility = "collapse";
+                    }
+                }
+            });
+        });
+    });
+    </script>
 </body>
 
 </html>

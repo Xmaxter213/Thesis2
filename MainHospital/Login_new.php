@@ -71,7 +71,7 @@
                                     <div class="text-center">
                                         <a class="small" href="../Register Page/Register.php">Create an Account!</a>
                                         <br>
-                                        <a class="small" href="../Home Page/index.php">Go to Home!</a>
+                                        <a class="small" href="../Nurses Station Page/Assistance Card Page/assistanceCard.php">Go to Home!</a>
                                     </div>
                                 </div>
                             </div>

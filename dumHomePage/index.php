@@ -20,7 +20,7 @@
 
         if($status === 'Admin')
         {
-        	header("location: ../Home Page/index.php");
+        	header("location: ../Nurses Station Page/Assistance Card Page/assistanceCard.php");
         }
 	}
 

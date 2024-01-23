@@ -165,14 +165,13 @@ require_once('../dbConnection/connection.php');
                         <?php
                         require_once('assistanceCards.php');
                         ?>
-
                     </div>
 
                     <h1 class="mt-4">ADL Assistance</h1>
                     <ol class="breadcrumb mb-4">
                         <li class="breadcrumb-item active">ADL Assistance</li>
                     </ol>
-
+                </div>
             </main>
             <footer class="py-4 bg-light mt-auto">
                 <div class="container-fluid px-4">

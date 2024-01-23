@@ -25,7 +25,7 @@ require_once('../../dbConnection/connection.php');
     <div class="card">
         <div class="card-header">
             <h4> Add Nurse Staff
-            <a onclick="showSnackbar('back')" href="PatientsList.php" class="btn btn-danger float-end" >BACK</a>
+            <a onclick="showSnackbar('back')" href="../Patients List/PatientsList.php" class="btn btn-danger float-end" >BACK</a>
             </h4>
         </div> 
         <div class="card-body">

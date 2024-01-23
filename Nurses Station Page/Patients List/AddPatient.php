@@ -82,6 +82,10 @@ require_once('../../dbConnection/connection.php');
             <label>Device ID Assigned</label>
             <input type="text" class="form-control" name="device_Assigned" placeholder="Enter Assistance Status" required pattern ="[0-9]+" title="Must only contain numbers"/>
         </div>
+        <div>
+            <input type="hidden" name="activated" value=1>
+            </div>
+        <div class = "col-md-12 mb-3">
         <br>
         <button onclick="showSnackbar('add patient')" type = "submit" class = "btn btn-primary" name = "add" >Add</button>
         </div>

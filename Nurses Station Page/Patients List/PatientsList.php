@@ -5,6 +5,9 @@ require_once('../../dbConnection/connection.php');
 //The functions for the encryption
 include('../../dbConnection/AES encryption.php');
 
+//This is to make sure that deactivated accounts that are due for deletion are deleted
+include('patientDeleteEntriesDue.php');
+
 //This code runs after the NursesList.php page i think
 if(isset($_POST['add']))
 {
@@ -19,6 +22,7 @@ if(isset($_POST['add']))
     $nurse_ID = $_POST['nurse_ID'];
     $assistance_Status = $_POST['assistance_Status'];
     $device_Assigned = $_POST['device_Assigned'];
+    $activated = $_POST['activated'];
     //$date_Employment = sha1($_POST['date_Employment']);
 
     //Encrypt data from form
@@ -26,8 +30,8 @@ if(isset($_POST['add']))
     $enc_patient_birth_Date = encryptthis($patient_birth_Date, $key);
     $enc_reason_Admission = encryptthis($reason_Admission, $key);
 
-    $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID) 
-    VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', '$nurse_ID', '$assistance_Status', $device_Assigned)";
+    $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
+    VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', '$nurse_ID', '$assistance_Status', $device_Assigned, $activated)";
     $query_run = mysqli_query($con, $query);
 
     if($query_run)
@@ -118,10 +122,7 @@ if(isset($_POST['edit']))
     <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
 
     <!-- For table sorting -->
-    <link rel="stylesheet" href="../Table Sorting/tablesort.css">
-
-    <!-- For table sorting -->
-    <link rel="stylesheet" href="../Table Sorting/tablesort.css">
+    <link rel="stylesheet" href="tablesort.css">
 </head>
 
 <body id="page-top">
@@ -302,7 +303,7 @@ if(isset($_POST['edit']))
                                 $this_page_first_result = ($page-1)*$results_per_page;
 
                                 // retrieve selected results from database and display them on page
-                                $sql='SELECT * FROM patient_List LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
+                                $sql='SELECT * FROM patient_List WHERE activated=1 LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
                                 $result = mysqli_query($con, $sql);
                                 
                                 if (mysqli_num_rows($result) > 0) {
@@ -326,63 +327,73 @@ if(isset($_POST['edit']))
                                             <th>Delete</th>
                                         </tr>
                                     </thead>
-                                    <tfoot>
-                                        <tr>
-                                            <th>Patient ID</th>
-                                            <th>Patient Name</th>
-                                            <th>Room Number</th>
-                                            <th>Age</th>
-                                            <th>Reason for Admission</th>
-                                            <th>Admission Status</th>
-                                            <th>Assigned Nurse ID</th>
-                                            <th>Assistance Status</th>
-                                            <th>Device Assigned ID</th>
-                                            <th>Edit</th>
-                                            <th>Delete</th>
-                                        </tr>
-                                    </tfoot>
                                     <tbody>
                                             <?php
                                                 while($row = mysqli_fetch_array($result)) 
                                                 {   
-                                                $count = $count + 1;
-                                                
-                                                //Decrypt data from db
-                                                $dec_patient_Name = decryptthis($row['patient_Name'], $key);
-                                                $dec_patient_birth_Date = decryptthis($row['birth_Date'], $key);
-                                                //date in mm/dd/yyyy format; or it can be in other formats as well
-                                                $birthDate = $dec_patient_birth_Date;
-                                                //explode the date to get month, day and year
-                                                $birthDate = explode("-", $birthDate);
-                                                //get age from date or birthdate
-                                                $patient_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
-                                                    ? ((date("Y") - $birthDate[0]) - 1)
-                                                    : (date("Y") - $birthDate[0]));
+                                                    $count = $count + 1;
+                                                    
+                                                    //Decrypt data from db
+                                                    $dec_patient_Name = decryptthis($row['patient_Name'], $key);
+                                                    $dec_patient_birth_Date = decryptthis($row['birth_Date'], $key);
+                                                    //date in mm/dd/yyyy format; or it can be in other formats as well
+                                                    $birthDate = $dec_patient_birth_Date;
+                                                    //explode the date to get month, day and year
+                                                    $birthDate = explode("-", $birthDate);
+                                                    //get age from date or birthdate
+                                                    $patient_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
+                                                        ? ((date("Y") - $birthDate[0]) - 1)
+                                                        : (date("Y") - $birthDate[0]));
 
-                                                $dec_reason_Admission = decryptthis($row['reason_Admission'], $key);
+                                                    $dec_reason_Admission = decryptthis($row['reason_Admission'], $key);
                                             ?>
                                        
-                                            <tr>
-                                            <td><?php echo $row['patient_ID']; ?></td>
-                                            <td><?php echo $dec_patient_Name ?></td>
-                                            <td><?php echo $row['room_Number']; ?></td>
-                                            <td><?php echo $patient_Age ?></td>
-                                            <td><?php echo $dec_reason_Admission ?></td>
-                                            <td><?php echo $row['admission_Status']; ?></td>
-                                            <td><?php echo $row['nurse_ID']; ?></td>
-                                            <td><?php echo $row['assistance_Status']; ?></td>
-                                            <td><?php echo $row['gloves_ID']; ?></td>
-                                            <td>
-                                                    <a onclick="showSnackbar('edit nurse')" href="EditPatient.php?patient_ID=<?= $row['patient_ID'] ?>" class="btn btn-info">Edit</a>
-                                            </td>
-                                            
-                                            <td>
-                                                    <form action="DeletePatient.php" method="POST">
-                                                
-                                                    <button onclick="showSnackbar('delete nurse')" type="submit" name="patientDelete" value="<?= $row['patient_ID'] ?>" class="btn btn-danger">Delete</a>
-                                                    </form>
-                                            </td>
-                                            </tr>  
+                                                    <tr>
+                                                    <td><?php echo $row['patient_ID']; ?></td>
+                                                    <td><?php echo $dec_patient_Name ?></td>
+                                                    <td><?php echo $row['room_Number']; ?></td>
+                                                    <td><?php echo $patient_Age ?></td>
+                                                    <td><?php echo $dec_reason_Admission ?></td>
+                                                    <td><?php echo $row['admission_Status']; ?></td>
+                                                    <td><?php echo $row['nurse_ID']; ?></td>
+                                                    <td><?php echo $row['assistance_Status']; ?></td>
+                                                    <td><?php echo $row['gloves_ID']; ?></td>
+                                                    <td>
+                                                        <a onclick="showSnackbar('edit nurse')" href="EditPatient.php?patient_ID=<?= $row['patient_ID'] ?>" class="btn btn-info">Edit</a>
+                                                    </td>
+                                                    
+                                                    <td>
+                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $row['patient_ID'] ?>">
+                                                                Delete
+                                                            </button>
+
+                                                            <!-- Delete modal -->
+                                                            <div class="modal fade" id="delete<?= $row['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                                <div class="modal-dialog" role="document">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title" id="exampleModalLabel">Are you sure you want to delete?</h5>
+                                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            The deleted item would be in the recycle bin for 3 days before being permanently deleted.
+                                                                            <form action="DeletePatient.php" method="POST">
+                                                                            <br>
+                                                                            <label>Reason for deletion</label>
+                                                                            <input type="text" name="reason_For_Deletion" required pattern ="\S(.*\S)?[A-Za-z0-9]+"  class="form-control" placeholder="Enter reason for deletion" required title="Must only contain letters & numbers">
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                                <button type="submit" name="patientDelete" value="<?= $row['patient_ID'] ?>" class="btn btn-danger">Delete</a>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                    </td>
+                                                    </tr>  
                                             <?php
                                                
                                                 }
@@ -537,6 +548,11 @@ if(isset($_POST['edit']))
         });
     });
     </script>
+
+    <!-- For modal -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
 </body>
 
 </html>

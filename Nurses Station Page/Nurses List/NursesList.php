@@ -114,8 +114,15 @@ if(isset($_POST['edit']))
     <!-- For fontawesome -->
     <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
 
+    <!-- For fontawesome -->
+    <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
+
     <!-- For table sorting -->
-    <link rel="stylesheet" href="../Table Sorting/tablesort.css">
+    <link rel="stylesheet" href="tablesort.css">
+    
+    <!-- For modal 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    -->
 </head>
 
 <body id="page-top">
@@ -316,8 +323,8 @@ if(isset($_POST['edit']))
                                     </thead>
                                     <tbody>
                                             <?php
-                                                    while($row = mysqli_fetch_array($result)) 
-                                                    {   
+                                                while($row = mysqli_fetch_array($result)) 
+                                                {   
                                                     $count = $count + 1;
 
                                                     //Decrypt data from db
@@ -336,27 +343,51 @@ if(isset($_POST['edit']))
                                                     $dec_date_Employment = decryptthis($row['date_Employment'], $key);
                                             ?>
                                        
-                                            <tr>
-                                            <td><?php echo $row['nurse_ID'] ?></td>
-                                            <td><?php echo $dec_nurse_Name ?></td>
-                                            <td><?php echo $dec_nurse_Age ?></td>
-                                            <td><?php echo $row['shift_Schedule']; ?></td>
-                                            <td><?php echo $dec_employment_Status ?></td>
-                                            <td><?php echo $dec_date_Employment ?></td>
-                                            <td>
-                                                
-                                                    <a onclick="showSnackbar('edit nurse')" href="EditNurse.php?nurse_ID=<?= $row['nurse_ID'] ?>" class="btn btn-info">Edit</a>
-                                            </td>
-                                            
-                                            <td>
-                                                    <form action="DeleteNurse.php" method="POST">
-                                                
-                                                    <button onclick="showSnackbar('delete nurse')" type="submit" name="nurseDelete" value="<?= $row['nurse_ID'] ?>" class="btn btn-danger">Delete</a>
-                                                    </form>
-                                            </td>
-                                            </tr>  
-                                            <?php
-                                               
+                                                    <tr>
+                                                    <td><?php echo $row['nurse_ID'] ?></td>
+                                                    <td><?php echo $dec_nurse_Name ?></td>
+                                                    <td><?php echo $dec_nurse_Age ?></td>
+                                                    <td><?php echo $row['shift_Schedule']; ?></td>
+                                                    <td><?php echo $dec_employment_Status ?></td>
+                                                    <td><?php echo $dec_date_Employment ?></td>
+                                                    <td>
+                                                        
+                                                        <a onclick="showSnackbar('edit nurse')" href="EditNurse.php?nurse_ID=<?= $row['nurse_ID'] ?>" class="btn btn-info">Edit</a>
+                                                    </td>
+
+                                                    <td>
+                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $row['nurse_ID'] ?>">
+                                                            Delete
+                                                        </button>
+
+                                                        <!-- Delete modal -->
+                                                        <div class="modal fade" id="delete<?= $row['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="exampleModalLabel">Are you sure you want to delete?</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        The deleted item would be in the recycle bin for 3 days before being permanently deleted.
+                                                                        <form action="DeleteNurse.php" method="POST">
+                                                                        <br>
+                                                                        <label>Reason for deletion</label>
+                                                                        <input type="text" name="reason_For_Deletion" required pattern ="\S(.*\S)?[A-Za-z0-9]+"  class="form-control" placeholder="Enter reason for deletion" required title="Must only contain letters & numbers">
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                            <button type="submit" name="nurseDelete" value="<?= $row['nurse_ID'] ?>" class="btn btn-danger">Delete</a>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    </tr>  
+                                                    <?php
                                                 }
                                                
                         
@@ -378,7 +409,6 @@ if(isset($_POST['edit']))
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <!-- /.container-fluid -->
 
@@ -507,6 +537,26 @@ if(isset($_POST['edit']))
         });
     });
     </script>
+
+    <div class = "container">
+        <div class = "jumbotron">
+            <div class = "card">
+                <h2> PHP CRUD Modal </h2>
+            </div>
+            <div class = "card">
+                <div class = "card-body">
+                    <button type = "button" class = "btn btn-primary"> Add Data </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- For modal 
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
 </body>
 
 </html>

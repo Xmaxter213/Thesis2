@@ -6,11 +6,17 @@ require_once('../../dbConnection/connection.php');
 if(isset($_POST['patientDelete']))
 {
     $patient_ID = $_POST['patientDelete'];
+    $reason_For_Deletion = $_POST['reason_For_Deletion'];
 
-    $query = "DELETE FROM patient_List WHERE patient_ID ='$patient_ID'";
-    $query_run = mysqli_query($con, $query);
+    //Deactivate account & put into trash
+    $query1="UPDATE patient_List SET activated=0, delete_at = CURRENT_DATE + INTERVAL 3 DAY WHERE patient_ID='$patient_ID'";
+    $query2 = "INSERT INTO patient_List_Trash (patient_ID, deleted_at, reason_For_Deletion) VALUES ($patient_ID, NULL, '$reason_For_Deletion')";
+    //$query = "DELETE FROM patient_List WHERE patient_ID ='$patient_ID'";
+    
+    $query_run1 = mysqli_query($con, $query1);
+    $query_run2 = mysqli_query($con, $query2);
 
-    if($query_run)
+    if($query_run1 && $query_run2)
     {
         $_SESSION['message'] = "Catagory Deleted Successfully";
         header('Location: PatientsList.php');

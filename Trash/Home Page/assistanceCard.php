@@ -17,7 +17,7 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $age, $admissi
                     <div class=\"d-flex align-items-center justify-content-center\">
                         <h5 class=\"me-2 mb-0\">Remarks: </h5>
                         <div class=\"input-group\">
-                            <input type=\"text\" class=\"form-control\" placeholder=\"Enter Remarks\" aria-describedby=\"button-addon\">
+                            <input type=\"text\" class=\"form-control\" placeholder=\"Assistance Given\" aria-describedby=\"button-addon\">
                             <button class=\"btn $btnClasses\" type=\"submit\" id=\"button-addon\">Submit</button>
                         </div>
                     </div>

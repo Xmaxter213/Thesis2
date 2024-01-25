@@ -1,10 +1,9 @@
-<?php 
-	require_once('../dbConnection/connection.php');
+<?php
+require_once('../dbConnection/connection.php');
 
-	if(isset($_SESSION['userID']))
-	{
-		header("Location: ../dumHomePage/index.php");
-	}
+if (isset($_SESSION['userID'])) {
+    header("Location: ../dumHomePage/index.php");
+}
 ?>
 
 <!DOCTYPE html>
@@ -23,9 +22,7 @@
     <link rel="icon" type="image/x-icon" href="assets/FinalLogo.png" />
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
@@ -53,22 +50,21 @@
                                     </div>
                                     <form class="user">
                                         <div class="form-group">
-                                            <input type="email" class="form-control form-control-user"
-                                                id="email" aria-describedby="emailHelp"
-                                                placeholder="Enter Email Address..." required>
+                                            <input type="email" class="form-control form-control-user" id="email" aria-describedby="emailHelp" placeholder="Enter Email Address..." required>
                                         </div>
                                         <div class="form-group">
-                                            <input type="password" class="form-control form-control-user"
-                                                id="password" placeholder="Password" required>
+                                            <input type="password" class="form-control form-control-user" id="password" placeholder="Password" required>
                                         </div>
-                                        
+
                                         <button type="button" name="button" class="btn btn-primary btn-user btn-block" id="login">Login</button>
-                                        
+
                                     </form>
                                     <hr>
                                     <div class="text-center">
                                     </div>
                                     <div class="text-center">
+                                        <a class="small" href="./forgot_password.php">Forgot Password?</a>
+                                        <br>
                                         <a class="small" href="../Register Page/Register.php">Create an Account!</a>
                                         <br>
                                         <a class="small" href="../Nurses Station Page/Assistance Card Page/assistanceCard.php">Go to Home!</a>
@@ -89,81 +85,74 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
     <script type="text/javascript">
-	$(function()
-		{
-			$('#login').click(function(e){
-				var valid = this.form.checkValidity();
+        $(function() {
+            $('#login').click(function(e) {
+                var valid = this.form.checkValidity();
 
-				if(valid)
-				{
+                if (valid) {
 
-					var email = $('#email').val();
-					var password = $('#password').val();
+                    var email = $('#email').val();
+                    var password = $('#password').val();
 
                     e.preventDefault();
 
                     $.ajax({
-                    type: 'POST',
-                    url: 'jslogin.php',
-                    data: {email: email, password: password},
-                    success: function(data){
-                        if(data === "Successfully")
-                        {
-                            Swal.fire({
-                                        'title': 'Successful',
-                                        'text': data,
-                                        'type': 'success'
-                                        })
-                            if($.trim(data) === "Successfully")
-                            {
-                                setTimeout('window.location.href = "../dumHomePage/index.php"', 2000);
-                            }
-                        }
-                        else if(data === "Account Not validated")
-                        {
-                            Swal.fire({
-                                        'title': 'Errors',
-                                        'text': data,
-                                        'type': 'error'
-                                        }).then(function(){
-                                                window.location = "../OTP/OTP.php";
-                                        });
-                        }
-                        else
-                        {
-                            Swal.fire({
-                                        'title': 'Errors',
-                                        'text': data,
-                                        'type': 'error'
-                                        })
-
-                        }
-                            
-                            },
-                            error: function(data){
+                        type: 'POST',
+                        url: 'jslogin.php',
+                        data: {
+                            email: email,
+                            password: password
+                        },
+                        success: function(data) {
+                            if (data === "Successfully") {
                                 Swal.fire({
-                                        'title': 'Errors',
-                                        'text': 'There were errors while saving the data.',
-                                        'type': 'error'
-                                        })
-                            }
-                            
-                })
+                                    'title': 'Successful',
+                                    'text': data,
+                                    'type': 'success'
+                                })
+                                if ($.trim(data) === "Successfully") {
+                                    setTimeout('window.location.href = "../dumHomePage/index.php"', 2000);
+                                }
+                            } else if (data === "Account Not validated") {
+                                Swal.fire({
+                                    'title': 'Errors',
+                                    'text': data,
+                                    'type': 'error'
+                                }).then(function() {
+                                    window.location = "../OTP/OTP.php";
+                                });
+                            } else {
+                                Swal.fire({
+                                    'title': 'Errors',
+                                    'text': data,
+                                    'type': 'error'
+                                })
 
-				}
-                else
-                {
+                            }
+
+                        },
+                        error: function(data) {
+                            Swal.fire({
+                                'title': 'Errors',
+                                'text': 'There were errors while saving the data.',
+                                'type': 'error'
+                            })
+                        }
+
+                    })
+
+                } else {
                     Swal.fire({
-                                        'title': 'Errors',
-                                        'text': 'Missing Informations',
-                                        'type': 'error'
-                                        })
+                        'title': 'Errors',
+                        'text': 'Missing Informations',
+                        'type': 'error'
+                    })
                 }
 
-				
-			})
+
+            })
         });
-</script>
+    </script>
 
 </body>
 

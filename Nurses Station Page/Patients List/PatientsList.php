@@ -353,8 +353,8 @@ if (isset($_POST['edit'])) {
                                                         ? ((date("Y") - $birthDate[0]) - 1)
                                                         : (date("Y") - $birthDate[0]));
 
-                                                    if ($dec_nurse_Age == -1){
-                                                        $dec_nurse_Age = 0;
+                                                    if ($patient_Age == -1){
+                                                        $patient_Age = 0;
                                                     }
                                                     
                                                     $dec_reason_Admission = decryptthis($row['reason_Admission'], $key);

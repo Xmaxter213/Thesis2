@@ -28,7 +28,7 @@ else
 }
 
 //This is to make sure that deactivated accounts that are due for deletion are deleted
-//include('nurseDeleteEntriesDue.php');
+include('nurseDeleteEntriesDue.php');
 
 //This code runs after the NursesList.php page i think
 if (isset($_POST['add'])) {

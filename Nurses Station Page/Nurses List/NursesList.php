@@ -325,6 +325,10 @@ if (isset($_POST['edit'])) {
                                                         ? ((date("Y") - $birthDate[0]) - 1)
                                                         : (date("Y") - $birthDate[0]));
 
+                                                    if ($dec_nurse_Age == -1){
+                                                        $dec_nurse_Age = 0;
+                                                    }
+
                                                     $dec_employment_Status = decryptthis($row['employment_Status'], $key);
                                                     $dec_date_Employment = decryptthis($row['date_Employment'], $key);
                                             ?>

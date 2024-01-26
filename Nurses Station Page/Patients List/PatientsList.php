@@ -28,7 +28,7 @@ if (isset($_POST['add'])) {
     $enc_patient_Name = encryptthis($patient_full_Name, $key);
     $enc_patient_birth_Date = encryptthis($patient_birth_Date, $key);
     $enc_reason_Admission = encryptthis($reason_Admission, $key);
-
+    
     $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
     VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', '$nurse_ID', '$assistance_Status', $device_Assigned, $activated)";
     $query_run = mysqli_query($con, $query);

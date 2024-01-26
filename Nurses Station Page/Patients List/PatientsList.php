@@ -8,6 +8,27 @@ include('../../dbConnection/AES encryption.php');
 //This is to make sure that deactivated accounts that are due for deletion are deleted
 include('patientDeleteEntriesDue.php');
 
+if (isset($_GET['logout'])) {
+     session_destroy();
+     unset($_SESSION);
+     header("location: ../../MainHospital/login_new.php");
+    }
+
+if (!isset($_SESSION['userID'])) 
+    {
+     header("location: ../../MainHospital/login_new.php");
+    } 
+else 
+{
+
+    $status = $_SESSION['userStatus'];
+
+    if ($status === 'Nurse') 
+    {
+        header("location: ../../dumHomePage/index.php");
+    }
+}
+
 //This code runs after the NursesList.php page i think
 if (isset($_POST['add'])) {
     $patient_ID = $_POST['patient_ID'];
@@ -438,7 +459,7 @@ if (isset($_POST['edit'])) {
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="index.php?logout=true">Logout</a>
+                    <a class="btn btn-primary" href="?logout=true">Logout</a>
                 </div>
             </div>
         </div>

@@ -5,8 +5,30 @@ require_once('../../dbConnection/connection.php');
 //The functions for the encryption
 include('../../dbConnection/AES encryption.php');
 
+if (isset($_GET['logout'])) {
+     session_destroy();
+     unset($_SESSION);
+     header("location: ../../MainHospital/login_new.php");
+    }
+
+if (!isset($_SESSION['userID'])) 
+    {
+     header("location: ../../MainHospital/login_new.php");
+    } 
+else 
+{
+
+    $status = $_SESSION['userStatus'];
+
+
+    if ($status === 'Nurse') 
+    {
+        header("location: ../../dumHomePage/index.php");
+    }
+}
+
 //This is to make sure that deactivated accounts that are due for deletion are deleted
-include('nurseDeleteEntriesDue.php');
+//include('nurseDeleteEntriesDue.php');
 
 //This code runs after the NursesList.php page i think
 if (isset($_POST['add'])) {
@@ -18,6 +40,12 @@ if (isset($_POST['add'])) {
     $employment_Status = $_POST['employment_Status'];
     $date_Employment = $_POST['date_Employment'];
     $activated = $_POST['activated'];
+
+    #Login
+    $nurse_email = $_POST['nurse_email'];
+    $nurse_password = $_POST['nurse_password'];
+    $account_status = $_POST['Account_Status'];
+    $userName = $nurse_first_Name . $nurse_last_Name;
     //$date_Employment = sha1($_POST['date_Employment']);
 
     //Encrypt data from form
@@ -28,6 +56,9 @@ if (isset($_POST['add'])) {
 
     $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', '$enc_nurse_birth_Date','$shift_Schedule','$enc_employment_Status', '$enc_date_Employment', '$activated')";
     $query_run = mysqli_query($con, $query);
+
+    $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status) VALUES (NULL, '$nurse_email','$nurse_password', '$userName', '$account_status')";
+    $query_Login_run = mysqli_query($con, $query_Login);
 
     if ($query_run) {
         $_SESSION['message'] = "Catagory Added Successfully";
@@ -428,7 +459,7 @@ if (isset($_POST['edit'])) {
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="index.php?logout=true">Logout</a>
+                    <a class="btn btn-primary" href="?logout=true">Logout</a>
                 </div>
             </div>
         </div>

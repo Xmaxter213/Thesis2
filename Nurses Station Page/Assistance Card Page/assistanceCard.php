@@ -3,23 +3,27 @@
 require_once('../../dbConnection/connection.php');
 
 
-// if (isset($_GET['logout'])) {
-//     session_destroy();
-//     unset($_SESSION);
-//     header("location: ../MainHospital/login_new.php");
-// }
+if (isset($_GET['logout'])) {
+     session_destroy();
+     unset($_SESSION);
+     header("location: ../../MainHospital/login_new.php");
+    }
 
-// if (!isset($_SESSION['userID'])) {
-//     header("location: ../MainHospital/login_new.php");
-// } else {
-//     $status = $_SESSION['userStatus'];
+if (!isset($_SESSION['userID'])) 
+    {
+     header("location: ../../MainHospital/login_new.php");
+    } 
+else 
+{
 
-//     $name = $_SESSION['userID'];
+    $status = $_SESSION['userStatus'];
 
-//     if ($status === 'Nurse') {
-//         header("location: ../dumHomePage/index.php");
-//     }
-// }
+    if ($status === 'Nurse') 
+    {
+        header("location: ../../dumHomePage/index.php");
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -244,7 +248,7 @@ require_once('../../dbConnection/connection.php');
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="index.php?logout=true">Logout</a>
+                    <a class="btn btn-primary" href="?logout=1">Logout</a>
                 </div>
             </div>
         </div>

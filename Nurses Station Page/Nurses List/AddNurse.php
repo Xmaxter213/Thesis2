@@ -34,13 +34,43 @@ require_once('../../dbConnection/connection.php');
 
     <form action ="NursesList.php" method="POST" >
         <div>
-            <label>Nurse First Name</label>
-            <input type="text" name="nurse_first_Name" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Nurse's First Name" required title="Must only contain letters">
-        </div>
+                <label>Nurse First Name</label>
+                <input type="text" name="nurse_first_Name" id="nurse_first_Name" required pattern="\S(.*\S)?[A-Za-z]+" class="form-control" placeholder="Enter Nurse's First Name" required title="Must only contain letters" oninput="updateEmailPassword()">
+            </div>
+
+            <div>
+                <label>Nurse Last Name</label>
+                <input type="text" name="nurse_last_Name" id="nurse_last_Name" required pattern="\S(.*\S)?[A-Za-z]+" class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters" oninput="updateEmailPassword()">
+            </div>
+
+            <div>
+                <label>Nurse's Email</label>
+                <input type="text" name="nurse_email" id="nurse_email" class="form-control" placeholder="Automatically generated" readonly>
+                
+                <label>Nurse's Password</label>
+                <input type="text" name="nurse_password" id="nurse_password" class="form-control" placeholder="Automatically generated" readonly>
+            </div>
+
+           <script>
+            function updateEmailPassword() {
+                var firstName = document.getElementById('nurse_first_Name').value;
+                var lastName = document.getElementById('nurse_last_Name').value;
+                
+                // Update email field
+                document.getElementById('nurse_email').value = `${firstName.toLowerCase()}${lastName.toLowerCase()}@gmail.com`;
+
+                // Update password field (you can modify this logic as needed)
+                document.getElementById('nurse_password').value = `${firstName.toLowerCase()}${lastName.toLowerCase()}123`; 
+            }
+        </script>
 
         <div>
-            <label>Nurse Last Name</label>
-            <input type="text" name="nurse_last_Name" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters">
+            <br>
+            <label>Account Status</label>
+            <select id="Account_Status" name="Account_Status">
+                <option value="Nurse">Nurse</option>
+                <option value="Admin">Admin</option>
+            </select>
         </div>
 
         <div>

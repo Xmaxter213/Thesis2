@@ -4,22 +4,18 @@ require_once('../../dbConnection/connection.php');
 
 
 if (isset($_GET['logout'])) {
-     session_destroy();
-     unset($_SESSION);
-     header("location: ../../MainHospital/login_new.php");
-    }
+    session_destroy();
+    unset($_SESSION);
+    header("location: ../../MainHospital/login_new.php");
+}
 
-if (!isset($_SESSION['userID'])) 
-    {
-     header("location: ../../MainHospital/login_new.php");
-    } 
-else 
-{
+if (!isset($_SESSION['userID'])) {
+    header("location: ../../MainHospital/login_new.php");
+} else {
 
     $status = $_SESSION['userStatus'];
 
-    if ($status === 'Nurse') 
-    {
+    if ($status === 'Nurse') {
         header("location: ../../dumHomePage/index.php");
     }
 }
@@ -189,7 +185,7 @@ else
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small"> <?php
 
                                                                                             ?></span>
-                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
+                                <img class="img-profile" src="./Images/logout.svg">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">

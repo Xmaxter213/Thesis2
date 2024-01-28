@@ -250,7 +250,7 @@ if (isset($_POST['edit'])) {
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small"> <?php
 
                                                                                             ?></span>
-                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
+                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">

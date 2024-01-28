@@ -23,9 +23,9 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
                     </div>
                 </form>
                 <br>
-                <button type=\"button\" href=\"#\" class=\"btn $btnClasses\" data-toggle=\"modal\" data-target=\"#view\">View Details</button>
+                <button type=\"button\" href=\"#\" class=\"btn $btnClasses\" data-toggle=\"modal\" data-target=\"#view-{$patient_ID}\">View Details</button>
 
-                <div class=\"modal fade\" tabindex=\"-1\" id=\"view\" role=\"dialog\" aria-labelledby=\"viewModalLabel\" aria-hidden=\"true\">
+                <div class=\"modal fade\" tabindex=\"-1\" id=\"view-{$patient_ID}\" role=\"dialog\" aria-labelledby=\"viewModalLabel\" aria-hidden=\"true\">
                     <div class=\"modal-dialog\" role=\"document\">
                         <div class=\"modal-content\">
                             <div class=\"modal-header\">

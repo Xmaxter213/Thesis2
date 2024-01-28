@@ -68,10 +68,10 @@ else
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <script>
         $(document).ready(function() {
-            setInterval(function() {
-                $("#refresh").load("assistanceCards.php");
-                refresh();
-            }, 1000);
+            // setInterval(function() {
+            //     $("#refresh").load("assistanceCards.php");
+            //     refresh();
+            // }, 1000);
         });
     </script>
 </head>

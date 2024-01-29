@@ -118,7 +118,6 @@ if (isset($_POST['edit'])) {
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
 
     <!-- Custom styles for this template -->
     <link href="../css/sb-admin-2.min.css" rel="stylesheet">
@@ -162,7 +161,7 @@ if (isset($_POST['edit'])) {
             <!-- Nav Item - Tables -->
             <li class="nav-item">
                 <a onclick="showSnackbar('redirect to assistance page')" class="nav-link" href="../Assistance Card Page/assistanceCard.php">
-                    <i class="bi bi-wallet2"></i>
+                    <i class="fas fa-fw fa-table"></i>
                     <span>Assistance Cards</span></a>
             </li>
 
@@ -170,7 +169,7 @@ if (isset($_POST['edit'])) {
 
             <li class="nav-item">
                 <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Nurses List/NursesList.php">
-                    <i class="fa-solid fa-user-nurse"></i>
+                    <i class="fas fa-fw fa-table"></i>
                     <span>Nurses List</span></a>
             </li>
 
@@ -179,7 +178,7 @@ if (isset($_POST['edit'])) {
 
             <li class="nav-item active">
                 <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Patients List/PatientsList.php">
-                    <i class="bi bi-person-lines-fill"></i>
+                    <i class="fas fa-fw fa-table"></i>
                     <span>Patients List</span></a>
             </li>
             <!-- Divider -->

@@ -26,7 +26,9 @@ if ($result->num_rows > 0) {
             ? ((date("Y") - $birthDate[0]) - 1)
             : (date("Y") - $birthDate[0]));
 
-
+        if ($patient_Age == -1) {
+            $patient_Age = 0;
+        }
 
         assistanceCard($row['patient_ID'], $dec_patient_Name, $row['room_Number'], $patient_Age, $admissionReason, $row['admission_Status'], $row['nurse_ID'], $row['assistance_Status'], $row['gloves_ID']);
     }

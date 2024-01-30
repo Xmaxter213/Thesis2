@@ -5,9 +5,6 @@ require_once('../../dbConnection/connection.php');
 //The functions for the encryption
 include('../../dbConnection/AES encryption.php');
 
-//This is to make sure that deactivated accounts that are due for deletion are deleted
-include('patientDeleteEntriesDue.php');
-
 if (isset($_GET['logout'])) {
     session_destroy();
     unset($_SESSION);
@@ -20,82 +17,15 @@ if (!isset($_SESSION['userID'])) {
 
     $status = $_SESSION['userStatus'];
 
+
     if ($status === 'Nurse') {
         header("location: ../../dumHomePage/index.php");
     }
 }
 
+//This is to make sure that deactivated accounts that are due for deletion are deleted
+
 //This code runs after the NursesList.php page i think
-if (isset($_POST['add'])) {
-    $patient_ID = $_POST['patient_ID'];
-    $patient_first_Name = $_POST['patient_first_Name'];
-    $patient_last_Name = $_POST['patient_last_Name'];
-    $patient_full_Name = $patient_first_Name . ", " . $patient_last_Name;
-    $room_Number = $_POST['room_Number'];
-    $patient_birth_Date = $_POST['patient_birth_Date'];
-    $reason_Admission = $_POST['reason_Admission'];
-    $admission_Status = $_POST['admission_Status'];
-    $nurse_ID = $_POST['nurse_ID'];
-    $assistance_Status = $_POST['assistance_Status'];
-    $device_Assigned = $_POST['device_Assigned'];
-    $activated = $_POST['activated'];
-    //$date_Employment = sha1($_POST['date_Employment']);
-
-    //Encrypt data from form
-    $enc_patient_Name = encryptthis($patient_full_Name, $key);
-    $enc_patient_birth_Date = encryptthis($patient_birth_Date, $key);
-    $enc_reason_Admission = encryptthis($reason_Admission, $key);
-
-    $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
-    VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', '$nurse_ID', '$assistance_Status', $device_Assigned, $activated)";
-    $query_run = mysqli_query($con, $query);
-
-    if ($query_run) {
-        $_SESSION['message'] = "Catagory Added Successfully";
-        header('Location: PatientsList.php');
-        exit(0);
-    } else {
-        $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: PatientsList.php');
-        exit(0);
-    }
-}
-
-if (isset($_POST['edit'])) {
-    $patient_ID = $_POST['patient_ID'];
-    $patient_first_Name = $_POST['patient_first_Name'];
-    $patient_last_Name = $_POST['patient_last_Name'];
-    $patient_full_Name = $patient_first_Name . ", " . $patient_last_Name;
-    $room_Number = $_POST['room_Number'];
-    $patient_birth_Date = $_POST['patient_birth_Date'];
-    $reason_Admission = $_POST['reason_Admission'];
-    $admission_Status = $_POST['admission_Status'];
-    $nurse_ID = $_POST['nurse_ID'];
-    $assistance_Status = $_POST['assistance_Status'];
-    $device_Assigned = $_POST['gloves_ID'];
-    //$password = sha1($_POST['password']);
-
-    //Encrypt data from form
-    $enc_patient_Name = encryptthis($patient_full_Name, $key);
-    $enc_patient_birth_Date = encryptthis($patient_birth_Date, $key);
-    $enc_reason_Admission = encryptthis($reason_Admission, $key);
-
-    $query = "UPDATE patient_List SET patient_Name ='$enc_patient_Name', room_Number='$room_Number', birth_Date='$enc_patient_birth_Date', reason_Admission='$enc_reason_Admission', 
-        admission_Status='$admission_Status', nurse_ID='$nurse_ID', assistance_Status='$assistance_Status', gloves_ID='$device_Assigned' WHERE patient_ID='$patient_ID'";
-    $query_run = mysqli_query($con, $query);
-
-    if ($query_run) {
-
-
-        $_SESSION['message'] = "Catagory Updated Successfully";
-        header('Location: PatientsList.php');
-        exit(0);
-    } else {
-        $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: PatientsList.php');
-        exit(0);
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -129,13 +59,19 @@ if (isset($_POST['edit'])) {
     <!-- For fontawesome -->
     <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
 
+    <!-- For fontawesome -->
+    <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
+
     <!-- For table sorting -->
     <link rel="stylesheet" href="tablesort.css">
+
+    <!-- For modal 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    -->
 </head>
 
 <body id="page-top">
-    <!-- Font Awesome -->
-    <script src="js/scripts.js"></script>
+
     <!-- Page Wrapper -->
     <div id="wrapper">
 
@@ -152,6 +88,8 @@ if (isset($_POST['edit'])) {
 
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
+
+
 
 
             <!-- Nav Item - Tables -->
@@ -172,7 +110,7 @@ if (isset($_POST['edit'])) {
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
-            <li class="nav-item active">
+            <li class="nav-item">
                 <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Patients List/PatientsList.php">
                     <i class="bi bi-person-lines-fill"></i>
                     <span>Patients List</span></a>
@@ -180,12 +118,11 @@ if (isset($_POST['edit'])) {
 
             <hr class="sidebar-divider d-none d-md-block">
 
-            <li class="nav-item">
+            <li class="nav-item active">
                 <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Reports Page/reports.php">
                     <i class="bi bi-clipboard2-data"></i>
                     <span>Reports</span></a>
             </li>
-
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -277,24 +214,18 @@ if (isset($_POST['edit'])) {
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Tables</h1>
-                    <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
-                        For more information about DataTables, please visit the <a target="_blank" href="https://datatables.net">official DataTables documentation</a>.</p>
+                    <h1 class="h3 mb-2 text-gray-800">Reports</h1>
+                    <!-- <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
+                        For more information about DataTables, please visit the <a target="_blank" href="https://datatables.net">official DataTables documentation</a>.</p> -->
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-3">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
-                            <br>
-                            <a onclick="showSnackbar('add nurse')" href="AddPatient.php" class="btn btn-primary float-end">Add</a>
-                        </div>
                         <div class="card-body">
-
                             <div class="table-responsive">
-
                                 <?php
+
                                 $count = 0;
-                                $sql = "SELECT * FROM patient_List WHERE activated = 1";
+                                $sql = "SELECT * FROM arduino_Device_List WHERE activated = 1";
                                 $result = mysqli_query($con, $sql);
 
                                 //This is for pagination
@@ -316,28 +247,27 @@ if (isset($_POST['edit'])) {
                                 $this_page_first_result = ($page - 1) * $results_per_page;
 
                                 // retrieve selected results from database and display them on page
-                                $sql = 'SELECT * FROM patient_List WHERE activated=1 LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
+                                $sql = 'SELECT * FROM arduino_Device_List WHERE activated = 1 LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
                                 $result = mysqli_query($con, $sql);
 
                                 if (mysqli_num_rows($result) > 0) {
                                     echo "";
-
                                 ?>
-
                                     <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
                                         <thead>
                                             <tr>
-                                                <th>Patient ID <input type="text" class="search-input" placeholder="Patient ID"></th>
-                                                <th>Patient Name <input type="text" class="search-input" placeholder="Patient Name"></th>
-                                                <th>Room Number <input type="text" class="search-input" placeholder="Room Number"></th>
-                                                <th>Age <input type="text" class="search-input" placeholder="Age"></th>
-                                                <th>Reason for Admission <input type="text" class="search-input" placeholder="Reason for Admission"></th>
-                                                <th>Admission Status <input type="text" class="search-input" placeholder="Admission Status"></th>
-                                                <th>Assigned Nurse ID <input type="text" class="search-input" placeholder="Assigned Nurse ID"></th>
-                                                <th>Assistance Status <input type="text" class="search-input" placeholder="Assistance Status"></th>
-                                                <th>Device Assigned ID <input type="text" class="search-input" placeholder="Device Assigned ID"></th>
-                                                <th>Edit</th>
-                                                <th>Delete</th>
+                                                <th>Device ID</th>
+                                                <th>ADL Count</th>
+                                                <th>ADL Average Response</th>
+                                                <th>ADL Average Resolved</th>
+                                                <th>Immediate Count</th>
+                                                <th>Immediate Average Response</th>
+                                                <th>Immediate Average Resolved</th>
+                                                <th>Assistance Given</th>
+                                                <th>Nurses In Charge</th>
+                                                <th>Pulse Rate</th>
+                                                <th>Battery Percent</th>
+                                                <th>Date Called</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -346,92 +276,50 @@ if (isset($_POST['edit'])) {
                                                 $count = $count + 1;
 
                                                 //Decrypt data from db
-                                                $dec_patient_Name = decryptthis($row['patient_Name'], $key);
-                                                $dec_patient_birth_Date = decryptthis($row['birth_Date'], $key);
+                                                $dec_called_Date = decryptthis($row['date_called'], $key);
                                                 //date in mm/dd/yyyy format; or it can be in other formats as well
-                                                $birthDate = $dec_patient_birth_Date;
+                                                $dateCalled = $dec_called_Date;
                                                 //explode the date to get month, day and year
-                                                $birthDate = explode("-", $birthDate);
-                                                //get age from date or birthdate
-                                                $patient_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
-                                                    ? ((date("Y") - $birthDate[0]) - 1)
-                                                    : (date("Y") - $birthDate[0]));
+                                                $dateCalled = explode("-", $dateCalled);
+                                                //get date called from date or dateCalled
+                                                $dec_date_Called = (date("md", date("U", mktime(0, 0, 0, $dateCalled[0], $dateCalled[1], $dateCalled[2]))) > date("md")
+                                                    ? ((date("Y") - $dateCalled[0]) - 1)
+                                                    : (date("Y") - $dateCalled[0]));
 
-                                                if ($patient_Age == -1) {
-                                                    $patient_Age = 0;
+                                                if ($dec_date_Called == -1) {
+                                                    $dec_date_Called = 0;
                                                 }
-
-                                                $dec_reason_Admission = decryptthis($row['reason_Admission'], $key);
                                             ?>
 
                                                 <tr>
-                                                    <td><?php echo $row['patient_ID']; ?></td>
-                                                    <td><?php echo $dec_patient_Name ?></td>
-                                                    <td><?php echo $row['room_Number']; ?></td>
-                                                    <td><?php echo $patient_Age ?></td>
-                                                    <td><?php echo $dec_reason_Admission ?></td>
-                                                    <td><?php echo $row['admission_Status']; ?></td>
-                                                    <td><?php echo $row['nurse_ID']; ?></td>
-                                                    <td><?php echo $row['assistance_Status']; ?></td>
-                                                    <td><?php echo $row['gloves_ID']; ?></td>
-                                                    <td>
-                                                        <a onclick="showSnackbar('edit nurse')" href="EditPatient.php?patient_ID=<?= $row['patient_ID'] ?>" class="btn btn-info">Edit</a>
-                                                    </td>
-
-                                                    <td>
-                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $row['patient_ID'] ?>">
-                                                            Delete
-                                                        </button>
-
-                                                        <!-- Delete modal -->
-                                                        <div class="modal fade" id="delete<?= $row['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                                                            <div class="modal-dialog" role="document">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title" id="exampleModalLabel">Are you sure you want to delete?</h5>
-                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                            <span aria-hidden="true">&times;</span>
-                                                                        </button>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        The deleted item would be in the recycle bin for 3 days before being permanently deleted.
-                                                                        <form action="DeletePatient.php" method="POST">
-                                                                            <br>
-                                                                            <label>Reason for deletion</label>
-                                                                            <input type="text" name="reason_For_Deletion" required pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" required title="Must only contain letters & numbers">
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                        <button type="submit" name="patientDelete" value="<?= $row['patient_ID'] ?>" class="btn btn-danger">Delete</a>
-                                                                            </form>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                    <td><?php echo $row['device_ID'] ?></td>
+                                                    <td><?php echo $row['ADL_Count'] ?></td>
+                                                    <td><?php echo $row['ADL_Avg_Response'] ?></td>
+                                                    <td><?php echo $row['ADL_Avg_Resolved']; ?></td>
+                                                    <td><?php echo $row['immediate_Count'] ?></td>
+                                                    <td><?php echo $row['immediate_Avg_Response'] ?></td>
+                                                    <td><?php echo $row['immediate_Avg_Resolved'] ?></td>
+                                                    <td><?php echo $row['assistance_Given'] ?></td>
+                                                    <td><?php echo $row['nurses_In_Charge'] ?></td>
+                                                    <td><?php echo $row['pulse_Rate'] ?></td>
+                                                    <td><?php echo $row['battery_percent'] ?></td>
+                                                    <td><?php echo $dec_date_Called ?></td>
                                                     </td>
                                                 </tr>
                                         <?php
-
                                             }
                                         } else {
                                             echo "No Record Found";
                                         }
                                         ?>
-
-
-
                                         </tbody>
                                     </table>
-                                    <?php
-                                    // display the links to the pages
-                                    for ($page = 1; $page <= $number_of_pages; $page++) {
-                                        echo '<a class="btn btn-primary btn-sm" href="PatientsList.php?page=' . $page . '">' . $page . '</a> ';
-                                    }
-                                    ?>
+                                    <script>
+                                        src = "../Table Sorting/searchTable.js"
+                                    </script>
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <!-- /.container-fluid -->
 
@@ -487,7 +375,7 @@ if (isset($_POST['edit'])) {
     <script src="js/demo/datatables-demo.js"></script>
 
     <!-- Use a button to open the snackbar -->
-    <button onclick="showSnackbar('added')">Show Snackbar</button>
+    <!-- button onclick="showSnackbar('added')">Show Snackbar</button> -->
 
     <!-- The actual snackbar -->
     <div id="snackbar">Some text some message..</div>
@@ -500,7 +388,7 @@ if (isset($_POST['edit'])) {
     </script>
 
 
-    <script>
+    <!-- <script>
         function showSnackbar(msg) {
             // Get the snackbar DIV
             var x = document.getElementById("snackbar");
@@ -515,9 +403,9 @@ if (isset($_POST['edit'])) {
             } else if (msg.includes('error')) {
                 document.getElementById("snackbar").innerHTML = "Error.. Please try again.";
             } else if (msg.includes('redirect to nurses list page')) {
-                document.getElementById("snackbar").innerHTML = "Opening nurses list page...";
+                document.getElementById("snackbar").innerHTML = "Refreshing nurses list page...";
             } else if (msg.includes('redirect to patients list page')) {
-                document.getElementById("snackbar").innerHTML = "Refreshing patients list page...";
+                document.getElementById("snackbar").innerHTML = "Opening patients list page...";
             }
 
             // Add the "show" class to DIV
@@ -528,7 +416,7 @@ if (isset($_POST['edit'])) {
                 x.className = x.className.replace("show", "");
             }, 3000);
         }
-    </script>
+    </script> -->
     <script src="../Table Sorting/tablesort.js"></script>
     <script>
         //Script for searching
@@ -562,7 +450,9 @@ if (isset($_POST['edit'])) {
         });
     </script>
 
-    <!-- For modal -->
+    <!-- For modal 
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>

@@ -42,7 +42,17 @@ require_once('../../dbConnection/connection.php');
                 <label>Nurse Last Name</label>
                 <input type="text" name="nurse_last_Name" id="nurse_last_Name" required pattern="\S(.*\S)?[A-Za-z]+" class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters" oninput="updateEmailPassword()">
             </div>
-
+            <br>
+            
+            <div>
+                <label>Nurse Sex</label>
+                <select id="nurse_Sex" name="nurse_Sex">
+                    <option value="Employed">Male</option>
+                    <option value="Unemployed">Female</option>
+                </select>
+            </div>
+            <br>
+            
             <div>
                 <label>Nurse's Email</label>
                 <input type="text" name="nurse_email" id="nurse_email" class="form-control" placeholder="Automatically generated" readonly>
@@ -72,21 +82,14 @@ require_once('../../dbConnection/connection.php');
                 <option value="Admin">Admin</option>
             </select>
         </div>
-
-        <div>
-            <br>
+        <br>
+        <?php
+            // Calculate the date 19 years ago in the format Year-Month-Day
+            $nineteenYearsAgo = date('Y-m-d', strtotime('-19 years'));
+        ?>
+            <!-- HTML input field -->
             <label>Birth Date</label>
-            <input type="date" id="nurse_birth_Date" name="nurse_birth_Date" min='01/01/1899' max='13/13/2000'/>
-        </div>
-
-        <script>
-            //Make date today the max value
-            var today = new Date().toISOString().split('T')[0];
-            document.getElementById("nurse_birth_Date").setAttribute("max", today);
-
-            //Date picker filled required
-            document.getElementById("nurse_birth_Date").required = true;
-        </script>
+            <input type="date" name="nurse_birth_Date" name="nurse_birth_Date" min='01/01/1899' max="<?php echo $nineteenYearsAgo; ?>">
         
         <div>
         <br>
@@ -113,6 +116,7 @@ require_once('../../dbConnection/connection.php');
         </div>
         <script>
             //Make date today the max value
+            var today = new Date().toISOString().split('T')[0]; 
             document.getElementById("date_Employment").setAttribute("max", today);
 
             //Date picker filled required

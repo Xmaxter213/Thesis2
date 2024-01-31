@@ -70,6 +70,17 @@ include('../../dbConnection/AES encryption.php');
                 <label>Nurse Last Name</label>
                 <input type="text" name="nurse_last_Name" value="<?=  $nurse_last_Name ?>" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters">
             </div>
+            <br>
+            
+            <div>
+                <label>Nurse Sex</label>
+                <select id="nurse_Sex" name="nurse_Sex">
+                    <option value="Employed">Male</option>
+                    <option value="Unemployed">Female</option>
+                </select>
+            </div>
+            <br>
+            
             <div>
                 <br>
                 <label>Birth Date</label>

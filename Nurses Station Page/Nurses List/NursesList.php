@@ -35,6 +35,7 @@ if (isset($_POST['add'])) {
     $nurse_first_Name = $_POST['nurse_first_Name'];
     $nurse_last_Name = $_POST['nurse_last_Name'];
     $nurse_full_Name = $nurse_last_Name . ", " . $nurse_first_Name;
+    $nurse_Sex = $_POST['nurse_Sex'];
     $nurse_birth_Date = $_POST['nurse_birth_Date'];
     $shift_Schedule = $_POST['shift_Schedule'];
     $employment_Status = $_POST['employment_Status'];
@@ -54,7 +55,7 @@ if (isset($_POST['add'])) {
     $enc_employment_Status = encryptthis($employment_Status, $key);
     $enc_date_Employment = encryptthis($date_Employment, $key);
 
-    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', '$enc_nurse_birth_Date','$shift_Schedule','$enc_employment_Status', '$enc_date_Employment', '$activated')";
+    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', '$nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$enc_employment_Status', '$enc_date_Employment', '$activated')";
     $query_run = mysqli_query($con, $query);
 
     $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status) VALUES (NULL, '$nurse_email','$nurse_password', '$userName', '$account_status')";
@@ -76,6 +77,7 @@ if (isset($_POST['edit'])) {
     $nurse_first_Name = $_POST['nurse_first_Name'];
     $nurse_last_Name = $_POST['nurse_last_Name'];
     $nurse_full_Name = $nurse_last_Name . ", " . $nurse_first_Name;
+    $nurse_Sex = $_POST['nurse_Sex'];
     $nurse_birth_Date = $_POST['nurse_birth_Date'];
     $shift_Schedule = $_POST['shift_Schedule'];
     $employment_Status = $_POST['employment_Status'];
@@ -88,7 +90,7 @@ if (isset($_POST['edit'])) {
     $enc_employment_Status = encryptthis($employment_Status, $key);
     $enc_date_Employment = encryptthis($date_Employment, $key);
 
-    $query = "UPDATE staff_List SET nurse_Name='$enc_nurse_Name', nurse_birth_Date ='$enc_nurse_birth_Date', shift_Schedule='$shift_Schedule', employment_Status='$enc_employment_Status', date_Employment='$enc_date_Employment' WHERE nurse_ID='$nurse_ID'";
+    $query = "UPDATE staff_List SET nurse_Name='$enc_nurse_Name', nurse_Sex='$nurse_Sex', nurse_birth_Date ='$enc_nurse_birth_Date', shift_Schedule='$shift_Schedule', employment_Status='$enc_employment_Status', date_Employment='$enc_date_Employment' WHERE nurse_ID='$nurse_ID'";
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {

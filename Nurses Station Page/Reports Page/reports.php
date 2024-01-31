@@ -225,7 +225,7 @@ if (!isset($_SESSION['userID'])) {
                                 <?php
 
                                 $count = 0;
-                                $sql = "SELECT * FROM arduino_Device_List WHERE activated = 1";
+                                $sql = "SELECT * FROM arduino_Device_List";
                                 $result = mysqli_query($con, $sql);
 
                                 //This is for pagination
@@ -247,7 +247,7 @@ if (!isset($_SESSION['userID'])) {
                                 $this_page_first_result = ($page - 1) * $results_per_page;
 
                                 // retrieve selected results from database and display them on page
-                                $sql = 'SELECT * FROM arduino_Device_List WHERE activated = 1 LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
+                                $sql = 'SELECT * FROM arduino_Device_List LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
                                 $result = mysqli_query($con, $sql);
 
                                 if (mysqli_num_rows($result) > 0) {

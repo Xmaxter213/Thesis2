@@ -262,8 +262,9 @@ if (isset($_POST['delete'])) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
-                    <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
-                        For more information about DataTables, please visit the <a target="_blank" href="https://datatables.net">official DataTables documentation</a>.</p>
+                    <a href="NursesList.php" class="btn btn-primary float-end">Nurses List Table</a>
+                    <a href="EditShiftSchedule.php" class="btn btn-primary float-end active">Shift Schedules Table</a>
+                    <br><br>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-3">
@@ -297,8 +298,6 @@ if (isset($_POST['delete'])) {
                                     </div>
                                 </div>
                             </div>
-
-                            <a href="Shift Schedule/shiftSchedules.php" class="btn btn-primary float-end">Edit Shift Schedule</a>
                         </div>
                         <div class="card-body">
 

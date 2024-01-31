@@ -108,7 +108,7 @@ require_once('../../dbConnection/connection.php');
             <select id="shift_Schedule" name="shift_Schedule">
                 <?php
                     while ($row = mysqli_fetch_array($resultShiftSched)) {
-                        $concatenatedRow = $row["work_Shift"] . " - " . $row["time_Range"];
+                        $concatenatedRow = $row["work_Shift"] . ": " . $row["time_Range"];
                 ?>
                         <option value="<?php echo $row["work_Shift"];
                         // The value we usually set is the primary key

@@ -22,6 +22,9 @@ try {
             
             $sqlQuery3 = "DELETE FROM staff_List WHERE nurse_ID = $ID AND activated = 0 LIMIT 1";
             $result = mysqli_query($con, $sqlQuery3);
+
+            $sqlQuery4 = "DELETE FROM userLogin WHERE ID = $ID LIMIT 1";
+            $result = mysqli_query($con, $sqlQuery3);
         }
     }
 }catch (PDOException $e){

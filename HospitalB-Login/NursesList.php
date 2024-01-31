@@ -5,94 +5,101 @@ require_once('../../dbConnection/connection.php');
 //The functions for the encryption
 include('../../dbConnection/AES encryption.php');
 
-//This is to make sure that deactivated accounts that are due for deletion are deleted
-include('patientDeleteEntriesDue.php');
-
 if (isset($_GET['logout'])) {
-    session_destroy();
-    unset($_SESSION);
-    header("location: ../../MainHospital/login_new.php");
-}
+     session_destroy();
+     unset($_SESSION);
+     header("location: ../../MainHospital/login_new.php");
+    }
 
-if (!isset($_SESSION['userID'])) {
-    header("location: ../../MainHospital/login_new.php");
-} else {
+if (!isset($_SESSION['userID'])) 
+    {
+     header("location: ../../MainHospital/login_new.php");
+    } 
+else 
+{
 
     $status = $_SESSION['userStatus'];
 
-    if ($status === 'Nurse') {
+
+    if ($status === 'Nurse') 
+    {
         header("location: ../../dumHomePage/index.php");
     }
 }
 
+//This is to make sure that deactivated accounts that are due for deletion are deleted
+include('nurseDeleteEntriesDue.php');
+
 //This code runs after the NursesList.php page i think
 if (isset($_POST['add'])) {
-    $patient_ID = $_POST['patient_ID'];
-    $patient_first_Name = $_POST['patient_first_Name'];
-    $patient_last_Name = $_POST['patient_last_Name'];
-    $patient_full_Name = $patient_first_Name . ", " . $patient_last_Name;
-    $room_Number = $_POST['room_Number'];
-    $patient_birth_Date = $_POST['patient_birth_Date'];
-    $reason_Admission = $_POST['reason_Admission'];
-    $admission_Status = $_POST['admission_Status'];
-    $nurse_ID = $_POST['nurse_ID'];
-    $assistance_Status = $_POST['assistance_Status'];
-    $device_Assigned = $_POST['device_Assigned'];
+    $nurse_first_Name = $_POST['nurse_first_Name'];
+    $nurse_last_Name = $_POST['nurse_last_Name'];
+    $nurse_full_Name = $nurse_last_Name . ", " . $nurse_first_Name;
+    $nurse_birth_Date = $_POST['nurse_birth_Date'];
+    $shift_Schedule = $_POST['shift_Schedule'];
+    $employment_Status = $_POST['employment_Status'];
+    $date_Employment = $_POST['date_Employment'];
     $activated = $_POST['activated'];
+
+    #Login
+    $nurse_email = $_POST['nurse_email'];
+    $nurse_password = $_POST['nurse_password'];
+    $account_status = $_POST['Account_Status'];
+    $userName = $nurse_first_Name . $nurse_last_Name;
     //$date_Employment = sha1($_POST['date_Employment']);
 
     //Encrypt data from form
-    $enc_patient_Name = encryptthis($patient_full_Name, $key);
-    $enc_patient_birth_Date = encryptthis($patient_birth_Date, $key);
-    $enc_reason_Admission = encryptthis($reason_Admission, $key);
+    $enc_nurse_Name = encryptthis($nurse_full_Name, $key);
+    $enc_nurse_birth_Date = encryptthis($nurse_birth_Date, $key);
+    $enc_employment_Status = encryptthis($employment_Status, $key);
+    $enc_date_Employment = encryptthis($date_Employment, $key);
 
-    $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
-    VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', '$nurse_ID', '$assistance_Status', $device_Assigned, $activated)";
+    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', '$enc_nurse_birth_Date','$shift_Schedule','$enc_employment_Status', '$enc_date_Employment', '$activated')";
     $query_run = mysqli_query($con, $query);
+
+    $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status) VALUES (NULL, '$nurse_email','$nurse_password', '$userName', '$account_status')";
+    $query_Login_run = mysqli_query($con, $query_Login);
 
     if ($query_run) {
         $_SESSION['message'] = "Catagory Added Successfully";
-        header('Location: PatientsList.php');
+        header('Location: NursesList.php');
         exit(0);
     } else {
         $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: PatientsList.php');
+        header('Location: NursesList.php');
         exit(0);
     }
 }
 
 if (isset($_POST['edit'])) {
-    $patient_ID = $_POST['patient_ID'];
-    $patient_first_Name = $_POST['patient_first_Name'];
-    $patient_last_Name = $_POST['patient_last_Name'];
-    $patient_full_Name = $patient_first_Name . ", " . $patient_last_Name;
-    $room_Number = $_POST['room_Number'];
-    $patient_birth_Date = $_POST['patient_birth_Date'];
-    $reason_Admission = $_POST['reason_Admission'];
-    $admission_Status = $_POST['admission_Status'];
     $nurse_ID = $_POST['nurse_ID'];
-    $assistance_Status = $_POST['assistance_Status'];
-    $device_Assigned = $_POST['gloves_ID'];
+    $nurse_first_Name = $_POST['nurse_first_Name'];
+    $nurse_last_Name = $_POST['nurse_last_Name'];
+    $nurse_full_Name = $nurse_last_Name . ", " . $nurse_first_Name;
+    $nurse_birth_Date = $_POST['nurse_birth_Date'];
+    $shift_Schedule = $_POST['shift_Schedule'];
+    $employment_Status = $_POST['employment_Status'];
+    $date_Employment = $_POST['date_Employment'];
     //$password = sha1($_POST['password']);
 
     //Encrypt data from form
-    $enc_patient_Name = encryptthis($patient_full_Name, $key);
-    $enc_patient_birth_Date = encryptthis($patient_birth_Date, $key);
-    $enc_reason_Admission = encryptthis($reason_Admission, $key);
+    $enc_nurse_Name = encryptthis($nurse_full_Name, $key);
+    $enc_nurse_birth_Date = encryptthis($nurse_birth_Date, $key);
+    $enc_employment_Status = encryptthis($employment_Status, $key);
+    $enc_date_Employment = encryptthis($date_Employment, $key);
 
-    $query = "UPDATE patient_List SET patient_Name ='$enc_patient_Name', room_Number='$room_Number', birth_Date='$enc_patient_birth_Date', reason_Admission='$enc_reason_Admission', 
-        admission_Status='$admission_Status', nurse_ID='$nurse_ID', assistance_Status='$assistance_Status', gloves_ID='$device_Assigned' WHERE patient_ID='$patient_ID'";
+    $query = "UPDATE staff_List SET nurse_Name='$enc_nurse_Name', nurse_birth_Date ='$enc_nurse_birth_Date', shift_Schedule='$shift_Schedule', employment_Status='$enc_employment_Status', date_Employment='$enc_date_Employment' WHERE nurse_ID='$nurse_ID'";
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
 
 
         $_SESSION['message'] = "Catagory Updated Successfully";
-        header('Location: PatientsList.php');
+        header('Location: NursesList.php');
         exit(0);
     } else {
         $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: PatientsList.php');
+        header('Location: NursesList.php');
         exit(0);
     }
 }
@@ -114,8 +121,6 @@ if (isset($_POST['edit'])) {
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <!-- Custom styles for this template -->
     <link href="../css/sb-admin-2.min.css" rel="stylesheet">
@@ -129,13 +134,19 @@ if (isset($_POST['edit'])) {
     <!-- For fontawesome -->
     <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
 
+    <!-- For fontawesome -->
+    <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
+
     <!-- For table sorting -->
     <link rel="stylesheet" href="tablesort.css">
+    
+    <!-- For modal 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    -->
 </head>
 
 <body id="page-top">
-    <!-- Font Awesome -->
-    <script src="js/scripts.js"></script>
+
     <!-- Page Wrapper -->
     <div id="wrapper">
 
@@ -154,38 +165,31 @@ if (isset($_POST['edit'])) {
             <hr class="sidebar-divider my-0">
 
 
+
+
             <!-- Nav Item - Tables -->
             <li class="nav-item">
                 <a onclick="showSnackbar('redirect to assistance page')" class="nav-link" href="../Assistance Card Page/assistanceCard.php">
-                    <i class="bi bi-wallet2"></i>
+                    <i class="fas fa-fw fa-table"></i>
                     <span>Assistance Cards</span></a>
             </li>
 
             <hr class="sidebar-divider d-none d-md-block">
-
-            <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Nurses List/NursesList.php">
-                    <i class="fa-solid fa-user-nurse"></i>
+            
+            <li class="nav-item active">
+                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="NursesList.php">
+                    <i class="fas fa-fw fa-table"></i>
                     <span>Nurses List</span></a>
             </li>
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
-            <li class="nav-item active">
+            <li class="nav-item">
                 <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Patients List/PatientsList.php">
-                    <i class="bi bi-person-lines-fill"></i>
+                    <i class="fas fa-fw fa-table"></i>
                     <span>Patients List</span></a>
             </li>
-
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <li class="nav-item">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Reports Page/reports.php">
-                    <i class="bi bi-clipboard2-data"></i>
-                    <span>Reports</span></a>
-            </li>
-
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -285,16 +289,15 @@ if (isset($_POST['edit'])) {
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
-                            <br>
-                            <a onclick="showSnackbar('add nurse')" href="AddPatient.php" class="btn btn-primary float-end">Add</a>
+                            <a onclick="showSnackbar('add nurse')" href="AddNurse.php" class="btn btn-primary float-end">Add</a>
                         </div>
                         <div class="card-body">
 
                             <div class="table-responsive">
-
                                 <?php
+
                                 $count = 0;
-                                $sql = "SELECT * FROM patient_List WHERE activated = 1";
+                                $sql = "SELECT * FROM staff_List WHERE activated = 1";
                                 $result = mysqli_query($con, $sql);
 
                                 //This is for pagination
@@ -316,122 +319,119 @@ if (isset($_POST['edit'])) {
                                 $this_page_first_result = ($page - 1) * $results_per_page;
 
                                 // retrieve selected results from database and display them on page
-                                $sql = 'SELECT * FROM patient_List WHERE activated=1 LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
+                                $sql = 'SELECT * FROM staff_List WHERE activated = 1 LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
                                 $result = mysqli_query($con, $sql);
 
                                 if (mysqli_num_rows($result) > 0) {
                                     echo "";
-
-                                ?>
-
-                                    <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
-                                        <thead>
-                                            <tr>
-                                                <th>Patient ID <input type="text" class="search-input" placeholder="Patient ID"></th>
-                                                <th>Patient Name <input type="text" class="search-input" placeholder="Patient Name"></th>
-                                                <th>Room Number <input type="text" class="search-input" placeholder="Room Number"></th>
-                                                <th>Age <input type="text" class="search-input" placeholder="Age"></th>
-                                                <th>Reason for Admission <input type="text" class="search-input" placeholder="Reason for Admission"></th>
-                                                <th>Admission Status <input type="text" class="search-input" placeholder="Admission Status"></th>
-                                                <th>Assigned Nurse ID <input type="text" class="search-input" placeholder="Assigned Nurse ID"></th>
-                                                <th>Assistance Status <input type="text" class="search-input" placeholder="Assistance Status"></th>
-                                                <th>Device Assigned ID <input type="text" class="search-input" placeholder="Device Assigned ID"></th>
-                                                <th>Edit</th>
-                                                <th>Delete</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                            ?>
+                                <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nurse ID <input type="text" class="search-input" placeholder="Nurse ID"></th>
+                                            <th>Nurse Name <input type="text" class="search-input" placeholder="Nurse Name"></th>
+                                            <th>Nurse Age <input type="text" class="search-input" placeholder="Nurse Age"></th>
+                                            <th>Shift Schedule <input type="text" class="search-input" placeholder="Shift Schedule"></th>
+                                            <th>Employment Status <input type="text" class="search-input" placeholder="Employment Status"></th>
+                                            <th>Date of Employment <input type="text" class="search-input" placeholder="Date of Employment"></th>
+                                            <th>Edit</th>
+                                            <th>Delete</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                                             <?php
-                                            while ($row = mysqli_fetch_array($result)) {
-                                                $count = $count + 1;
+                                                while($row = mysqli_fetch_array($result)) 
+                                                {   
+                                                    $count = $count + 1;
 
-                                                //Decrypt data from db
-                                                $dec_patient_Name = decryptthis($row['patient_Name'], $key);
-                                                $dec_patient_birth_Date = decryptthis($row['birth_Date'], $key);
-                                                //date in mm/dd/yyyy format; or it can be in other formats as well
-                                                $birthDate = $dec_patient_birth_Date;
-                                                //explode the date to get month, day and year
-                                                $birthDate = explode("-", $birthDate);
-                                                //get age from date or birthdate
-                                                $patient_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
-                                                    ? ((date("Y") - $birthDate[0]) - 1)
-                                                    : (date("Y") - $birthDate[0]));
+                                                    //Decrypt data from db
+                                                    $dec_nurse_Name = decryptthis($row['nurse_Name'], $key);
+                                                    $dec_nurse_birth_Date = decryptthis($row['nurse_birth_Date'], $key);
+                                                    //date in mm/dd/yyyy format; or it can be in other formats as well
+                                                    $birthDate = $dec_nurse_birth_Date;
+                                                    //explode the date to get month, day and year
+                                                    $birthDate = explode("-", $birthDate);
+                                                    //get age from date or birthdate
+                                                    $dec_nurse_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
+                                                        ? ((date("Y") - $birthDate[0]) - 1)
+                                                        : (date("Y") - $birthDate[0]));
 
-                                                if ($patient_Age == -1) {
-                                                    $patient_Age = 0;
-                                                }
+                                                    if ($dec_nurse_Age == -1){
+                                                        $dec_nurse_Age = 0;
+                                                    }
 
-                                                $dec_reason_Admission = decryptthis($row['reason_Admission'], $key);
+                                                    $dec_employment_Status = decryptthis($row['employment_Status'], $key);
+                                                    $dec_date_Employment = decryptthis($row['date_Employment'], $key);
                                             ?>
-
-                                                <tr>
-                                                    <td><?php echo $row['patient_ID']; ?></td>
-                                                    <td><?php echo $dec_patient_Name ?></td>
-                                                    <td><?php echo $row['room_Number']; ?></td>
-                                                    <td><?php echo $patient_Age ?></td>
-                                                    <td><?php echo $dec_reason_Admission ?></td>
-                                                    <td><?php echo $row['admission_Status']; ?></td>
-                                                    <td><?php echo $row['nurse_ID']; ?></td>
-                                                    <td><?php echo $row['assistance_Status']; ?></td>
-                                                    <td><?php echo $row['gloves_ID']; ?></td>
+                                       
+                                                    <tr>
+                                                    <td><?php echo $row['nurse_ID'] ?></td>
+                                                    <td><?php echo $dec_nurse_Name ?></td>
+                                                    <td><?php echo $dec_nurse_Age ?></td>
+                                                    <td><?php echo $row['shift_Schedule']; ?></td>
+                                                    <td><?php echo $dec_employment_Status ?></td>
+                                                    <td><?php echo $dec_date_Employment ?></td>
                                                     <td>
-                                                        <a onclick="showSnackbar('edit nurse')" href="EditPatient.php?patient_ID=<?= $row['patient_ID'] ?>" class="btn btn-info">Edit</a>
+                                                        
+                                                        <a onclick="showSnackbar('edit nurse')" href="EditNurse.php?nurse_ID=<?= $row['nurse_ID'] ?>" class="btn btn-info">Edit</a>
                                                     </td>
 
                                                     <td>
-                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $row['patient_ID'] ?>">
+                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $row['nurse_ID'] ?>">
                                                             Delete
                                                         </button>
 
                                                         <!-- Delete modal -->
-                                                        <div class="modal fade" id="delete<?= $row['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                        <div class="modal fade" id="delete<?= $row['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
                                                                         <h5 class="modal-title" id="exampleModalLabel">Are you sure you want to delete?</h5>
                                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                            <span aria-hidden="true">&times;</span>
+                                                                        <span aria-hidden="true">&times;</span>
                                                                         </button>
                                                                     </div>
                                                                     <div class="modal-body">
                                                                         The deleted item would be in the recycle bin for 3 days before being permanently deleted.
-                                                                        <form action="DeletePatient.php" method="POST">
-                                                                            <br>
-                                                                            <label>Reason for deletion</label>
-                                                                            <input type="text" name="reason_For_Deletion" required pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" required title="Must only contain letters & numbers">
+                                                                        <form action="DeleteNurse.php" method="POST">
+                                                                        <br>
+                                                                        <label>Reason for deletion</label>
+                                                                        <input type="text" name="reason_For_Deletion" required pattern ="\S(.*\S)?[A-Za-z0-9]+"  class="form-control" placeholder="Enter reason for deletion" required title="Must only contain letters & numbers">
                                                                     </div>
                                                                     <div class="modal-footer">
                                                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                        <button type="submit" name="patientDelete" value="<?= $row['patient_ID'] ?>" class="btn btn-danger">Delete</a>
-                                                                            </form>
+                                                                            <button type="submit" name="nurseDelete" value="<?= $row['nurse_ID'] ?>" class="btn btn-danger">Delete</a>
+                                                                        </form>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </td>
-                                                </tr>
-                                        <?php
-
+                                                    </tr>  
+                                                    <?php
+                                                }
+                                               
+                        
+                                            } 
+                                            else 
+                                            {
+                                                echo "No Record Found";
                                             }
-                                        } else {
-                                            echo "No Record Found";
-                                        }
                                         ?>
-
-
-
                                         </tbody>
                                     </table>
+                                    <script>
+                                        src = "../Table Sorting/searchTable.js"
+                                    </script>
                                     <?php
                                     // display the links to the pages
                                     for ($page = 1; $page <= $number_of_pages; $page++) {
-                                        echo '<a class="btn btn-primary btn-sm" href="PatientsList.php?page=' . $page . '">' . $page . '</a> ';
+                                        echo '<a class="btn btn-primary btn-sm" href="NursesList.php?page=' . $page . '">' . $page . '</a> ';
                                     }
                                     ?>
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <!-- /.container-fluid -->
 
@@ -487,7 +487,7 @@ if (isset($_POST['edit'])) {
     <script src="js/demo/datatables-demo.js"></script>
 
     <!-- Use a button to open the snackbar -->
-    <button onclick="showSnackbar('added')">Show Snackbar</button>
+    <!-- button onclick="showSnackbar('added')">Show Snackbar</button> -->
 
     <!-- The actual snackbar -->
     <div id="snackbar">Some text some message..</div>
@@ -515,9 +515,9 @@ if (isset($_POST['edit'])) {
             } else if (msg.includes('error')) {
                 document.getElementById("snackbar").innerHTML = "Error.. Please try again.";
             } else if (msg.includes('redirect to nurses list page')) {
-                document.getElementById("snackbar").innerHTML = "Opening nurses list page...";
+                document.getElementById("snackbar").innerHTML = "Refreshing nurses list page...";
             } else if (msg.includes('redirect to patients list page')) {
-                document.getElementById("snackbar").innerHTML = "Refreshing patients list page...";
+                document.getElementById("snackbar").innerHTML = "Opening patients list page...";
             }
 
             // Add the "show" class to DIV
@@ -562,7 +562,22 @@ if (isset($_POST['edit'])) {
         });
     </script>
 
-    <!-- For modal -->
+    <div class = "container">
+        <div class = "jumbotron">
+            <div class = "card">
+                <h2> PHP CRUD Modal </h2>
+            </div>
+            <div class = "card">
+                <div class = "card-body">
+                    <button type = "button" class = "btn btn-primary"> Add Data </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- For modal 
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>

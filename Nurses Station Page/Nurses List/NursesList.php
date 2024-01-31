@@ -6,23 +6,19 @@ require_once('../../dbConnection/connection.php');
 include('../../dbConnection/AES encryption.php');
 
 if (isset($_GET['logout'])) {
-     session_destroy();
-     unset($_SESSION);
-     header("location: ../../MainHospital/login_new.php");
-    }
+    session_destroy();
+    unset($_SESSION);
+    header("location: ../../MainHospital/login_new.php");
+}
 
-if (!isset($_SESSION['userID'])) 
-    {
-     header("location: ../../MainHospital/login_new.php");
-    } 
-else 
-{
+if (!isset($_SESSION['userID'])) {
+    header("location: ../../MainHospital/login_new.php");
+} else {
 
     $status = $_SESSION['userStatus'];
 
 
-    if ($status === 'Nurse') 
-    {
+    if ($status === 'Nurse') {
         header("location: ../../dumHomePage/index.php");
     }
 }
@@ -123,6 +119,8 @@ if (isset($_POST['edit'])) {
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <!-- Custom styles for this template -->
     <link href="../css/sb-admin-2.min.css" rel="stylesheet">
@@ -141,7 +139,7 @@ if (isset($_POST['edit'])) {
 
     <!-- For table sorting -->
     <link rel="stylesheet" href="tablesort.css">
-    
+
     <!-- For modal 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     -->
@@ -172,15 +170,15 @@ if (isset($_POST['edit'])) {
             <!-- Nav Item - Tables -->
             <li class="nav-item">
                 <a onclick="showSnackbar('redirect to assistance page')" class="nav-link" href="../Assistance Card Page/assistanceCard.php">
-                    <i class="fas fa-fw fa-table"></i>
+                    <i class="bi bi-wallet2"></i>
                     <span>Assistance Cards</span></a>
             </li>
 
             <hr class="sidebar-divider d-none d-md-block">
-            
+
             <li class="nav-item active">
                 <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="NursesList.php">
-                    <i class="fas fa-fw fa-table"></i>
+                    <i class="fa-solid fa-user-nurse"></i>
                     <span>Nurses List</span></a>
             </li>
 
@@ -189,9 +187,18 @@ if (isset($_POST['edit'])) {
 
             <li class="nav-item">
                 <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Patients List/PatientsList.php">
-                    <i class="fas fa-fw fa-table"></i>
+                    <i class="bi bi-person-lines-fill"></i>
                     <span>Patients List</span></a>
             </li>
+
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <li class="nav-item">
+                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Reports Page/reports.php">
+                    <i class="bi bi-clipboard2-data"></i>
+                    <span>Reports</span></a>
+            </li>
+
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -261,7 +268,7 @@ if (isset($_POST['edit'])) {
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small"> <?php
 
                                                                                             ?></span>
-                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
+                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -326,47 +333,46 @@ if (isset($_POST['edit'])) {
 
                                 if (mysqli_num_rows($result) > 0) {
                                     echo "";
-                            ?>
-                                <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th>Nurse ID <input type="text" class="search-input" placeholder="Nurse ID"></th>
-                                            <th>Nurse Name <input type="text" class="search-input" placeholder="Nurse Name"></th>
-                                            <th>Nurse Age <input type="text" class="search-input" placeholder="Nurse Age"></th>
-                                            <th>Shift Schedule <input type="text" class="search-input" placeholder="Shift Schedule"></th>
-                                            <th>Employment Status <input type="text" class="search-input" placeholder="Employment Status"></th>
-                                            <th>Date of Employment <input type="text" class="search-input" placeholder="Date of Employment"></th>
-                                            <th>Edit</th>
-                                            <th>Delete</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                                ?>
+                                    <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Nurse ID <input type="text" class="search-input" placeholder="Nurse ID"></th>
+                                                <th>Nurse Name <input type="text" class="search-input" placeholder="Nurse Name"></th>
+                                                <th>Nurse Age <input type="text" class="search-input" placeholder="Nurse Age"></th>
+                                                <th>Shift Schedule <input type="text" class="search-input" placeholder="Shift Schedule"></th>
+                                                <th>Employment Status <input type="text" class="search-input" placeholder="Employment Status"></th>
+                                                <th>Date of Employment <input type="text" class="search-input" placeholder="Date of Employment"></th>
+                                                <th>Edit</th>
+                                                <th>Delete</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
                                             <?php
-                                                while($row = mysqli_fetch_array($result)) 
-                                                {   
-                                                    $count = $count + 1;
+                                            while ($row = mysqli_fetch_array($result)) {
+                                                $count = $count + 1;
 
-                                                    //Decrypt data from db
-                                                    $dec_nurse_Name = decryptthis($row['nurse_Name'], $key);
-                                                    $dec_nurse_birth_Date = decryptthis($row['nurse_birth_Date'], $key);
-                                                    //date in mm/dd/yyyy format; or it can be in other formats as well
-                                                    $birthDate = $dec_nurse_birth_Date;
-                                                    //explode the date to get month, day and year
-                                                    $birthDate = explode("-", $birthDate);
-                                                    //get age from date or birthdate
-                                                    $dec_nurse_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
-                                                        ? ((date("Y") - $birthDate[0]) - 1)
-                                                        : (date("Y") - $birthDate[0]));
+                                                //Decrypt data from db
+                                                $dec_nurse_Name = decryptthis($row['nurse_Name'], $key);
+                                                $dec_nurse_birth_Date = decryptthis($row['nurse_birth_Date'], $key);
+                                                //date in mm/dd/yyyy format; or it can be in other formats as well
+                                                $birthDate = $dec_nurse_birth_Date;
+                                                //explode the date to get month, day and year
+                                                $birthDate = explode("-", $birthDate);
+                                                //get age from date or birthdate
+                                                $dec_nurse_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
+                                                    ? ((date("Y") - $birthDate[0]) - 1)
+                                                    : (date("Y") - $birthDate[0]));
 
-                                                    if ($dec_nurse_Age == -1){
-                                                        $dec_nurse_Age = 0;
-                                                    }
+                                                if ($dec_nurse_Age == -1) {
+                                                    $dec_nurse_Age = 0;
+                                                }
 
-                                                    $dec_employment_Status = decryptthis($row['employment_Status'], $key);
-                                                    $dec_date_Employment = decryptthis($row['date_Employment'], $key);
+                                                $dec_employment_Status = decryptthis($row['employment_Status'], $key);
+                                                $dec_date_Employment = decryptthis($row['date_Employment'], $key);
                                             ?>
-                                       
-                                                    <tr>
+
+                                                <tr>
                                                     <td><?php echo $row['nurse_ID'] ?></td>
                                                     <td><?php echo $dec_nurse_Name ?></td>
                                                     <td><?php echo $dec_nurse_Age ?></td>
@@ -374,7 +380,7 @@ if (isset($_POST['edit'])) {
                                                     <td><?php echo $dec_employment_Status ?></td>
                                                     <td><?php echo $dec_date_Employment ?></td>
                                                     <td>
-                                                        
+
                                                         <a onclick="showSnackbar('edit nurse')" href="EditNurse.php?nurse_ID=<?= $row['nurse_ID'] ?>" class="btn btn-info">Edit</a>
                                                     </td>
 
@@ -390,35 +396,31 @@ if (isset($_POST['edit'])) {
                                                                     <div class="modal-header">
                                                                         <h5 class="modal-title" id="exampleModalLabel">Are you sure you want to delete?</h5>
                                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                        <span aria-hidden="true">&times;</span>
+                                                                            <span aria-hidden="true">&times;</span>
                                                                         </button>
                                                                     </div>
                                                                     <div class="modal-body">
                                                                         The deleted item would be in the recycle bin for 3 days before being permanently deleted.
                                                                         <form action="DeleteNurse.php" method="POST">
-                                                                        <br>
-                                                                        <label>Reason for deletion</label>
-                                                                        <input type="text" name="reason_For_Deletion" required pattern ="\S(.*\S)?[A-Za-z0-9]+"  class="form-control" placeholder="Enter reason for deletion" required title="Must only contain letters & numbers">
+                                                                            <br>
+                                                                            <label>Reason for deletion</label>
+                                                                            <input type="text" name="reason_For_Deletion" required pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" required title="Must only contain letters & numbers">
                                                                     </div>
                                                                     <div class="modal-footer">
                                                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                            <button type="submit" name="nurseDelete" value="<?= $row['nurse_ID'] ?>" class="btn btn-danger">Delete</a>
-                                                                        </form>
+                                                                        <button type="submit" name="nurseDelete" value="<?= $row['nurse_ID'] ?>" class="btn btn-danger">Delete</a>
+                                                                            </form>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    </tr>  
-                                                    <?php
-                                                }
-                                               
-                        
-                                            } 
-                                            else 
-                                            {
-                                                echo "No Record Found";
+                                                </tr>
+                                        <?php
                                             }
+                                        } else {
+                                            echo "No Record Found";
+                                        }
                                         ?>
                                         </tbody>
                                     </table>
@@ -564,19 +566,19 @@ if (isset($_POST['edit'])) {
         });
     </script>
 
-    <div class = "container">
-        <div class = "jumbotron">
-            <div class = "card">
+    <div class="container">
+        <div class="jumbotron">
+            <div class="card">
                 <h2> PHP CRUD Modal </h2>
             </div>
-            <div class = "card">
-                <div class = "card-body">
-                    <button type = "button" class = "btn btn-primary"> Add Data </button>
+            <div class="card">
+                <div class="card-body">
+                    <button type="button" class="btn btn-primary"> Add Data </button>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <!-- For modal 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     -->

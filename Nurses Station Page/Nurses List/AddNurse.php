@@ -47,8 +47,8 @@ require_once('../../dbConnection/connection.php');
             <div>
                 <label>Nurse Sex</label>
                 <select id="nurse_Sex" name="nurse_Sex">
-                    <option value="Employed">Male</option>
-                    <option value="Unemployed">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
                 </select>
             </div>
             <br>
@@ -93,12 +93,32 @@ require_once('../../dbConnection/connection.php');
         
         <div>
         <br>
+
+
         <div>
+            <?php 
+                // retrieve selected results from database and display them on page
+                $sqlShiftSched = 'SELECT * FROM shift_Schedule';
+                $resultShiftSched = mysqli_query($con, $sqlShiftSched);
+                
+
+                if (mysqli_num_rows($resultShiftSched) > 0) {
+            ?>
             <label>Shift Status</label>
             <select id="shift_Schedule" name="shift_Schedule">
-                <option value="Morning Shift">Morning Shift, 6AM - 2PM</option>
-                <option value="Afternoon Shift">Night Shift, 2PM - 10PM</option>
-                <option value="Graveyard Shift">Graveyard Shift, 10PM - 6AM</option>
+                <?php
+                    while ($row = mysqli_fetch_array($resultShiftSched)) {
+                        $concatenatedRow = $row["work_Shift"] . " - " . $row["time_Range"];
+                ?>
+                        <option value="<?php echo $row["work_Shift"];
+                        // The value we usually set is the primary key
+                        ?>">
+                            <?php echo $concatenatedRow;
+                        ?>
+                        </option>
+                        <?php
+                    }
+                }?>
             </select>
         </div>
         <br>

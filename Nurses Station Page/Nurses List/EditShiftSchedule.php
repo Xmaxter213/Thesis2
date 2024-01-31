@@ -2,9 +2,6 @@
 require_once('../../dbConnection/connection.php');
 //include('message.php');
 
-//The functions for the encryption
-include('../../dbConnection/AES encryption.php');
-
 if (isset($_GET['logout'])) {
     session_destroy();
     unset($_SESSION);
@@ -14,7 +11,6 @@ if (isset($_GET['logout'])) {
 if (!isset($_SESSION['userID'])) {
     header("location: ../../MainHospital/login_new.php");
 } else {
-
     $status = $_SESSION['userStatus'];
 
 
@@ -23,84 +19,59 @@ if (!isset($_SESSION['userID'])) {
     }
 }
 
-//This is to make sure that deactivated accounts that are due for deletion are deleted
-include('nurseDeleteEntriesDue.php');
-
-//This code runs after the NursesList.php page i think
 if (isset($_POST['add'])) {
-    $nurse_first_Name = $_POST['nurse_first_Name'];
-    $nurse_last_Name = $_POST['nurse_last_Name'];
-    $nurse_full_Name = $nurse_last_Name . ", " . $nurse_first_Name;
-    $nurse_Sex = $_POST['nurse_Sex'];
-    $nurse_birth_Date = $_POST['nurse_birth_Date'];
-    $shift_Schedule = $_POST['shift_Schedule'];
-    $employment_Status = $_POST['employment_Status'];
-    $date_Employment = $_POST['date_Employment'];
-    $activated = $_POST['activated'];
+    $work_Shift = $_POST['work_Shift'];
+    $time_Range = $_POST['time_Range'];
 
-    #Login
-    $nurse_email = $_POST['nurse_email'];
-    $nurse_password = $_POST['nurse_password'];
-    $account_status = $_POST['Account_Status'];
-    $userName = $nurse_first_Name . $nurse_last_Name;
-    //$date_Employment = sha1($_POST['date_Employment']);
-
-    //Encrypt data from form
-    $enc_nurse_Name = encryptthis($nurse_full_Name, $key);
-    $enc_nurse_Sex = encryptthis($nurse_Sex, $key);
-    $enc_nurse_birth_Date = encryptthis($nurse_birth_Date, $key);
-    $enc_date_Employment = encryptthis($date_Employment, $key);
-
-    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', '$enc_nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$employment_Status', '$enc_date_Employment', '$activated')";
+    $query = "INSERT INTO shift_Schedule(ID, work_Shift, time_Range) VALUES (NULL,'$work_Shift', '$time_Range')";
     $query_run = mysqli_query($con, $query);
-
-    $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status) VALUES (NULL, '$nurse_email','$nurse_password', '$userName', '$account_status')";
-    $query_Login_run = mysqli_query($con, $query_Login);
 
     if ($query_run) {
         $_SESSION['message'] = "Catagory Added Successfully";
-        header('Location: NursesList.php');
+        header('Location: EditShiftSchedule.php');
         exit(0);
     } else {
         $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: NursesList.php');
+        header('Location: EditShiftSchedule.php');
         exit(0);
     }
 }
 
-if (isset($_POST['edit'])) {
-    $nurse_ID = $_POST['nurse_ID'];
-    $nurse_first_Name = $_POST['nurse_first_Name'];
-    $nurse_last_Name = $_POST['nurse_last_Name'];
-    $nurse_full_Name = $nurse_last_Name . ", " . $nurse_first_Name;
-    $nurse_Sex = $_POST['nurse_Sex'];
-    $nurse_birth_Date = $_POST['nurse_birth_Date'];
-    $shift_Schedule = $_POST['shift_Schedule'];
-    $employment_Status = $_POST['employment_Status'];
-    $date_Employment = $_POST['date_Employment'];
-    //$password = sha1($_POST['password']);
-
-    //Encrypt data from form
-    $enc_nurse_Name = encryptthis($nurse_full_Name, $key);
-    $enc_nurse_Sex = encryptthis($nurse_Sex, $key);
-    $enc_nurse_birth_Date = encryptthis($nurse_birth_Date, $key);
-    $enc_date_Employment = encryptthis($date_Employment, $key);
-
-    $query = "UPDATE staff_List SET nurse_Name='$enc_nurse_Name', nurse_Sex='$enc_nurse_Sex', nurse_birth_Date ='$enc_nurse_birth_Date', shift_Schedule='$shift_Schedule', employment_Status='$employment_Status', date_Employment='$enc_date_Employment' WHERE nurse_ID='$nurse_ID'";
+if (isset($_POST['editsave'])) {
+    $ID = $_POST['ID'];
+    $work_Shift = $_POST['work_Shift'];
+    $time_Range = $_POST['time_Range'];
+    $query = "UPDATE shift_Schedule SET work_Shift='$work_Shift', time_Range='$time_Range' WHERE ID='$ID'";
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
-
-
-        $_SESSION['message'] = "Catagory Updated Successfully";
-        header('Location: NursesList.php');
+        $_SESSION['message'] = "Catagory Added Successfully";
+        header('Location: EditShiftSchedule.php');
         exit(0);
     } else {
         $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: NursesList.php');
+        header('Location: EditShiftSchedule.php');
         exit(0);
     }
 }
+
+if (isset($_POST['delete'])) {
+    $ID = $_POST['ID'];
+
+    $query = "DELETE FROM shift_Schedule WHERE ID ='$ID'";
+    $query_run = mysqli_query($con, $query);
+
+    if ($query_run) {
+        $_SESSION['message'] = "Catagory Added Successfully";
+        header('Location: EditShiftSchedule.php');
+        exit(0);
+    } else {
+        $_SESSION['message'] = "Someting Went Wrong !";
+        header('Location: EditShiftSchedule.php');
+        exit(0);
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -298,38 +269,43 @@ if (isset($_POST['edit'])) {
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
-                            <a onclick="showSnackbar('add nurse')" href="AddNurse.php" class="btn btn-primary float-end">Add</a>
+                            <a onclick="showSnackbar('add nurse')" class="btn btn-primary float-end" data-toggle="modal" data-target="#add">Add</a>
+
+                            <!-- Add modal -->
+                            <div class="modal fade" id="add" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Edit</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="" method="POST">
+                                                <label>Work Shift</label>
+                                                <input type="text" name="work_Shift" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter work shift" required title="Must only contain letters">
+
+                                                <label>Time</label>
+                                                <input type="text" name="time_Range" required pattern ="\S(.*\S)?[A-Za-z0-9]+"  class="form-control" placeholder="Enter time frame" required title="Must only contain letters">
+                                            </div>
+                                        <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button onclick="showSnackbar('add')" type = "submit" class = "btn btn-success" name = "add" >Add</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <a href="Shift Schedule/shiftSchedules.php" class="btn btn-primary float-end">Edit Shift Schedule</a>
                         </div>
                         <div class="card-body">
 
                             <div class="table-responsive">
                                 <?php
-
-                                $count = 0;
-                                $sql = "SELECT * FROM staff_List WHERE activated = 1";
-                                $result = mysqli_query($con, $sql);
-
-                                //This is for pagination
-                                // define how many results you want per page
-                                $results_per_page = 10;
-                                $number_of_results = mysqli_num_rows($result);
-
-                                // determine number of total pages available
-                                $number_of_pages = ceil($number_of_results / $results_per_page);
-
-                                // determine which page number visitor is currently on
-                                if (!isset($_GET['page'])) {
-                                    $page = 1;
-                                } else {
-                                    $page = $_GET['page'];
-                                }
-
-                                // determine the sql LIMIT starting number for the results on the displaying page
-                                $this_page_first_result = ($page - 1) * $results_per_page;
-
                                 // retrieve selected results from database and display them on page
-                                $sql = 'SELECT * FROM staff_List WHERE activated = 1 LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
+                                $sql = 'SELECT * FROM shift_Schedule';
                                 $result = mysqli_query($con, $sql);
 
                                 if (mysqli_num_rows($result) > 0) {
@@ -338,13 +314,8 @@ if (isset($_POST['edit'])) {
                                     <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
                                         <thead>
                                             <tr>
-                                                <th>Nurse ID <input type="text" class="search-input" placeholder="Nurse ID"></th>
-                                                <th>Nurse Name <input type="text" class="search-input" placeholder="Nurse Name"></th>
-                                                <th>Nurse Sex <input type="text" class="search-input" placeholder="Nurse Sex"></th>
-                                                <th>Nurse Age <input type="text" class="search-input" placeholder="Nurse Age"></th>
-                                                <th>Shift Schedule <input type="text" class="search-input" placeholder="Shift Schedule"></th>
-                                                <th>Employment Status <input type="text" class="search-input" placeholder="Employment Status"></th>
-                                                <th>Date of Employment <input type="text" class="search-input" placeholder="Date of Employment"></th>
+                                                <th>Work Shift</th>
+                                                <th>Time</th>
                                                 <th>Edit</th>
                                                 <th>Delete</th>
                                             </tr>
@@ -352,48 +323,54 @@ if (isset($_POST['edit'])) {
                                         <tbody>
                                             <?php
                                             while ($row = mysqli_fetch_array($result)) {
-                                                $count = $count + 1;
-
-                                                //Decrypt data from db
-                                                $dec_nurse_Name = decryptthis($row['nurse_Name'], $key);
-                                                $dec_nurse_Sex = decryptthis($row['nurse_Sex'], $key);
-                                                $dec_nurse_birth_Date = decryptthis($row['nurse_birth_Date'], $key);
-                                                //date in mm/dd/yyyy format; or it can be in other formats as well
-                                                $birthDate = $dec_nurse_birth_Date;
-                                                //explode the date to get month, day and year
-                                                $birthDate = explode("-", $birthDate);
-                                                //get age from date or birthdate
-                                                $dec_nurse_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
-                                                    ? ((date("Y") - $birthDate[0]) - 1)
-                                                    : (date("Y") - $birthDate[0]));
-
-                                                if ($dec_nurse_Age == -1) {
-                                                    $dec_nurse_Age = 0;
-                                                }
-
-                                                $dec_date_Employment = decryptthis($row['date_Employment'], $key);
                                             ?>
 
                                                 <tr>
-                                                    <td><?php echo $row['nurse_ID'] ?></td>
-                                                    <td><?php echo $dec_nurse_Name ?></td>
-                                                    <td><?php echo $dec_nurse_Sex ?></td>
-                                                    <td><?php echo $dec_nurse_Age ?></td>
-                                                    <td><?php echo $row['shift_Schedule']; ?></td>
-                                                    <td><?php echo $row['employment_Status']; ?></td>
-                                                    <td><?php echo $dec_date_Employment ?></td>
+                                                    <td><?php echo $row['work_Shift'] ?></td>
+                                                    <td><?php echo $row['time_Range'] ?></td>
                                                     <td>
+                                                        <a onclick="showSnackbar('edit')" class="btn btn-info" data-toggle="modal" data-target="#edit<?= $row['ID'] ?>">Edit</a>
 
-                                                        <a onclick="showSnackbar('edit nurse')" href="EditNurse.php?nurse_ID=<?= $row['nurse_ID'] ?>" class="btn btn-info">Edit</a>
+                                                        <!-- Edit modal -->
+                                                        <div class="modal fade" id="edit<?= $row['ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="exampleModalLabel">Edit</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form action="" method="POST">
+                                                                            <div>
+                                                                                <input type="hidden" name="ID" value="<?=  $row['ID'] ?>">
+                                                                            </div>
+
+                                                                            <label>Work Shift</label>
+                                                                            <input type="text" name="work_Shift" value="<?=  $row['work_Shift'] ?>" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters">
+
+                                                                            <label>Time</label>
+                                                                            <input type="text" name="time_Range" value="<?=  $row['time_Range'] ?>" required pattern ="\S(.*\S)?[A-Za-z0-9]+"  class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters">
+                                                                        
+                                                                        </div>
+                                                                    <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                            <button onclick="showSnackbar('edit save')" type = "submit" class = "btn btn-success" name = "editsave" >Save</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </td>
 
                                                     <td>
-                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $row['nurse_ID'] ?>">
+                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $row['ID'] ?>">
                                                             Delete
                                                         </button>
 
                                                         <!-- Delete modal -->
-                                                        <div class="modal fade" id="delete<?= $row['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                        <div class="modal fade" id="delete<?= $row['ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
@@ -403,16 +380,17 @@ if (isset($_POST['edit'])) {
                                                                         </button>
                                                                     </div>
                                                                     <div class="modal-body">
-                                                                        The deleted item would be in the recycle bin for 3 days before being permanently deleted.
-                                                                        <form action="DeleteNurse.php" method="POST">
-                                                                            <br>
-                                                                            <label>Reason for deletion</label>
-                                                                            <input type="text" name="reason_For_Deletion" required pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" required title="Must only contain letters & numbers">
+                                                                        The schedule will be permanently deleted. Are you sure?
                                                                     </div>
                                                                     <div class="modal-footer">
-                                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                        <button type="submit" name="nurseDelete" value="<?= $row['nurse_ID'] ?>" class="btn btn-danger">Delete</a>
-                                                                            </form>
+                                                                        <form action="" method="POST">
+                                                                            <div>
+                                                                                <input type="hidden" name="ID" value="<?=  $row['ID'] ?>">
+                                                                            </div>
+
+                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                            <button onclick="showSnackbar('delete')" type = "submit" class = "btn btn-danger" name = "delete" >Delete</button>
+                                                                        </form>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -430,12 +408,6 @@ if (isset($_POST['edit'])) {
                                     <script>
                                         src = "../Table Sorting/searchTable.js"
                                     </script>
-                                    <?php
-                                    // display the links to the pages
-                                    for ($page = 1; $page <= $number_of_pages; $page++) {
-                                        echo '<a class="btn btn-primary btn-sm" href="NursesList.php?page=' . $page . '">' . $page . '</a> ';
-                                    }
-                                    ?>
                             </div>
                         </div>
                     </div>
@@ -513,18 +485,12 @@ if (isset($_POST['edit'])) {
             var x = document.getElementById("snackbar");
 
             //Change text
-            if (msg.includes('add nurse')) {
+            if (msg.includes('add')) {
                 document.getElementById("snackbar").innerHTML = "Add nurse page opening...";
-            } else if (msg.includes('edit nurse')) {
-                document.getElementById("snackbar").innerHTML = "Opening edit page...";
-            } else if (msg.includes('delete nurse')) {
-                document.getElementById("snackbar").innerHTML = "Item is being deleted...";
-            } else if (msg.includes('error')) {
-                document.getElementById("snackbar").innerHTML = "Error.. Please try again.";
-            } else if (msg.includes('redirect to nurses list page')) {
-                document.getElementById("snackbar").innerHTML = "Refreshing nurses list page...";
-            } else if (msg.includes('redirect to patients list page')) {
-                document.getElementById("snackbar").innerHTML = "Opening patients list page...";
+            } else if (msg.includes('edit')) {
+                document.getElementById("snackbar").innerHTML = "Opening edit modal...";
+            } else if (msg.includes('edit save')) {
+                document.getElementById("snackbar").innerHTML = "Saving available shifts...";
             }
 
             // Add the "show" class to DIV
@@ -568,20 +534,6 @@ if (isset($_POST['edit'])) {
             });
         });
     </script>
-
-    <div class="container">
-        <div class="jumbotron">
-            <div class="card">
-                <h2> PHP CRUD Modal </h2>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <button type="button" class="btn btn-primary"> Add Data </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- For modal 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     -->

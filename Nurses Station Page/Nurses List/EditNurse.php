@@ -49,8 +49,9 @@ include('../../dbConnection/AES encryption.php');
             $exploded_nurse_Name = explode(", ", $dec_nurse_Name);
             $nurse_last_Name = $exploded_nurse_Name[0];
             $nurse_first_Name = $exploded_nurse_Name[1];
-
+            $dec_nurse_Sex = decryptthis($row['nurse_Sex'], $key);
             $dec_nurse_birth_Date = decryptthis($row['nurse_birth_Date'], $key);
+            $shift_Schedule = $row['shift_Schedule'];
             $dec_employment_Status = decryptthis($row['employment_Status'], $key);
             $dec_date_Employment = decryptthis($row['date_Employment'], $key);
             ?>
@@ -71,15 +72,13 @@ include('../../dbConnection/AES encryption.php');
                 <input type="text" name="nurse_last_Name" value="<?=  $nurse_last_Name ?>" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters">
             </div>
             <br>
-            
             <div>
                 <label>Nurse Sex</label>
                 <select id="nurse_Sex" name="nurse_Sex">
-                    <option value="Employed">Male</option>
-                    <option value="Unemployed">Female</option>
+                    <option value="Male"<?php if ($dec_nurse_Sex == 'Male') echo ' selected="selected"'; ?>>Male</option>
+                    <option value="Female"<?php if ($dec_nurse_Sex == 'Female') echo ' selected="selected"'; ?>>Female</option>
                 </select>
             </div>
-            <br>
             
             <div>
                 <br>
@@ -96,12 +95,31 @@ include('../../dbConnection/AES encryption.php');
             </script>
             <br>
             <div>
-                <label>Shift Status</label>
-                <select id="shift_Schedule" name="shift_Schedule" value="<?=  $row['shift_Schedule']?>">
-                    <option value="Morning Shift">Morning Shift, 6AM - 2PM</option>
-                    <option value="Afternoon Shift">Night Shift, 2PM - 10PM</option>
-                    <option value="Graveyard Shift">Graveyard Shift, 10PM - 6AM</option>
-                </select>
+            <?php 
+                // retrieve selected results from database and display them on page
+                $sqlShiftSched = 'SELECT * FROM shift_Schedule';
+                $resultShiftSched = mysqli_query($con, $sqlShiftSched);
+                
+
+                if (mysqli_num_rows($resultShiftSched) > 0) {
+            ?>
+            <label>Shift Status</label>
+            <select id="shift_Schedule" name="shift_Schedule">
+                <?php
+                    while ($row2 = mysqli_fetch_array($resultShiftSched)) {
+                        $concatenatedRow = $row2["work_Shift"] . " - " . $row2["time_Range"];
+                ?>
+                        <option  value="<?php echo $row2["work_Shift"];
+                        // The value we usually set is the primary key
+                        ?>" <?php if ($shift_Schedule == $row2["work_Shift"]) echo ' selected="selected"'; ?>>
+                            <?php echo $concatenatedRow;
+                        ?>
+                        
+                        </option>
+                        <?php
+                    }
+                }?>
+            </select>
             </div>
             <br>
             <div>
@@ -130,8 +148,8 @@ include('../../dbConnection/AES encryption.php');
             <button onclick="showSnackbar('save nurse')" type = "submit" class = "btn btn-primary" name = "edit" >Save</button>
             </div>
         </form>
-<?php
-}
+        <?php
+        }
         else
         {
             ?>

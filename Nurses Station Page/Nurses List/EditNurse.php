@@ -52,7 +52,6 @@ include('../../dbConnection/AES encryption.php');
             $dec_nurse_Sex = decryptthis($row['nurse_Sex'], $key);
             $dec_nurse_birth_Date = decryptthis($row['nurse_birth_Date'], $key);
             $shift_Schedule = $row['shift_Schedule'];
-            $dec_employment_Status = decryptthis($row['employment_Status'], $key);
             $dec_date_Employment = decryptthis($row['date_Employment'], $key);
             ?>
 
@@ -107,14 +106,13 @@ include('../../dbConnection/AES encryption.php');
             <select id="shift_Schedule" name="shift_Schedule">
                 <?php
                     while ($row2 = mysqli_fetch_array($resultShiftSched)) {
-                        $concatenatedRow = $row2["work_Shift"] . " - " . $row2["time_Range"];
+                        $concatenatedRow = $row2["work_Shift"] . ": " . $row2["time_Range"];
                 ?>
                         <option  value="<?php echo $row2["work_Shift"];
                         // The value we usually set is the primary key
                         ?>" <?php if ($shift_Schedule == $row2["work_Shift"]) echo ' selected="selected"'; ?>>
                             <?php echo $concatenatedRow;
                         ?>
-                        
                         </option>
                         <?php
                     }
@@ -125,8 +123,8 @@ include('../../dbConnection/AES encryption.php');
             <div>
                 <label>Employment Status</label>
                 <select id="employment_Status" name="employment_Status" value="<?=  $dec_employment_Status ?>">
-                    <option value="Employed">Employed</option>
-                    <option value="Unemployed">Unemployed</option>
+                    <option value="Employed" <?php if ($row['employment_Status']  == 'Employed') echo ' selected="selected"'; ?>>Employed</option>
+                    <option value="Unemployed" <?php if ($row['employment_Status'] == 'Unemployed') echo ' selected="selected"'; ?>>Unemployed</option>
                 </select>
             </div>
             <br>

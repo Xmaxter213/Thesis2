@@ -291,15 +291,16 @@ if (isset($_POST['edit'])) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
-                    <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
-                        For more information about DataTables, please visit the <a target="_blank" href="https://datatables.net">official DataTables documentation</a>.</p>
+                    <a href="NursesList.php" class="btn btn-primary float-end active">Nurses List Table</a>
+                    <a href="EditShiftSchedule.php" class="btn btn-primary float-end">Shift Schedules Table</a>
+                    <br><br>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
                             <a onclick="showSnackbar('add nurse')" href="AddNurse.php" class="btn btn-primary float-end">Add</a>
-                            <a href="Shift Schedule/shiftSchedules.php" class="btn btn-primary float-end">Edit Shift Schedule</a>
+                            
                         </div>
                         <div class="card-body">
 
@@ -568,19 +569,6 @@ if (isset($_POST['edit'])) {
             });
         });
     </script>
-
-    <div class="container">
-        <div class="jumbotron">
-            <div class="card">
-                <h2> PHP CRUD Modal </h2>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <button type="button" class="btn btn-primary"> Add Data </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- For modal 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

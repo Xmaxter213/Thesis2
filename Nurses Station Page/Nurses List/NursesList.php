@@ -407,13 +407,28 @@ if (isset($_POST['edit'])) {
                                                                         The deleted item would be in the recycle bin for 3 days before being permanently deleted.
                                                                         <form action="DeleteNurse.php" method="POST">
                                                                             <br>
-                                                                            <label>Reason for deletion</label>
-                                                                            <input type="text" name="reason_For_Deletion" required pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" required title="Must only contain letters & numbers">
+                                                                            <label for="deleteReason1">Reason for deletion: </label> <br>
+
+                                                                            <!-- Isa lang may required kasi same name naman sila -->
+                                                                            <input type="radio" name="deleteReason" id="deleteReason1"  value="Account will not be used" required onchange="getValue(this, <?php echo $row['nurse_ID'] ?>)">
+                                                                            <label for="deleteReason1">Account will not be used</label> <br>
+
+                                                                            <input type="radio" name="deleteReason" id="deleteReason2" value="Worker does not work in the hospital anymore" onchange="getValue(this, <?php echo $row['nurse_ID'] ?>)">
+                                                                            <label for="deleteReason2">Worker does not work in the hospital anymore</label> <br>
+
+                                                                            <!-- Iba name cuz input field need -->
+                                                                            <input type="radio" name="deleteReason" id="deleteReason3" value="Other" onchange="getValue(this, <?php echo $row['nurse_ID'] ?>)">
+                                                                            <label for="deleteReason3">Other</label> <br>
+                                                                            
+                                                                            <div id="reasonForDeletionInputField<?= $row['nurse_ID'] ?>" style="display:none;">
+                                                                            <!-- wtf bat iba yung gumagana ?= pero ?php hindi sa code sa baba :/ -->
+                                                                            <input type="text" name="reasonForDeletion<?= $row['nurse_ID'] ?>" id="reasonForDeletion<?= $row['nurse_ID'] ?>" onchange="getValue(this, <?php echo $row['nurse_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" title="Must only contain letters & numbers">
+                                                                            </div>   
                                                                     </div>
                                                                     <div class="modal-footer">
-                                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                        <button type="submit" name="nurseDelete" value="<?= $row['nurse_ID'] ?>" class="btn btn-danger">Delete</a>
-                                                                            </form>
+                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                            <button type="submit" name="nurseDelete" value="<?= $row['nurse_ID'] ?>" class="btn btn-danger">Delete</a>
+                                                                        </form>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -428,9 +443,44 @@ if (isset($_POST['edit'])) {
                                         ?>
                                         </tbody>
                                     </table>
+
+                                    <!-- For showing and hiding input field on deletion -->
+                                    <script type="text/javascript">
+                                        function getValue(x, ID) {
+                                            if(x.value == 'Other'){
+                                                document.getElementById("reasonForDeletionInputField" + ID).style.display = 'block'; // you need a identifier for changes
+                                                document.getElementById("reasonForDeletion" + ID).value = ""; // you need a identifier for changes
+                                            } else if(x.value == "Account will not be used"){
+                                                document.getElementById("reasonForDeletionInputField" + ID).style.display = 'none';  // you need a identifier for changes
+                                                document.getElementById("reasonForDeletion" + ID).value = "Account will not be used";
+                                            } else if(x.value == "Worker does not work in the hospital anymore"){
+                                                document.getElementById("reasonForDeletionInputField" + ID).style.display = 'none';  // you need a identifier for changes
+                                                document.getElementById("reasonForDeletion" + ID).value = "Worker does not work in the hospital anymore";
+                                            }
+                                            
+                                            // Store the reason in local storage
+                                            localStorage.setItem('reasonForDeletion', document.getElementById("reasonForDeletion").value);
+                                            
+
+                                            // For debugging
+                                            // // alert(document.getElementById("reasonForDeletion" + ID).id); //Checks if tamang nurse ID yung radio buttons
+
+                                            // var str,
+                                            // element = document.getElementById("reasonForDeletion");
+                                            // if (element != null) {
+                                            //     str = element.value;
+                                            //     alert("WORKS: " + str);
+                                            // }
+                                            // else {
+                                            //     str = null;
+                                            //     alert("NO WORK: " + str);
+                                            // }
+                                        }
+                                    </script>
                                     <script>
                                         src = "../Table Sorting/searchTable.js"
                                     </script>
+                                    
                                     <?php
                                     // display the links to the pages
                                     for ($page = 1; $page <= $number_of_pages; $page++) {

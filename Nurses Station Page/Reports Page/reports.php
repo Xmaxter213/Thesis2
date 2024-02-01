@@ -49,6 +49,7 @@ if (!isset($_SESSION['userID'])) {
 
     <!-- Custom styles for this template -->
     <link href="../css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="PATH/dist/css/app.css" rel="stylesheet">
 
     <!-- For the toast messages -->
     <link href="../css/toast.css" rel="stylesheet">
@@ -221,103 +222,72 @@ if (!isset($_SESSION['userID'])) {
                     <!-- DataTales Example -->
                     <div class="card shadow mb-3">
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <?php
+                            <?php
+                            $count = 0;
+                            $sql = "SELECT * FROM arduino_Report";
+                            $result = mysqli_query($con, $sql);
 
-                                $count = 0;
-                                $sql = "SELECT * FROM arduino_Device_List";
-                                $result = mysqli_query($con, $sql);
+                            //This is for pagination
+                            // define how many results you want per page
+                            $results_per_page = 3;
+                            $number_of_results = mysqli_num_rows($result);
 
-                                //This is for pagination
-                                // define how many results you want per page
-                                $results_per_page = 3;
-                                $number_of_results = mysqli_num_rows($result);
+                            // determine number of total pages available
+                            $number_of_pages = ceil($number_of_results / $results_per_page);
 
-                                // determine number of total pages available
-                                $number_of_pages = ceil($number_of_results / $results_per_page);
+                            // determine which page number visitor is currently on
+                            if (!isset($_GET['page'])) {
+                                $page = 1;
+                            } else {
+                                $page = $_GET['page'];
+                            }
 
-                                // determine which page number visitor is currently on
-                                if (!isset($_GET['page'])) {
-                                    $page = 1;
-                                } else {
-                                    $page = $_GET['page'];
-                                }
+                            // determine the sql LIMIT starting number for the results on the displaying page
+                            $this_page_first_result = ($page - 1) * $results_per_page;
 
-                                // determine the sql LIMIT starting number for the results on the displaying page
-                                $this_page_first_result = ($page - 1) * $results_per_page;
+                            // retrieve selected results from database and display them on page
+                            $sql = 'SELECT * FROM arduino_Report LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
+                            $result = mysqli_query($con, $sql);
 
-                                // retrieve selected results from database and display them on page
-                                $sql = 'SELECT * FROM arduino_Device_List LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
-                                $result = mysqli_query($con, $sql);
-
-                                if (mysqli_num_rows($result) > 0) {
-                                    echo "";
-                                ?>
-                                    <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
-                                        <thead>
+                            if (mysqli_num_rows($result) > 0) {
+                                echo "";
+                            ?>
+                                <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
+                                    <!-- <thead>
                                             <tr>
-                                                <th>Device ID</th>
-                                                <th>ADL Count</th>
-                                                <th>ADL Average Response</th>
-                                                <th>ADL Average Resolved</th>
+                                                <th>Number of Assistance</th>
                                                 <th>Immediate Count</th>
-                                                <th>Immediate Average Response</th>
-                                                <th>Immediate Average Resolved</th>
+                                                <th>ADL Count</th>
                                                 <th>Assistance Given</th>
-                                                <th>Nurses In Charge</th>
-                                                <th>Pulse Rate</th>
-                                                <th>Battery Percent</th>
-                                                <th>Date Called</th>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            while ($row = mysqli_fetch_array($result)) {
-                                                $count = $count + 1;
+                                        </thead> -->
 
-                                                //Decrypt data from db
-                                                $dec_called_Date = decryptthis($row['date_called'], $key);
-                                                //date in mm/dd/yyyy format; or it can be in other formats as well
-                                                $dateCalled = $dec_called_Date;
-                                                //explode the date to get month, day and year
-                                                $dateCalled = explode("-", $dateCalled);
-                                                //get date called from date or dateCalled
-                                                $dec_date_Called = (date("md", date("U", mktime(0, 0, 0, $dateCalled[0], $dateCalled[1], $dateCalled[2]))) > date("md")
-                                                    ? ((date("Y") - $dateCalled[0]) - 1)
-                                                    : (date("Y") - $dateCalled[0]));
 
-                                                if ($dec_date_Called == -1) {
-                                                    $dec_date_Called = 0;
-                                                }
-                                            ?>
-
-                                                <tr>
-                                                    <td><?php echo $row['device_ID'] ?></td>
-                                                    <td><?php echo $row['ADL_Count'] ?></td>
-                                                    <td><?php echo $row['ADL_Avg_Response'] ?></td>
-                                                    <td><?php echo $row['ADL_Avg_Resolved']; ?></td>
-                                                    <td><?php echo $row['immediate_Count'] ?></td>
-                                                    <td><?php echo $row['immediate_Avg_Response'] ?></td>
-                                                    <td><?php echo $row['immediate_Avg_Resolved'] ?></td>
-                                                    <td><?php echo $row['assistance_Given'] ?></td>
-                                                    <td><?php echo $row['nurses_In_Charge'] ?></td>
-                                                    <td><?php echo $row['pulse_Rate'] ?></td>
-                                                    <td><?php echo $row['battery_percent'] ?></td>
-                                                    <td><?php echo $dec_date_Called ?></td>
-                                                    </td>
-                                                </tr>
+                                    <tbody>
                                         <?php
-                                            }
-                                        } else {
-                                            echo "No Record Found";
-                                        }
+                                        while ($row = mysqli_fetch_array($result)) {
+                                            $count = $count + 1;
                                         ?>
-                                        </tbody>
-                                    </table>
-                                    <script>
-                                        src = "../Table Sorting/searchTable.js"
-                                    </script>
-                            </div>
+                                            <div class="card" style="width: 18rem; color:black; background: rgba(14,202,240, 0.25);">
+                                                <div class="card-body">
+                                                    <h6 class="font-weight-bold">Number of Assistance: <span class="font-weight-normal"><?php echo $row['number_of_Assistance'] ?></span></h6>
+                                                    <h6 class="font-weight-bold">Immediate Count: <span class="font-weight-normal"><?php echo $row['immediate_Count'] ?></span></h6>
+                                                    <h6 class="font-weight-bold">ADL Count: <span class="font-weight-normal"><?php echo $row['adl_Count'] ?></span></h6>
+                                                    <h6 class="font-weight-bold">Assistance Given: <span class="font-weight-normal text-justify"><?php echo $row['assistance_Given'] ?></span></h6>
+                                                    <h6 class="font-weight-bold">Date: <span class="font-weight-normal text-justify"><?php echo $row['date'] ?></span></h6>
+                                                </div>
+                                            </div>
+                                    <?php
+                                        }
+                                    } else {
+                                        echo "No Record Found";
+                                    }
+                                    ?>
+                                    </tbody>
+                                </table>
+                                <script>
+                                    src = "../Table Sorting/searchTable.js"
+                                </script>
                         </div>
                     </div>
                 </div>
@@ -450,12 +420,17 @@ if (!isset($_SESSION['userID'])) {
         });
     </script>
 
+    <!-- For charts -->
+    <script src="https://unpkg.com/@adminkit/core@latest/dist/js/app.js"></script>
+
     <!-- For modal 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <script src="PATH/dist/js/app.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
 </body>
 
 </html>

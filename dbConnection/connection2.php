@@ -1,5 +1,4 @@
 <?php
-session_start();
 // $dbhost = "localhost";
 // $dbuser = "root";
 // $dbpass = "";
@@ -15,7 +14,7 @@ $dbname = "dbhospital2";
 // $dbpass = "gXGcjb07QLy3";
 // $dbname = "if0_35733375_Thesis2";
 
-if (!$con = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname))
+if (!$con2 = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname))
 {
     die("failed to connect!");
 }

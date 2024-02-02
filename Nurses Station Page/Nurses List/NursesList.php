@@ -23,6 +23,21 @@ if (!isset($_SESSION['userID'])) {
     }
 }
 
+require_once('../../dbConnection/connection2.php');
+    $hospitalName = "Helping Hand";
+    $query = "SELECT hospitalStatus FROM Hospital_Table WHERE hospitalName = ?";
+    $stmt = mysqli_prepare($con2, $query);
+    mysqli_stmt_bind_param($stmt, "s", $hospitalName);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_bind_result($stmt, $hospitalStatus);
+    mysqli_stmt_fetch($stmt);
+    mysqli_stmt_close($stmt);
+
+    // Check if the hospital status is 'Active'
+    if ($hospitalStatus != 'Active') {
+        header("location: ../../expired.html");
+    }
+
 //This is to make sure that deactivated accounts that are due for deletion are deleted
 include('nurseDeleteEntriesDue.php');
 

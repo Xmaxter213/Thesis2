@@ -308,6 +308,7 @@ if (isset($_POST['edit'])) {
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
                     <a href="NursesList.php" class="btn btn-primary float-end active">Nurses List Table</a>
                     <a href="EditShiftSchedule.php" class="btn btn-primary float-end">Shift Schedules Table</a>
+                    <a href="RestoreNurse.php" class="btn btn-primary float-end">Restore Data</a>
                     <br><br>
 
                     <!-- DataTales Example -->

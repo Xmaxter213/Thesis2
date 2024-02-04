@@ -1,7 +1,9 @@
 <?php
-#require_once('../dbConnection/connection.php');
 require_once('../../dbConnection/connection.php');
+//include('message.php');
 
+//The functions for the encryption
+include('../../dbConnection/AES encryption.php');
 
 if (isset($_GET['logout'])) {
     session_destroy();
@@ -15,10 +17,12 @@ if (!isset($_SESSION['userID'])) {
 
     $status = $_SESSION['userStatus'];
 
+
     if ($status === 'Nurse') {
         header("location: ../../dumHomePage/index.php");
     }
 }
+
 require_once('../../dbConnection/connection2.php');
     $hospitalName = "Helping Hand";
     $query = "SELECT hospitalStatus FROM Hospital_Table WHERE hospitalName = ?";
@@ -34,6 +38,31 @@ require_once('../../dbConnection/connection2.php');
         header("location: ../../expired.html");
     }
 
+//This is to make sure that deactivated accounts that are due for deletion are deleted
+include('patientDeleteEntriesDue.php');
+
+//This code runs after the NursesList.php page i think
+if (isset($_POST['patientRestore'])) {
+    $patient_ID = $_POST['patientRestore'];
+
+    //Restore nurse account
+    $queryReactivateAccount = "UPDATE patient_List SET activated = '1', delete_at = NULL WHERE patient_ID = '$patient_ID'";
+    $query_reactivate_run = mysqli_query($con, $queryReactivateAccount);
+    
+    //Delete trash table entry
+    $query_Login = "DELETE FROM patient_List_Trash WHERE patient_ID = $patient_ID LIMIT 1";
+    $query_remove_delete_run = mysqli_query($con, $query_Login);
+
+    if ($query_reactivate_run && $query_remove_delete_run) {
+        $_SESSION['message'] = "Patient data has been restored";
+        header('Location: RestorePatient.php');
+        exit(0);
+    } else {
+        $_SESSION['message'] = "Someting Went Wrong !";
+        header('Location: RestorePatient.php');
+        exit(0);
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -67,30 +96,19 @@ require_once('../../dbConnection/connection2.php');
     <!-- For fontawesome -->
     <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
 
-    <!-- For table sorting -->
-    <link rel="stylesheet" href="../Table Sorting/tablesort.css">
+    <!-- For fontawesome -->
+    <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
 
     <!-- For table sorting -->
-    <link rel="stylesheet" href="../Table Sorting/tablesort.css">
+    <link rel="stylesheet" href="tablesort.css">
 
-    <!-- For Modal -->
+    <!-- For modal 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-
-    <!-- for div refresh -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // setInterval(function() {
-            //     $("#refresh").load("assistanceCards.php");
-            //     refresh();
-            // }, 1000);
-        });
-    </script>
+    -->
 </head>
 
 <body id="page-top">
-    <!-- Font Awesome -->
-    <script src="js/scripts.js"></script>
+
     <!-- Page Wrapper -->
     <div id="wrapper">
 
@@ -112,14 +130,16 @@ require_once('../../dbConnection/connection2.php');
 
 
             <!-- Nav Item - Tables -->
-            <li class="nav-item active">
+            <li class="nav-item">
                 <a onclick="showSnackbar('redirect to assistance page')" class="nav-link" href="../Assistance Card Page/assistanceCard.php">
                     <i class="bi bi-wallet2"></i>
                     <span>Assistance Cards</span></a>
             </li>
+
             <hr class="sidebar-divider d-none d-md-block">
-            <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Nurses List/NursesList.php">
+
+            <li class="nav-item active">
+                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="NursesList.php">
                     <i class="fa-solid fa-user-nurse"></i>
                     <span>Nurses List</span></a>
             </li>
@@ -210,7 +230,7 @@ require_once('../../dbConnection/connection2.php');
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small"> <?php
 
                                                                                             ?></span>
-                                <img class="img-profile" src="./Images/logout.svg">
+                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -229,15 +249,164 @@ require_once('../../dbConnection/connection2.php');
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
-                <div class="px-4" style="color: black;">
-                    <h1 class="font-weight-bold">Immediate Assistance</h1>
-                    <div id="refresh" class="d-flex flex-wrap">
-                        <?php
-                        require_once("assistanceCards.php")
-                        ?>
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-2 text-gray-800">Tables</h1>
+                    <a href="PatientsList.php" class="btn btn-primary float-end">Patients List Table</a>
+                    <a href="RestorePatient.php" class="btn btn-primary float-end active">Restore Data</a>
+                    <br><br>
+
+                    <!-- DataTales Example -->
+                    <div class="card shadow mb-3">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
+                        </div>
+                        <div class="card-body">
+
+                            <div class="table-responsive">
+                                <?php
+
+                                $count = 0;
+                                $sql = "SELECT * FROM staff_List WHERE activated = 1";
+                                $result = mysqli_query($con, $sql);
+
+                                //This is for pagination
+                                // define how many results you want per page
+                                $results_per_page = 10;
+                                $number_of_results = mysqli_num_rows($result);
+
+                                // determine number of total pages available
+                                $number_of_pages = ceil($number_of_results / $results_per_page);
+
+                                // determine which page number visitor is currently on
+                                if (!isset($_GET['page'])) {
+                                    $page = 1;
+                                } else {
+                                    $page = $_GET['page'];
+                                }
+
+                                // determine the sql LIMIT starting number for the results on the displaying page
+                                $this_page_first_result = ($page - 1) * $results_per_page;
+
+                                // retrieve selected results from database and display them on page
+                                $sql = 'SELECT patient_List.patient_ID, patient_List.patient_Name, patient_List.delete_at, patient_List_Trash.reason_For_Deletion 
+                                FROM patient_List JOIN patient_List_Trash ON patient_List.patient_ID=patient_List_Trash.patient_ID ORDER BY patient_List.patient_ID;';
+                                $result = mysqli_query($con, $sql);
+
+                                if (mysqli_num_rows($result) > 0) {
+                                    echo "";
+                                ?>
+                                    <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Patient ID<input type="text" class="search-input" placeholder="Patient ID"></th>
+                                                <th>Patient Name<input type="text" class="search-input" placeholder="Patient Name"></th>
+                                                <th>Reason for Deletion<input type="text" class="search-input" placeholder="Reason for Deletion"></th>
+                                                <th>Delete At</th>
+                                                <th>Restore</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            while ($row = mysqli_fetch_array($result)) {
+                                                $count = $count + 1;
+
+                                                //Decrypt data from db
+                                                $dec_patient_Name = decryptthis($row['patient_Name'], $key);
+                                            ?>
+
+                                                <tr>
+                                                    <td><?php echo $row['patient_ID'] ?></td>
+                                                    <td><?php echo $dec_patient_Name ?></td>
+                                                    <td><?php echo $row['reason_For_Deletion']; ?></td>
+                                                    <td><?php echo $row['delete_at']; ?></td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#restore<?= $row['patient_ID'] ?>">
+                                                            Restore
+                                                        </button>
+
+                                                        <!-- Restore modal -->
+                                                        <div class="modal fade" id="restore<?= $row['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="exampleModalLabel">Restore Patient</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        Are you sure you want to restore this patient data?
+                                                                        <form action="RestorePatient.php" method="POST"> 
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                            <button type="submit" name="patientRestore" value="<?= $row['patient_ID'] ?>" class="btn btn-success">Restore</a>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                        <?php
+                                            }
+                                        } else {
+                                            echo "No Record Found";
+                                        }
+                                        ?>
+                                        </tbody>
+                                    </table>
+
+                                    <!-- For showing and hiding input field on deletion -->
+                                    <script type="text/javascript">
+                                        function getValue(x, ID) {
+                                            if(x.value == 'Other'){
+                                                document.getElementById("reasonForDeletionInputField" + ID).style.display = 'block'; // you need a identifier for changes
+                                                document.getElementById("reasonForDeletion" + ID).value = ""; // you need a identifier for changes
+                                            } else if(x.value == "Account will not be used"){
+                                                document.getElementById("reasonForDeletionInputField" + ID).style.display = 'none';  // you need a identifier for changes
+                                                document.getElementById("reasonForDeletion" + ID).value = "Account will not be used";
+                                            } else if(x.value == "Worker does not work in the hospital anymore"){
+                                                document.getElementById("reasonForDeletionInputField" + ID).style.display = 'none';  // you need a identifier for changes
+                                                document.getElementById("reasonForDeletion" + ID).value = "Worker does not work in the hospital anymore";
+                                            }
+                                            
+                                            // Store the reason in local storage
+                                            localStorage.setItem('reasonForDeletion', document.getElementById("reasonForDeletion").value);
+                                            
+
+                                            // For debugging
+                                            // // alert(document.getElementById("reasonForDeletion" + ID).id); //Checks if tamang nurse ID yung radio buttons
+
+                                            // var str,
+                                            // element = document.getElementById("reasonForDeletion");
+                                            // if (element != null) {
+                                            //     str = element.value;
+                                            //     alert("WORKS: " + str);
+                                            // }
+                                            // else {
+                                            //     str = null;
+                                            //     alert("NO WORK: " + str);
+                                            // }
+                                        }
+                                    </script>
+                                    <script>
+                                        src = "../Table Sorting/searchTable.js"
+                                    </script>
+                                    
+                                    <?php
+                                    // display the links to the pages
+                                    for ($page = 1; $page <= $number_of_pages; $page++) {
+                                        echo '<a class="btn btn-primary btn-sm" href="NursesList.php?page=' . $page . '">' . $page . '</a> ';
+                                    }
+                                    ?>
+                            </div>
+                        </div>
                     </div>
-                    <h1 class="font-weight-bold">ADL Assistance</h1>
                 </div>
+                <!-- /.container-fluid -->
 
             </div>
             <!-- End of Main Content -->
@@ -267,7 +436,7 @@ require_once('../../dbConnection/connection2.php');
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="?logout=1">Logout</a>
+                    <a class="btn btn-primary" href="?logout=true">Logout</a>
                 </div>
             </div>
         </div>
@@ -291,7 +460,7 @@ require_once('../../dbConnection/connection2.php');
     <script src="js/demo/datatables-demo.js"></script>
 
     <!-- Use a button to open the snackbar -->
-    <button onclick="showSnackbar('added')">Show Snackbar</button>
+    <!-- button onclick="showSnackbar('added')">Show Snackbar</button> -->
 
     <!-- The actual snackbar -->
     <div id="snackbar">Some text some message..</div>
@@ -319,9 +488,9 @@ require_once('../../dbConnection/connection2.php');
             } else if (msg.includes('error')) {
                 document.getElementById("snackbar").innerHTML = "Error.. Please try again.";
             } else if (msg.includes('redirect to nurses list page')) {
-                document.getElementById("snackbar").innerHTML = "Opening nurses list page...";
+                document.getElementById("snackbar").innerHTML = "Refreshing nurses list page...";
             } else if (msg.includes('redirect to patients list page')) {
-                document.getElementById("snackbar").innerHTML = "Refreshing patients list page...";
+                document.getElementById("snackbar").innerHTML = "Opening patients list page...";
             }
 
             // Add the "show" class to DIV
@@ -365,8 +534,10 @@ require_once('../../dbConnection/connection2.php');
             });
         });
     </script>
-    <!-- For modal -->
+
+    <!-- For modal 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>

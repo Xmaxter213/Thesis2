@@ -69,6 +69,33 @@ if (!isset($_SESSION['userID'])) {
     <!-- For modal 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     -->
+
+    <script type="text/javascript">
+        google.charts.load('current', {
+            'packages': ['corechart']
+        });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+
+            var data = google.visualization.arrayToDataTable([
+                ['Task', 'Hours per Day'],
+                ['Work', 11],
+                ['Eat', 2],
+                ['Commute', 2],
+                ['Watch TV', 2],
+                ['Sleep', 7]
+            ]);
+
+            var options = {
+                title: 'My Daily Activities'
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+            chart.draw(data, options);
+        }
+    </script>
 </head>
 
 <body id="page-top">
@@ -268,6 +295,9 @@ if (!isset($_SESSION['userID'])) {
                                         while ($row = mysqli_fetch_array($result)) {
                                             $count = $count + 1;
                                         ?>
+                                            <div id="piechart" style="width: 900px; height: 500px;">
+
+                                            </div>
                                             <div class="card" style="width: 18rem; color:black; background: rgba(14,202,240, 0.25);">
                                                 <div class="card-body">
                                                     <h6 class="font-weight-bold">Number of Assistance: <span class="font-weight-normal"><?php echo $row['number_of_Assistance'] ?></span></h6>

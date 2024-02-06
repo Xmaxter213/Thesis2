@@ -120,6 +120,10 @@ include('../../dbConnection/AES encryption.php');
                         <option value="">Not Assigned a Nurse</option>
                 <?php
                     while ($row2 = mysqli_fetch_array($resultNursesList)) {
+                        //Decrypt name
+                        $dec_nurse_Name = decryptthis($row2["nurse_Name"], $key);
+
+                        $concatenatedRow = $row2["nurse_ID"] . " - " . $dec_nurse_Name;
                 ?>
                         <option value="<?php echo $row2["nurse_ID"]; ?>"
                         <?php
@@ -127,7 +131,7 @@ include('../../dbConnection/AES encryption.php');
                         if ($row2["nurse_ID"] == $nurse_Assigned_Variable){
                             echo "selected";
                         }?>>
-                            <?php echo $row2["nurse_ID"];
+                            <?php echo $concatenatedRow;
                         ?>
                         </option>
                         <?php

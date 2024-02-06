@@ -306,7 +306,7 @@ if (isset($_POST['edit'])) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
-                    <a href="NursesList.php" class="btn btn-primary float-end active">Nurses List List</a>
+                    <a href="NursesList.php" class="btn btn-primary float-end active">Nurses List</a>
                     <a href="EditShiftSchedule.php" class="btn btn-primary float-end">Shift Schedules List</a>
                     <a href="RestoreNurse.php" class="btn btn-primary float-end">Restore Data</a>
                     <a href="DeletedNursesList.php" class="btn btn-primary float-end">Deleted Nurses List</a>

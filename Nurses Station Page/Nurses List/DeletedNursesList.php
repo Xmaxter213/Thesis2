@@ -306,7 +306,7 @@ if (isset($_POST['edit'])) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
-                    <a href="NursesList.php" class="btn btn-primary float-end">Nurses List List</a>
+                    <a href="NursesList.php" class="btn btn-primary float-end">Nurses List</a>
                     <a href="EditShiftSchedule.php" class="btn btn-primary float-end">Shift Schedules List</a>
                     <a href="RestoreNurse.php" class="btn btn-primary float-end">Restore Data</a>
                     <a href="DeletedPatientsList.php" class="btn btn-primary float-end active">Deleted Patients List</a>
@@ -352,7 +352,7 @@ if (isset($_POST['edit'])) {
                                     <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
                                         <thead>
                                             <tr>
-                                                <th>Patient ID <input type="text" class="search-input" placeholder="Patient ID"></th>
+                                                <th>Nurses ID <input type="text" class="search-input" placeholder="Nurses ID"></th>
                                                 <th>Date Deleted <input type="text" class="search-input" placeholder="Date Deleted"></th>
                                                 <th>Reason for Deletion <input type="text" class="search-input" placeholder="Reason for Deletion"></th>
                                             </tr>

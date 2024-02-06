@@ -42,7 +42,7 @@ require_once('../../dbConnection/connection2.php');
 
 //This code runs after the NursesList.php page i think
 if (isset($_POST['add'])) {
-    $patient_ID = $_POST['patient_ID'];
+    $patient_ID = NULL;
     $patient_first_Name = $_POST['patient_first_Name'];
     $patient_last_Name = $_POST['patient_last_Name'];
     $patient_full_Name = $patient_first_Name . ", " . $patient_last_Name;
@@ -60,9 +60,21 @@ if (isset($_POST['add'])) {
     $enc_patient_Name = encryptthis($patient_full_Name, $key);
     $enc_patient_birth_Date = encryptthis($patient_birth_Date, $key);
     $enc_reason_Admission = encryptthis($reason_Admission, $key);
-
-    $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
-    VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', '$nurse_ID', '$assistance_Status', $device_Assigned, $activated)";
+    if ($nurse_ID == NULL && $device_Assigned == NULL)
+    {
+        $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
+        VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', NULL, '$assistance_Status', NULL, $activated)";
+    } else if ($nurse_ID != NULL && $device_Assigned == NULL) {
+        $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
+        VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', $nurse_ID, '$assistance_Status', NULL, $activated)";
+    } else if ($nurse_ID == NULL && $device_Assigned != NULL) {
+        $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
+        VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', NULL, '$assistance_Status', $device_Assigned, $activated)";
+    } else if ($nurse_ID != NULL && $device_Assigned != NULL) {
+        $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
+        VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', '$nurse_ID', '$assistance_Status', $device_Assigned, $activated)";
+    }
+    
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
@@ -87,7 +99,7 @@ if (isset($_POST['edit'])) {
     $admission_Status = $_POST['admission_Status'];
     $nurse_ID = $_POST['nurse_ID'];
     $assistance_Status = $_POST['assistance_Status'];
-    $device_Assigned = $_POST['gloves_ID'];
+    $device_Assigned = $_POST['device_Assigned'];
     //$password = sha1($_POST['password']);
 
     //Encrypt data from form
@@ -95,8 +107,21 @@ if (isset($_POST['edit'])) {
     $enc_patient_birth_Date = encryptthis($patient_birth_Date, $key);
     $enc_reason_Admission = encryptthis($reason_Admission, $key);
 
-    $query = "UPDATE patient_List SET patient_Name ='$enc_patient_Name', room_Number='$room_Number', birth_Date='$enc_patient_birth_Date', reason_Admission='$enc_reason_Admission', 
+    if ($nurse_ID == NULL && $device_Assigned == NULL)
+    {
+        $query = "UPDATE patient_List SET patient_Name ='$enc_patient_Name', room_Number='$room_Number', birth_Date='$enc_patient_birth_Date', reason_Admission='$enc_reason_Admission', 
+        admission_Status='$admission_Status', nurse_ID=NULL, assistance_Status='$assistance_Status', gloves_ID=NULL WHERE patient_ID='$patient_ID'";
+    } else if ($nurse_ID != NULL && $device_Assigned == NULL) {
+        $query = "UPDATE patient_List SET patient_Name ='$enc_patient_Name', room_Number='$room_Number', birth_Date='$enc_patient_birth_Date', reason_Admission='$enc_reason_Admission', 
+        admission_Status='$admission_Status', nurse_ID='$nurse_ID', assistance_Status='$assistance_Status', gloves_ID=NULL WHERE patient_ID='$patient_ID'";
+    } else if ($nurse_ID == NULL && $device_Assigned != NULL) {
+        $query = "UPDATE patient_List SET patient_Name ='$enc_patient_Name', room_Number='$room_Number', birth_Date='$enc_patient_birth_Date', reason_Admission='$enc_reason_Admission', 
+        admission_Status='$admission_Status', nurse_ID=NULL, assistance_Status='$assistance_Status', gloves_ID='$device_Assigned' WHERE patient_ID='$patient_ID'";
+    } else if ($nurse_ID != NULL && $device_Assigned != NULL) {
+        $query = "UPDATE patient_List SET patient_Name ='$enc_patient_Name', room_Number='$room_Number', birth_Date='$enc_patient_birth_Date', reason_Admission='$enc_reason_Admission', 
         admission_Status='$admission_Status', nurse_ID='$nurse_ID', assistance_Status='$assistance_Status', gloves_ID='$device_Assigned' WHERE patient_ID='$patient_ID'";
+    }
+    
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
@@ -293,16 +318,17 @@ if (isset($_POST['edit'])) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
-                    <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
-                        For more information about DataTables, please visit the <a target="_blank" href="https://datatables.net">official DataTables documentation</a>.</p>
+                    <a href="PatientsList.php" class="btn btn-primary float-end active">Patients List Table</a>
+                    <a href="RestorePatient.php" class="btn btn-primary float-end">Restore Data</a>
+                    <a href="DeletedPatientsList.php" class="btn btn-primary float-end">Deleted Patients List</a>
+                    <br><br>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
+                            <h6 class="m-0 font-weight-bold text-primary">Patients Table</h6>
                             <br>
-                            <a onclick="showSnackbar('add nurse')" href="AddPatient.php" class="btn btn-primary float-end active">Add</a>
-                            <a href="RestorePatient.php" class="btn btn-primary float-end">Restore Data</a>
+                            <a onclick="showSnackbar('add nurse')" href="AddPatient.php" class="btn btn-primary float-end">Add Patient</a>
                         </div>
                         <div class="card-body">
 
@@ -315,7 +341,7 @@ if (isset($_POST['edit'])) {
 
                                 //This is for pagination
                                 // define how many results you want per page
-                                $results_per_page = 3;
+                                $results_per_page = 10;
                                 $number_of_results = mysqli_num_rows($result);
 
                                 // determine number of total pages available
@@ -387,9 +413,23 @@ if (isset($_POST['edit'])) {
                                                     <td><?php echo $patient_Age ?></td>
                                                     <td><?php echo $dec_reason_Admission ?></td>
                                                     <td><?php echo $row['admission_Status']; ?></td>
-                                                    <td><?php echo $row['nurse_ID']; ?></td>
+                                                    <td><?php 
+                                                    if ($row['nurse_ID'] == NULL) {
+                                                        echo "No Assigned Nurse";
+                                                    } 
+                                                    else {
+                                                        echo $row['nurse_ID'];
+                                                    }?>
+                                                    </td>
                                                     <td><?php echo $row['assistance_Status']; ?></td>
-                                                    <td><?php echo $row['gloves_ID']; ?></td>
+                                                    <td><?php 
+                                                    if ($row['gloves_ID'] == NULL) {
+                                                        echo "No Assigned Device";
+                                                    } 
+                                                    else {
+                                                        echo $row['gloves_ID'];
+                                                    }?>
+                                                    </td>
                                                     <td>
                                                         <a onclick="showSnackbar('edit nurse')" href="EditPatient.php?patient_ID=<?= $row['patient_ID'] ?>" class="btn btn-info">Edit</a>
                                                     </td>

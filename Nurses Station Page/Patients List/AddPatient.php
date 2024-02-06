@@ -1,5 +1,8 @@
 <?php
 require_once('../../dbConnection/connection.php');
+
+//The functions for the encryption
+include('../../dbConnection/AES encryption.php');
 ?>
 
 <!DOCTYPE html>
@@ -72,15 +75,64 @@ require_once('../../dbConnection/connection.php');
         </div>
         <br>
         <div>
-            <label>Assigned Nurse ID</label>
-            <input type="text" class="form-control" name="nurse_ID" placeholder="Enter Assigned Nurse ID" required pattern ="[0-9]+" title="Must only contain numbers"/>
+            <?php 
+                // retrieve selected results from database and display them on page
+                $sqlNursesList = 'SELECT staff_List.nurse_ID, staff_List.nurse_Name, userLogin.status FROM staff_List JOIN userLogin WHERE staff_List.nurse_ID = userLogin.ID AND staff_List.activated = "1" AND userLogin.status = "Nurse"';
+                $resultShiftSched = mysqli_query($con, $sqlNursesList);
+                
+                
+                if (mysqli_num_rows($resultShiftSched) > 0) {
+            ?>
+            <label>Assigned Nurse</label>
+            <select id="nurse_ID" name="nurse_ID">
+                        <option value="">Not Assigned a Nurse</option>
+                <?php
+                    while ($row = mysqli_fetch_array($resultShiftSched)) {
+                        //Decrypt name
+                        $dec_nurse_Name = decryptthis($row["nurse_Name"], $key);
+
+                        $concatenatedRow = $row["nurse_ID"] . " - " . $dec_nurse_Name;
+                ?>
+                        <option value="<?php echo $row["nurse_ID"];
+                        // The value we usually set is the primary key
+                        ?>">
+                            <?php echo $concatenatedRow;
+                        ?>
+                        </option>
+                        <?php
+                    }
+                }?>
+            </select>
+        </div>
+        <br>
+        <div>
+            <input type="hidden" name="assistance_Status" value="NULL">
         </div>
         <div>
-            <input type="hidden" name="assistance_Status" value="Unassigned">
-        </div>
-        <div>
+            <?php 
+                // retrieve selected results from database and display them on page
+                $sqlNursesList = 'SELECT device_ID FROM device_List';
+                $resultDeviceIDs = mysqli_query($con, $sqlNursesList);
+                
+                
+                if (mysqli_num_rows($resultDeviceIDs) > 0) {
+            ?>
             <label>Device ID Assigned</label>
-            <input type="text" class="form-control" name="device_Assigned" placeholder="Enter Assistance Status" required pattern ="[0-9]+" title="Must only contain numbers"/>
+            <select id="device_Assigned" name="device_Assigned">
+                        <option value="">Not Assigned a Device</option>
+                <?php
+                    while ($row = mysqli_fetch_array($resultDeviceIDs)) {
+                ?>
+                        <option value="<?php echo $row["device_ID"];
+                        // The value we usually set is the primary key
+                        ?>">
+                            <?php echo $row["device_ID"];
+                        ?>
+                        </option>
+                        <?php
+                    }
+                }?>
+            </select>
         </div>
         <div>
             <input type="hidden" name="activated" value=1>

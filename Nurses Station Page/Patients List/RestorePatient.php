@@ -138,8 +138,8 @@ if (isset($_POST['patientRestore'])) {
 
             <hr class="sidebar-divider d-none d-md-block">
 
-            <li class="nav-item active">
-                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="NursesList.php">
+            <li class="nav-item">
+                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Nurses List/NursesList.php">
                     <i class="fa-solid fa-user-nurse"></i>
                     <span>Nurses List</span></a>
             </li>
@@ -147,8 +147,8 @@ if (isset($_POST['patientRestore'])) {
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
-            <li class="nav-item">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Patients List/PatientsList.php">
+            <li class="nav-item active">
+                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="PatientsList.php">
                     <i class="bi bi-person-lines-fill"></i>
                     <span>Patients List</span></a>
             </li>
@@ -255,12 +255,13 @@ if (isset($_POST['patientRestore'])) {
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
                     <a href="PatientsList.php" class="btn btn-primary float-end">Patients List Table</a>
                     <a href="RestorePatient.php" class="btn btn-primary float-end active">Restore Data</a>
+                    <a href="DeletedPatientsList.php" class="btn btn-primary float-end">Deleted Patients List</a>
                     <br><br>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
+                            <h6 class="m-0 font-weight-bold text-primary">Soft Deleted Patients</h6>
                         </div>
                         <div class="card-body">
 

@@ -50,8 +50,8 @@ if (isset($_POST['nurseRestore'])) {
     $query_reactivate_run = mysqli_query($con, $queryReactivateAccount);
     
     //Delete trash table entry
-    $query_Login = "DELETE FROM staff_List_Trash WHERE nurse_ID = $nurse_ID LIMIT 1";
-    $query_remove_delete_run = mysqli_query($con, $query_Login);
+    $query_Delete_Trash = "DELETE FROM staff_List_Trash WHERE nurse_ID = $nurse_ID LIMIT 1";
+    $query_remove_delete_run = mysqli_query($con, $query_Delete_Trash);
 
     if ($query_reactivate_run && $query_remove_delete_run) {
         $_SESSION['message'] = "Account has been restored";
@@ -253,9 +253,10 @@ if (isset($_POST['nurseRestore'])) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
-                    <a href="NursesList.php" class="btn btn-primary float-end">Nurses List Table</a>
-                    <a href="EditShiftSchedule.php" class="btn btn-primary float-end">Shift Schedules Table</a>
+                    <a href="NursesList.php" class="btn btn-primary float-end">Nurses List List</a>
+                    <a href="EditShiftSchedule.php" class="btn btn-primary float-end">Shift Schedules List</a>
                     <a href="RestoreNurse.php" class="btn btn-primary float-end active">Restore Data</a>
+                    <a href="DeletedNursesList.php" class="btn btn-primary float-end">Deleted Nurses List</a>
                     <br><br>
 
                     <!-- DataTales Example -->

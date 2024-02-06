@@ -95,34 +95,89 @@ include('../../dbConnection/AES encryption.php');
         <div>
         <label>Admission Status</label>
         <select id="admission_Status" name="admission_Status" value="<?=  $row['admission_Status'] ?>">
-            <option value="Admitted">Admitted</option>
-            <option value="Discharged">Discharged</option>
+            <option value="Admitted" <?php if ($row["admission_Status"] == "Admitted"){ echo "selected";}?>>Admitted</option>
+            <option value="Discharged" <?php if ($row["admission_Status"] == "Discharged"){ echo "selected";}?>>Discharged</option>
         </select>
         </div>
         <br>
         <div>
+            <?php
+            // Check if patient has assigned nurse ID
+            $nurse_Assigned_Variable = NULL;
+            if ($row['nurse_ID'] != NULL)
+            {
+                $nurse_Assigned_Variable = $row['nurse_ID'];
+            }
+
+            // Retrieve selected results from database and display them on page
+            $sqlNursesList = 'SELECT staff_List.nurse_ID, staff_List.nurse_Name, userLogin.status FROM staff_List JOIN userLogin WHERE staff_List.nurse_ID = userLogin.ID AND staff_List.activated = "1" AND userLogin.status = "Nurse"';;
+            $resultNursesList = mysqli_query($con, $sqlNursesList);
+            
+            if (mysqli_num_rows($resultNursesList) > 0) { 
+            ?>
             <label>Assigned Nurse ID</label>
-            <input type="text" class="form-control" name="nurse_ID" value="<?=  $row['nurse_ID'] ?>" placeholder="Enter Assigned Nurse Name" required pattern ="[0-9]+" title="Must only contain letters"/>
+            <select id="nurse_ID" name="nurse_ID">
+                        <option value="">Not Assigned a Nurse</option>
+                <?php
+                    while ($row2 = mysqli_fetch_array($resultNursesList)) {
+                ?>
+                        <option value="<?php echo $row2["nurse_ID"]; ?>"
+                        <?php
+                        // The value we usually set is the primary key
+                        if ($row2["nurse_ID"] == $nurse_Assigned_Variable){
+                            echo "selected";
+                        }?>>
+                            <?php echo $row2["nurse_ID"];
+                        ?>
+                        </option>
+                        <?php
+                    }
+                }?>
+            </select>
         </div>
         <br>
         <div>
         <label>Assistance Status</label>
             <select id="assistance_Status" name="assistance_Status" value="<?=  $row['assistance_Status'] ?>">
-                <option value="Unassigned">Unassigned</option>
-                <option value="On The Way">On The Way</option>
+                <option value="Unassigned" <?php if ($row["assistance_Status"] == "Unassigned"){ echo "selected";}?>>Unassigned</option>
+                <option value="On The Way" <?php if ($row["assistance_Status"] == "On The Way"){ echo "selected";}?>>On The Way</option>
             </select>
         </div>
         <br>
         <div>
-            <label>Device ID Assigned</label>
-            <?php 
-            $device_Assigned_Variable = NULL;
-            if ($row['gloves_ID'] != NULL)
-            {
-                $device_Assigned_Variable = $row['gloves_ID'];
-            }
+            <?php
+                // Check if patient has assigned device ID
+                $device_Assigned_Variable = NULL;
+                if ($row['gloves_ID'] != NULL)
+                {
+                    $device_Assigned_Variable = $row['gloves_ID'];
+                }
+                
+                // Retrieve selected results from database and display them on page
+                $sqlNursesList = 'SELECT device_ID FROM device_List';
+                $resultDeviceIDs = mysqli_query($con, $sqlNursesList);
+                
+                if (mysqli_num_rows($resultDeviceIDs) > 0) {
             ?>
-            <input type="text" class="form-control" name="gloves_ID" value="<?=  $device_Assigned_Variable ?>" placeholder="Enter Assistance Status" required pattern ="[0-9]+" title="Must only numbers"/>
+            <label>Device ID Assigned</label>
+            <select id="device_Assigned" name="device_Assigned" value=<?= $device_Assigned_Variable ?>>
+                        <option value="">Not Assigned a Device</option>
+                <?php
+                    while ($row2 = mysqli_fetch_array($resultDeviceIDs)) {
+                ?>
+                        <option value="<?php echo $row2["device_ID"]; ?>"
+                        <?php
+                        // The value we usually set is the primary key
+                        if ($row2["device_ID"] == $device_Assigned_Variable){
+                            echo "selected";
+                        }?>>
+                            <?php echo $row2["device_ID"];
+                        ?>
+                        </option>
+                        <?php
+                    }
+                }?>
+            </select>
         </div>
         <br>
         <button onclick="showSnackbar('save patient')" type = "submit" class = "btn btn-primary" name = "edit" >Save</button>
@@ -171,4 +226,3 @@ include('../../dbConnection/AES encryption.php');
 </div>
 </body>
 </html>
-                                            

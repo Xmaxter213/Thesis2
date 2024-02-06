@@ -2,6 +2,9 @@
 require_once('../../dbConnection/connection.php');
 //include('message.php');
 
+//The functions for the encryption
+include('../../dbConnection/AES encryption.php');
+
 if (isset($_GET['logout'])) {
     session_destroy();
     unset($_SESSION);
@@ -11,6 +14,7 @@ if (isset($_GET['logout'])) {
 if (!isset($_SESSION['userID'])) {
     header("location: ../../MainHospital/login_new.php");
 } else {
+
     $status = $_SESSION['userStatus'];
 
 
@@ -19,59 +23,23 @@ if (!isset($_SESSION['userID'])) {
     }
 }
 
-if (isset($_POST['add'])) {
-    $work_Shift = $_POST['work_Shift'];
-    $time_Range = $_POST['time_Range'];
+require_once('../../dbConnection/connection2.php');
+    $hospitalName = "Helping Hand";
+    $query = "SELECT hospitalStatus FROM Hospital_Table WHERE hospitalName = ?";
+    $stmt = mysqli_prepare($con2, $query);
+    mysqli_stmt_bind_param($stmt, "s", $hospitalName);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_bind_result($stmt, $hospitalStatus);
+    mysqli_stmt_fetch($stmt);
+    mysqli_stmt_close($stmt);
 
-    $query = "INSERT INTO shift_Schedule(ID, work_Shift, time_Range) VALUES (NULL,'$work_Shift', '$time_Range')";
-    $query_run = mysqli_query($con, $query);
-
-    if ($query_run) {
-        $_SESSION['message'] = "Catagory Added Successfully";
-        header('Location: EditShiftSchedule.php');
-        exit(0);
-    } else {
-        $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: EditShiftSchedule.php');
-        exit(0);
+    // Check if the hospital status is 'Active'
+    if ($hospitalStatus != 'Active') {
+        header("location: ../../expired.html");
     }
-}
 
-if (isset($_POST['editsave'])) {
-    $ID = $_POST['ID'];
-    $work_Shift = $_POST['work_Shift'];
-    $time_Range = $_POST['time_Range'];
-    $query = "UPDATE shift_Schedule SET work_Shift='$work_Shift', time_Range='$time_Range' WHERE ID='$ID'";
-    $query_run = mysqli_query($con, $query);
-
-    if ($query_run) {
-        $_SESSION['message'] = "Catagory Added Successfully";
-        header('Location: EditShiftSchedule.php');
-        exit(0);
-    } else {
-        $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: EditShiftSchedule.php');
-        exit(0);
-    }
-}
-
-if (isset($_POST['delete'])) {
-    $ID = $_POST['ID'];
-
-    $query = "DELETE FROM shift_Schedule WHERE ID ='$ID'";
-    $query_run = mysqli_query($con, $query);
-
-    if ($query_run) {
-        $_SESSION['message'] = "Catagory Added Successfully";
-        header('Location: EditShiftSchedule.php');
-        exit(0);
-    } else {
-        $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: EditShiftSchedule.php');
-        exit(0);
-    }
-}
-
+//This is to make sure that deactivated accounts that are due for deletion are deleted
+include('patientDeleteEntriesDue.php');
 ?>
 
 <!DOCTYPE html>
@@ -147,8 +115,8 @@ if (isset($_POST['delete'])) {
 
             <hr class="sidebar-divider d-none d-md-block">
 
-            <li class="nav-item active">
-                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="NursesList.php">
+            <li class="nav-item">
+                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Nurses List/NursesList.php">
                     <i class="fa-solid fa-user-nurse"></i>
                     <span>Nurses List</span></a>
             </li>
@@ -156,8 +124,8 @@ if (isset($_POST['delete'])) {
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
-            <li class="nav-item">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Patients List/PatientsList.php">
+            <li class="nav-item active">
+                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="PatientsList.php">
                     <i class="bi bi-person-lines-fill"></i>
                     <span>Patients List</span></a>
             </li>
@@ -262,51 +230,43 @@ if (isset($_POST['delete'])) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
-                    <a href="NursesList.php" class="btn btn-primary float-end">Nurses List List</a>
-                    <a href="EditShiftSchedule.php" class="btn btn-primary float-end active">Shift Schedules List</a>
-                    <a href="RestoreNurse.php" class="btn btn-primary float-end">Restore Data</a>
-                    <a href="DeletedNursesList.php" class="btn btn-primary float-end">Deleted Nurses List</a>
+                    <a href="PatientsList.php" class="btn btn-primary float-end">Patients List List</a>
+                    <a href="RestorePatient.php" class="btn btn-primary float-end">Restore Data</a>
+                    <a href="DeletedPatientsList.php" class="btn btn-primary float-end active">Deleted Patients List</a>
                     <br><br>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Shift Schedules Table</h6>
-                            <a onclick="showSnackbar('add nurse')" class="btn btn-primary float-end" data-toggle="modal" data-target="#add">Add Shift Schedule</a>
-
-                            <!-- Add modal -->
-                            <div class="modal fade" id="add" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel">Edit</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <form action="" method="POST">
-                                                <label>Work Shift</label>
-                                                <input type="text" name="work_Shift" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter work shift" required title="Must only contain letters">
-
-                                                <label>Time</label>
-                                                <input type="text" name="time_Range" required pattern ="\S(.*\S)?[A-Za-z0-9]+"  class="form-control" placeholder="Enter time frame" required title="Must only contain letters">
-                                            </div>
-                                        <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                <button onclick="showSnackbar('add')" type = "submit" class = "btn btn-success" name = "add" >Add</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <h6 class="m-0 font-weight-bold text-primary">Deleted Patients Table</h6>                
                         </div>
                         <div class="card-body">
 
                             <div class="table-responsive">
                                 <?php
+                                $sql = "SELECT * FROM staff_List_Trash WHERE deleted_at !=NULL";
+                                $result = mysqli_query($con, $sql);
+
+                                //This is for pagination
+                                // define how many results you want per page
+                                $results_per_page = 10;
+                                $number_of_results = mysqli_num_rows($result);
+
+                                // determine number of total pages available
+                                $number_of_pages = ceil($number_of_results / $results_per_page);
+
+                                // determine which page number visitor is currently on
+                                if (!isset($_GET['page'])) {
+                                    $page = 1;
+                                } else {
+                                    $page = $_GET['page'];
+                                }
+
+                                // determine the sql LIMIT starting number for the results on the displaying page
+                                $this_page_first_result = ($page - 1) * $results_per_page;
+
                                 // retrieve selected results from database and display them on page
-                                $sql = 'SELECT * FROM shift_Schedule';
+                                $sql = 'SELECT * FROM patient_List_Trash WHERE deleted_at != 1 LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
                                 $result = mysqli_query($con, $sql);
 
                                 if (mysqli_num_rows($result) > 0) {
@@ -315,88 +275,19 @@ if (isset($_POST['delete'])) {
                                     <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
                                         <thead>
                                             <tr>
-                                                <th>Work Shift</th>
-                                                <th>Time</th>
-                                                <th>Edit</th>
-                                                <th>Delete</th>
+                                                <th>Patient ID <input type="text" class="search-input" placeholder="Patient ID"></th>
+                                                <th>Date Deleted <input type="text" class="search-input" placeholder="Date Deleted"></th>
+                                                <th>Reason for Deletion <input type="text" class="search-input" placeholder="Reason for Deletion"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php
                                             while ($row = mysqli_fetch_array($result)) {
                                             ?>
-
                                                 <tr>
-                                                    <td><?php echo $row['work_Shift'] ?></td>
-                                                    <td><?php echo $row['time_Range'] ?></td>
-                                                    <td>
-                                                        <a onclick="showSnackbar('edit')" class="btn btn-info" data-toggle="modal" data-target="#edit<?= $row['ID'] ?>">Edit</a>
-
-                                                        <!-- Edit modal -->
-                                                        <div class="modal fade" id="edit<?= $row['ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                                                            <div class="modal-dialog" role="document">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title" id="exampleModalLabel">Edit</h5>
-                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                            <span aria-hidden="true">&times;</span>
-                                                                        </button>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        <form action="" method="POST">
-                                                                            <div>
-                                                                                <input type="hidden" name="ID" value="<?=  $row['ID'] ?>">
-                                                                            </div>
-
-                                                                            <label>Work Shift</label>
-                                                                            <input type="text" name="work_Shift" value="<?=  $row['work_Shift'] ?>" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters">
-
-                                                                            <label>Time</label>
-                                                                            <input type="text" name="time_Range" value="<?=  $row['time_Range'] ?>" required pattern ="\S(.*\S)?[A-Za-z0-9]+"  class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters">
-                                                                        
-                                                                        </div>
-                                                                    <div class="modal-footer">
-                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                            <button onclick="showSnackbar('edit save')" type = "submit" class = "btn btn-success" name = "editsave" >Save</button>
-                                                                        </form>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-
-                                                    <td>
-                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $row['ID'] ?>">
-                                                            Delete
-                                                        </button>
-
-                                                        <!-- Delete modal -->
-                                                        <div class="modal fade" id="delete<?= $row['ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                                                            <div class="modal-dialog" role="document">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title" id="exampleModalLabel">Are you sure you want to delete?</h5>
-                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                            <span aria-hidden="true">&times;</span>
-                                                                        </button>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        The schedule will be permanently deleted. Are you sure?
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <form action="" method="POST">
-                                                                            <div>
-                                                                                <input type="hidden" name="ID" value="<?=  $row['ID'] ?>">
-                                                                            </div>
-
-                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                            <button onclick="showSnackbar('delete')" type = "submit" class = "btn btn-danger" name = "delete" >Delete</button>
-                                                                        </form>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
+                                                    <td><?php echo $row['patient_ID'] ?></td>
+                                                    <td><?php echo $row['deleted_at']; ?></td>
+                                                    <td><?php echo $row['reason_For_Deletion']; ?></td>
                                                 </tr>
                                         <?php
                                             }
@@ -406,9 +297,50 @@ if (isset($_POST['delete'])) {
                                         ?>
                                         </tbody>
                                     </table>
+
+                                    <!-- For showing and hiding input field on deletion -->
+                                    <script type="text/javascript">
+                                        function getValue(x, ID) {
+                                            if(x.value == 'Other'){
+                                                document.getElementById("reasonForDeletionInputField" + ID).style.display = 'block'; // you need a identifier for changes
+                                                document.getElementById("reasonForDeletion" + ID).value = ""; // you need a identifier for changes
+                                            } else if(x.value == "Account will not be used"){
+                                                document.getElementById("reasonForDeletionInputField" + ID).style.display = 'none';  // you need a identifier for changes
+                                                document.getElementById("reasonForDeletion" + ID).value = "Account will not be used";
+                                            } else if(x.value == "Worker does not work in the hospital anymore"){
+                                                document.getElementById("reasonForDeletionInputField" + ID).style.display = 'none';  // you need a identifier for changes
+                                                document.getElementById("reasonForDeletion" + ID).value = "Worker does not work in the hospital anymore";
+                                            }
+                                            
+                                            // Store the reason in local storage
+                                            localStorage.setItem('reasonForDeletion', document.getElementById("reasonForDeletion").value);
+                                            
+
+                                            // For debugging
+                                            // // alert(document.getElementById("reasonForDeletion" + ID).id); //Checks if tamang nurse ID yung radio buttons
+
+                                            // var str,
+                                            // element = document.getElementById("reasonForDeletion");
+                                            // if (element != null) {
+                                            //     str = element.value;
+                                            //     alert("WORKS: " + str);
+                                            // }
+                                            // else {
+                                            //     str = null;
+                                            //     alert("NO WORK: " + str);
+                                            // }
+                                        }
+                                    </script>
                                     <script>
                                         src = "../Table Sorting/searchTable.js"
                                     </script>
+                                    
+                                    <?php
+                                    // display the links to the pages
+                                    for ($page = 1; $page <= $number_of_pages; $page++) {
+                                        echo '<a class="btn btn-primary btn-sm" href="NursesList.php?page=' . $page . '">' . $page . '</a> ';
+                                    }
+                                    ?>
                             </div>
                         </div>
                     </div>
@@ -486,12 +418,18 @@ if (isset($_POST['delete'])) {
             var x = document.getElementById("snackbar");
 
             //Change text
-            if (msg.includes('add')) {
+            if (msg.includes('add nurse')) {
                 document.getElementById("snackbar").innerHTML = "Add nurse page opening...";
-            } else if (msg.includes('edit')) {
-                document.getElementById("snackbar").innerHTML = "Opening edit modal...";
-            } else if (msg.includes('edit save')) {
-                document.getElementById("snackbar").innerHTML = "Saving available shifts...";
+            } else if (msg.includes('edit nurse')) {
+                document.getElementById("snackbar").innerHTML = "Opening edit page...";
+            } else if (msg.includes('delete nurse')) {
+                document.getElementById("snackbar").innerHTML = "Item is being deleted...";
+            } else if (msg.includes('error')) {
+                document.getElementById("snackbar").innerHTML = "Error.. Please try again.";
+            } else if (msg.includes('redirect to nurses list page')) {
+                document.getElementById("snackbar").innerHTML = "Refreshing nurses list page...";
+            } else if (msg.includes('redirect to patients list page')) {
+                document.getElementById("snackbar").innerHTML = "Opening patients list page...";
             }
 
             // Add the "show" class to DIV
@@ -535,6 +473,7 @@ if (isset($_POST['delete'])) {
             });
         });
     </script>
+
     <!-- For modal 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     -->

@@ -306,15 +306,16 @@ if (isset($_POST['edit'])) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
-                    <a href="NursesList.php" class="btn btn-primary float-end active">Nurses List Table</a>
-                    <a href="EditShiftSchedule.php" class="btn btn-primary float-end">Shift Schedules Table</a>
+                    <a href="NursesList.php" class="btn btn-primary float-end active">Nurses List List</a>
+                    <a href="EditShiftSchedule.php" class="btn btn-primary float-end">Shift Schedules List</a>
                     <a href="RestoreNurse.php" class="btn btn-primary float-end">Restore Data</a>
+                    <a href="DeletedNursesList.php" class="btn btn-primary float-end">Deleted Nurses List</a>
                     <br><br>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
+                            <h6 class="m-0 font-weight-bold text-primary">Active Nurses Accounts List</h6>
                             <a onclick="showSnackbar('add nurse')" href="AddNurse.php" class="btn btn-primary float-end">Add</a>
                             
                         </div>

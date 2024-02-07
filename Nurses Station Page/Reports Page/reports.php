@@ -26,6 +26,21 @@ if (!isset($_SESSION['userID'])) {
 //This is to make sure that deactivated accounts that are due for deletion are deleted
 
 //This code runs after the NursesList.php page i think
+
+$sql = "SELECT * FROM arduino_Report";
+$result = mysqli_query($con, $sql);
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $dataPoints = array(
+            array("label" => "Total Assistance", "y" => $row['number_of_Assistance']),
+            array("label" => "Assistance Given", "y" => $row['assistance_Given']),
+            array("label" => "Immediate Count", "y" => $row['immediate_Count']),
+            array("label" => "ADL Count", "y" => $row['adl_Count']),
+        );
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -70,32 +85,33 @@ if (!isset($_SESSION['userID'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     -->
 
-    <script type="text/javascript">
-        google.charts.load('current', {
-            'packages': ['corechart']
-        });
-        google.charts.setOnLoadCallback(drawChart);
+    <script>
+        window.onload = function() {
 
-        function drawChart() {
+            var chart = new CanvasJS.Chart("chartContainer", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "Patients Overall Requests"
+                },
+                data: [{
+                    type: "pie",
+                    indexLabel: "{y}",
+                    yValueFormatString: "#,##0.##",
+                    indexLabelPlacement: "inside",
+                    indexLabelFontColor: "#36454F",
+                    indexLabelFontSize: 18,
+                    indexLabelFontWeight: "bolder",
+                    showInLegend: true,
+                    legendText: "{label}",
+                    dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
+                }]
+            });
+            chart.render();
 
-            var data = google.visualization.arrayToDataTable([
-                ['Task', 'Hours per Day'],
-                ['Work', 11],
-                ['Eat', 2],
-                ['Commute', 2],
-                ['Watch TV', 2],
-                ['Sleep', 7]
-            ]);
-
-            var options = {
-                title: 'My Daily Activities'
-            };
-
-            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-
-            chart.draw(data, options);
         }
     </script>
+
 </head>
 
 <body id="page-top">
@@ -280,55 +296,37 @@ if (!isset($_SESSION['userID'])) {
                                 echo "";
                             ?>
                                 <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
-                                    <!-- <thead>
-                                            <tr>
-                                                <th>Number of Assistance</th>
-                                                <th>Immediate Count</th>
-                                                <th>ADL Count</th>
-                                                <th>Assistance Given</th>
-                                            </tr>
-                                        </thead> -->
-
-
                                     <tbody>
                                         <?php
                                         while ($row = mysqli_fetch_array($result)) {
                                             $count = $count + 1;
                                         ?>
-                                            <div id="piechart" style="width: 900px; height: 500px;">
 
-                                            </div>
-                                            <div class="card" style="width: 18rem; color:black; background: rgba(14,202,240, 0.25);">
-                                                <div class="card-body">
-                                                    <h6 class="font-weight-bold">Number of Assistance: <span class="font-weight-normal"><?php echo $row['number_of_Assistance'] ?></span></h6>
-                                                    <h6 class="font-weight-bold">Immediate Count: <span class="font-weight-normal"><?php echo $row['immediate_Count'] ?></span></h6>
-                                                    <h6 class="font-weight-bold">ADL Count: <span class="font-weight-normal"><?php echo $row['adl_Count'] ?></span></h6>
-                                                    <h6 class="font-weight-bold">Assistance Given: <span class="font-weight-normal text-justify"><?php echo $row['assistance_Given'] ?></span></h6>
-                                                    <h6 class="font-weight-bold">Date: <span class="font-weight-normal text-justify"><?php echo $row['date'] ?></span></h6>
-                                                </div>
-                                            </div>
-                                    <?php
+                                            <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+
+                        </div>
+                <?php
                                         }
                                     } else {
                                         echo "No Record Found";
                                     }
-                                    ?>
-                                    </tbody>
-                                </table>
-                                <script>
-                                    src = "../Table Sorting/searchTable.js"
-                                </script>
-                        </div>
+                ?>
+                </tbody>
+                </table>
+                <script>
+                    src = "../Table Sorting/searchTable.js"
+                </script>
                     </div>
                 </div>
-                <!-- /.container-fluid -->
-
             </div>
-            <!-- End of Main Content -->
-
+            <!-- /.container-fluid -->
 
         </div>
-        <!-- End of Content Wrapper -->
+        <!-- End of Main Content -->
+
+
+    </div>
+    <!-- End of Content Wrapper -->
 
     </div>
     <!-- End of Page Wrapper -->
@@ -451,7 +449,7 @@ if (!isset($_SESSION['userID'])) {
     </script>
 
     <!-- For charts -->
-    <script src="https://unpkg.com/@adminkit/core@latest/dist/js/app.js"></script>
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
 
     <!-- For modal 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

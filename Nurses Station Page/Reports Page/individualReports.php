@@ -27,17 +27,38 @@ if (!isset($_SESSION['userID'])) {
 
 //This code runs after the NursesList.php page i think
 
-$sql = "SELECT * FROM arduino_Report";
+$individualPatients = array();
+
+$odi = array();
+
+$t20 = array();
+
+// Divider of the 2 Stacked Bar Charts
+
+$individualPatients2 = array();
+
+$odi2 = array();
+
+$t21 = array();
+
+$sql = "SELECT patient_ID, patient_Name, admission_Status, assistance_Status, gloves_ID, device_ID, ADL_Count, ADL_Avg_Response, immediate_Count,
+immediate_Avg_Response, assistance_Given, pulse_Rate, battery_percent
+FROM patient_List INNER JOIN arduino_Device_List ON patient_List.gloves_ID=arduino_Device_List.device_ID";
 $result = mysqli_query($con, $sql);
+
 
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        $dataPoints = array(
-            array("label" => "Total Assistance", "y" => $row['number_of_Assistance']),
-            array("label" => "Assistance Given", "y" => $row['assistance_Given']),
-            array("label" => "Immediate Count", "y" => $row['immediate_Count']),
-            array("label" => "ADL Count", "y" => $row['adl_Count']),
-        );
+        $patientName = decryptthis($row["patient_Name"], $key);
+
+        // Data Retrieval of Immediate Chart
+        array_push($individualPatients, array("label" => $patientName, "y" => $row['immediate_Count']));
+        array_push($odi, array("label" => $patientName, "y" => $row['pulse_Rate']));
+        array_push($t20, array("label" => $patientName, "y" => $row['battery_percent']));
+
+        // Data Retrieval of ADL Chart
+        array_push($individualPatients2, array("label" => $patientName, "y" => $row['ADL_Count']));
+        array_push($t21, array("label" => $patientName, "y" => $row['battery_percent']));
     }
 }
 
@@ -87,40 +108,120 @@ if ($result->num_rows > 0) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     -->
 
-    <!-- for div refresh -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <!-- <script>
-        $(document).ready(function () {
-            setInterval(function () {
-                $("#refresh").load(".card-body");
+        $(document).ready(function() {
+            setInterval(function() {
+                $("#chartContainer").load("./reports.php");
                 refresh();
             }, 1000);
         });
     </script> -->
 
+    <!-- Chart for Immediate Help Requests -->
     <script>
         window.onload = function () {
 
-            var chart = new CanvasJS.Chart("chartContainer", {
+            var chart1 = new CanvasJS.Chart("chartContainer1", {
                 theme: "light2",
                 animationEnabled: true,
                 title: {
-                    text: "Patients Overall Requests"
+                    text: "Immediate Reports"
                 },
-                data: [{
-                    type: "pie",
-                    indexLabel: "{y}",
-                    yValueFormatString: "#,##0.##",
-                    indexLabelPlacement: "inside",
-                    indexLabelFontColor: "#36454F",
-                    indexLabelFontSize: 18,
-                    indexLabelFontWeight: "bolder",
-                    showInLegend: true,
-                    legendText: "{label}",
-                    dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
-                }]
+                axisY: {
+                    includeZero: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    itemclick: toggleDataSeries
+                },
+                toolTip: {
+                    shared: true,
+                    content: toolTipFormatter
+                },
+                data: [
+                    {
+                        type: "bar",
+                        showInLegend: true,
+                        name: "Immediate Count",
+                        color: "rgb(223,121,112)",
+                        dataPoints: <?php echo json_encode($individualPatients, JSON_NUMERIC_CHECK); ?>
+                    },
+                    {
+                        type: "bar",
+                        showInLegend: true,
+                        name: "Pulse Rate",
+                        color: "rgb(90,145,209)",
+                        dataPoints: <?php echo json_encode($odi, JSON_NUMERIC_CHECK); ?>
+                    },
+                    {
+                        type: "bar",
+                        showInLegend: true,
+                        name: "Battery Percentage",
+                        color: "rgb(155,187,88)",
+                        dataPoints: <?php echo json_encode($t20, JSON_NUMERIC_CHECK); ?>
+                    },
+                ]
             });
-            chart.render();
+
+            // Divider of 2 charts
+
+            var chart2 = new CanvasJS.Chart("chartContainer2", {
+                theme: "light2",
+                animationEnabled: true,
+                title: {
+                    text: "ADL Reports"
+                },
+                axisY: {
+                    includeZero: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    itemclick: toggleDataSeries
+                },
+                toolTip: {
+                    shared: true,
+                    content: toolTipFormatter
+                },
+                data: [
+                    {
+                        type: "bar",
+                        showInLegend: true,
+                        name: "ADL Count",
+                        color: "rgb(90,145,209)",
+                        dataPoints: <?php echo json_encode($individualPatients2, JSON_NUMERIC_CHECK); ?>
+                    },
+                    {
+                        type: "bar",
+                        showInLegend: true,
+                        name: "Battery Percentage",
+                        color: "rgb(155,187,88)",
+                        dataPoints: <?php echo json_encode($t21, JSON_NUMERIC_CHECK); ?>
+                    },
+                ]
+            });
+
+            function toolTipFormatter(e) {
+                var str = "";
+                var str2;
+                for (var i = 0; i < e.entries.length; i++) {
+                    var str1 = "<span style= \"color:" + e.entries[i].dataSeries.color + "\">" + e.entries[i].dataSeries.name + "</span>: <strong>" + e.entries[i].dataPoint.y + "</strong> <br/>";
+                    str = str.concat(str1);
+                }
+                str2 = "<strong>" + e.entries[0].dataPoint.label + "</strong> <br/>";
+                return str2.concat(str);
+            }
+
+            function toggleDataSeries(e) {
+                if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+                    e.dataSeries.visible = false;
+                }
+                else {
+                    e.dataSeries.visible = true;
+                }
+                chart.render();
+            }
+            chart1.render();
+            chart2.render();
 
         }
     </script>
@@ -287,13 +388,14 @@ if ($result->num_rows > 0) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Reports</h1>
-                    <a href="reports.php" class="btn btn-primary float-end active">Overall Reports</a>
-                    <a href="./individualReports.php" class="btn btn-primary float-end">Individual Reports</a>
+                    <a href="reports.php" class="btn btn-primary float-end">Overall Reports</a>
+                    <a href="./individualReports.php" class="btn btn-primary float-end active">Individual Reports</a>
                     <!-- <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
                         For more information about DataTables, please visit the <a target="_blank" href="https://datatables.net">official DataTables documentation</a>.</p> -->
+
                     <!-- DataTales Example -->
                     <div class="card shadow mb-3">
-                        <div class="card-body" id="refresh">
+                        <div class="card-body">
                             <?php
                             $count = 0;
                             $sql = "SELECT * FROM arduino_Report";
@@ -331,8 +433,64 @@ if ($result->num_rows > 0) {
                                         while ($row = mysqli_fetch_array($result)) {
                                             $count = $count + 1;
                                             ?>
+                                            <div id="chartContainer1" style="height: 470px; width: 100%;"></div>
 
-                                            <div id="chartContainer" style="height: 470px; width: 100%;"></div>
+                                </div>
+                                <?php
+                                        }
+                            } else {
+                                echo "No Record Found";
+                            }
+                            ?>
+                        </tbody>
+                        </table>
+                        <script>
+                            src = "../Table Sorting/searchTable.js"
+                        </script>
+                    </div>
+
+                    <!-- Chart Divider -->
+
+                    <div class="card shadow mb-3">
+                        <div class="card-body">
+                            <?php
+                            $count = 0;
+                            $sql = "SELECT * FROM arduino_Report";
+                            $result = mysqli_query($con, $sql);
+
+                            //This is for pagination
+                            // define how many results you want per page
+                            $results_per_page = 3;
+                            $number_of_results = mysqli_num_rows($result);
+
+                            // determine number of total pages available
+                            $number_of_pages = ceil($number_of_results / $results_per_page);
+
+                            // determine which page number visitor is currently on
+                            if (!isset($_GET['page'])) {
+                                $page = 1;
+                            } else {
+                                $page = $_GET['page'];
+                            }
+
+                            // determine the sql LIMIT starting number for the results on the displaying page
+                            $this_page_first_result = ($page - 1) * $results_per_page;
+
+                            // retrieve selected results from database and display them on page
+                            $sql = 'SELECT * FROM arduino_Report LIMIT ' . $this_page_first_result . ',' . $results_per_page;
+                            $result = mysqli_query($con, $sql);
+
+                            if (mysqli_num_rows($result) > 0) {
+                                echo "";
+                                ?>
+                                <table class="table table-bordered table-sortable" id="dataTable" width="100%"
+                                    cellspacing="0">
+                                    <tbody>
+                                        <?php
+                                        while ($row = mysqli_fetch_array($result)) {
+                                            $count = $count + 1;
+                                            ?>
+                                            <div id="chartContainer2" style="height: 470px; width: 100%;"></div>
 
                                 </div>
                                 <?php

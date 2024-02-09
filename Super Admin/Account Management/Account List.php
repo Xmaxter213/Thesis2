@@ -1,13 +1,12 @@
 <?php
-    require_once('../dbConnection/connection2.php');
+    require_once('../../dbConnection/connection2.php');
 
-    include('process_extension.php');
 
     if (isset($_GET['logout'])) {
         $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
 
         date_default_timezone_set('Asia/Manila');
-        
+
         $currentDateTime = date("Y-m-d H:i:s");
 
         // Insert into superAdminLogs
@@ -18,7 +17,7 @@
         {
             session_destroy();
             unset($_SESSION);
-            header("location: login_new.php");
+            header("location: ../login_new.php");
         } 
         else 
         {
@@ -26,13 +25,57 @@
         }
 
     }
-
     if (!isset($_SESSION['userID'])) {
-        header("location: login_new.php");
+        header("location: ../login_new.php");
     }
+
+
+if (isset($_POST['add'])) {
+    $userName = $_POST['userName'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $status = $_POST['status'];
+    
+    $query = "INSERT INTO superAdminAccounts ( userName, email, password, status) 
+    VALUES ('$userName','$email', '$password', '$status')";
+    $query_run = mysqli_query($con2, $query);
+
+    if ($query_run) {
+
+        $_SESSION['message'] = "Catagory Added Successfully";
+
+        $userName = $_SESSION['userID'];
+
+        date_default_timezone_set('Asia/Manila');
+
+        $currentDateTime = date("Y-m-d H:i:s");
+
+        $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$userName', 'Created Account', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con2, $sqlAddLogs);
+
+         if ($query_run_logs) 
+        {
+            header('Location: Account List.php');
+            exit(0);
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con2);
+        }
+
+        
+    } else {
+        $_SESSION['message'] = "Someting Went Wrong !";
+        header('Location: Account List.php');
+        exit(0);
+    }
+}
+
 ?>
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
 
     <meta charset="utf-8">
@@ -61,19 +104,15 @@
     <!-- For fontawesome -->
     <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
 
-    <!-- For fontawesome -->
-    <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
-
     <!-- For table sorting -->
     <link rel="stylesheet" href="tablesort.css">
-
-    <!-- For modal 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-    -->
 </head>
-<body id="page-top">
 
-<div id="wrapper">
+<body id="page-top">
+    <!-- Font Awesome -->
+    <script src="js/scripts.js"></script>
+    <!-- Page Wrapper -->
+    <div id="wrapper">
 
         <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
@@ -89,38 +128,31 @@
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
 
-
-
-
-            <!-- Nav Item - Tables -->
-            
-
-            <hr class="sidebar-divider d-none d-md-block">
-           
-
-            <li class="nav-item active">
+            <li class="nav-item">
                 <br><br>
-                <a onclick="showSnackbar('redirect to Hospital Management')" class="nav-link" href="index.php">
+                <a onclick="showSnackbar('redirect to Hospital Management')" class="nav-link" href="../index.php">
                     <i class="fa-solid fa-user-nurse"></i>
                     <span>Hospitals</span></a>
             </li>
 
              <hr class="sidebar-divider d-none d-md-block">
 
-            <li class="nav-item">
-                <a onclick="showSnackbar('redirect to Account List')" class="nav-link" href="Account Management/Account List.php">
+            <li class="nav-item active" >
+                <a onclick="showSnackbar('redirect to Account List')" class="nav-link" href="Account List.php">
                     <i class="bi bi-wallet2"></i>
                     <span>Account Management</span></a>
             </li>
 
-            <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="Logs/Logs.php">
+                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Logs/Logs.php">
                     <i class="bi bi-clipboard2-data"></i>
                     <span>Logs</span></a>
             </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
 
             <!-- Sidebar Toggler (Sidebar) -->
             <div class="text-center d-none d-md-inline">
@@ -209,24 +241,24 @@
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
+                    <br><br>
+
                     <!-- DataTales Example -->
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Hospitals</h6>
-                            <a onclick="showSnackbar('add nurse')" href="AddNurse.php" class="btn btn-primary float-end">Add</a>
-                            
+                            <h6 class="m-0 font-weight-bold text-primary">Account Management</h6>
+                            <br>
+                            <a onclick="showSnackbar('add nurse')" href="AddAccount.php" class="btn btn-primary float-end">Add Account</a>
                         </div>
                         <div class="card-body">
 
                             <div class="table-responsive">
-                                <?php
 
+                                <?php
                                 $count = 0;
-                                $sql = "SELECT * FROM Hospital_Table";
+                                $sql = "SELECT * FROM superAdminAccounts";
                                 $result = mysqli_query($con2, $sql);
 
-                                //This is for pagination
-                                // define how many results you want per page
                                 $results_per_page = 10;
                                 $number_of_results = mysqli_num_rows($result);
 
@@ -244,113 +276,39 @@
                                 $this_page_first_result = ($page - 1) * $results_per_page;
 
                                 // retrieve selected results from database and display them on page
-                                $sql = 'SELECT * FROM Hospital_Table LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
+                                $sql = 'SELECT * FROM superAdminAccounts LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
                                 $result = mysqli_query($con2, $sql);
 
                                 if (mysqli_num_rows($result) > 0) {
                                     echo "";
+
                                 ?>
+
                                     <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
                                         <thead>
                                             <tr>
-                                                <th>Hospital ID<input type="text" class="search-input" placeholder="Hospital ID"></th>
-                                                <th>Hospital Name<input type="text" class="search-input" placeholder="Hospital Name"></th>
-                                                <th>Hospital Status <input type="text" class="search-input" placeholder="Hospital Status"></th>
-                                                <th>Duration <input type="text" class="search-input" placeholder="Duration"></th>
-                                                <th>Creation Date <input type="text" class="search-input" placeholder="Creation Date"></th>
-                                                <th>Expiration <input type="text" class="search-input" placeholder="Expiration"></th>
-                                                <th>Extend Subscription</th>
+                                                <th>Account ID <input type="text" class="search-input" placeholder="AccountID"></th>
+                                                <th>User Name <input type="text" class="search-input" placeholder="User Name"></th>
+                                                <th>email <input type="text" class="search-input" placeholder="email"></th>
+                                                <th>status <input type="text" class="search-input" placeholder="status"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php
                                             while ($row = mysqli_fetch_array($result)) {
-                                                $currentDate = new DateTime();
-                                                $expirationDate = new DateTime($row['Expiration']);
+                                                $count = $count + 1;
 
-                                                $interval = $currentDate->diff($expirationDate);
-
-                                                // Check if the status is empty or if the expiration is less than 0 days
-                                                if (empty($row['hospitalStatus']) || $interval->format('%R%a') < 0) {
-                                                    // Update the hospital status to 'Expired' in the database
-                                                    $hospitalID = $row['hospital_ID'];
-                                                    $updateQuery = "UPDATE Hospital_Table SET hospitalStatus = 'Expired' WHERE hospital_ID = '$hospitalID'";
-                                                    mysqli_query($con2, $updateQuery);
-                                                } else {
-                                                    // Set the status to 'Active' if the duration is greater than or equal to 0 days
-                                                    $hospitalID = $row['hospital_ID'];
-                                                    $updateQuery = "UPDATE Hospital_Table SET hospitalStatus = 'Active' WHERE hospital_ID = '$hospitalID'";
-                                                    mysqli_query($con2, $updateQuery);
-                                                }
-                                                ?>
-                                                <!-- Extension Modal -->
-                                                <div class="modal fade" id="extendModal<?php echo $row['hospital_ID']; ?>" tabindex="-1" role="dialog" aria-labelledby="extendModalLabel" aria-hidden="true">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="extendModalLabel">Extend Subscription</h5>
-                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <form method="post" action="process_extension.php">
-                                                                    <input type="hidden" name="hospital_id" value="<?php echo $row['hospital_ID']; ?>">
-                                                                    <div class="form-group">
-                                                                        <label for="extensionDropdown">Select Duration:</label>
-                                                                        <select class="form-control" id="extensionDropdown" name="extension_duration">
-                                                                            <option value="1">1 month</option>
-                                                                            <option value="3">3 months</option>
-                                                                            <option value="5">5 months</option>
-                                                                            <option value="12">1 year</option>
-                                                                        </select>
-                                                                    </div>
-                                                                    <button type="submit" class="btn btn-primary">Extend</button>
-                                                                </form>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                            ?>
 
                                                 <tr>
-                                                    <td><?php echo $row['hospital_ID'] ?></td>
-                                                    <td><?php echo $row['hospitalName'] ?></td>
-                                                    <td><?php echo $row['hospitalStatus'] ?></td>
-                                                    <td>
-                                                        <?php
-                                                        // Check if there are years, months, or days
-                                                        $formattedInterval = '';
+                                                    <td><?php echo $row['ID']; ?></td>
+                                                    <td><?php echo $row['userName'] ?></td>
+                                                    <td><?php echo $row['email']; ?></td>
+                                                    <td><?php echo $row['status']; ?></td>
 
-                                                        if ($interval->y > 0) {
-                                                            $formattedInterval .= $interval->y . ' year' . ($interval->y > 1 ? 's' : '');
-                                                        }
-
-                                                        if ($interval->m > 0) {
-                                                            $formattedInterval .= ($formattedInterval ? ', ' : '') . $interval->m . ' month' . ($interval->m > 1 ? 's' : '');
-                                                        }
-
-                                                        if ($interval->d > 0 || empty($formattedInterval)) {
-                                                            $formattedInterval .= ($formattedInterval ? ', ' : '') . $interval->d . ' day' . ($interval->d > 1 ? 's' : '');
-                                                        }
-
-                                                        // Check if the expiration date is greater than the current date
-                                                        if ($currentDate > $expirationDate) {
-                                                            echo '-' . $formattedInterval; // Display negative duration
-                                                        } else {
-                                                            echo $formattedInterval; // Display positive duration
-                                                        }
-                                                        ?>
-                                                    </td>
-
-                                                    <td><?php echo $row['creation_Date'] ?></td>
-                                                    <td><?php echo $row['Expiration'] ?></td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#extendModal<?php echo $row['hospital_ID']; ?>">
-                                                            Extend Subscription
-                                                        </button>
-                                                    </td>
                                                 </tr>
-                                            <?php
+                                        <?php
+
                                             }
                                         } else {
                                             echo "No Record Found";
@@ -358,21 +316,50 @@
                                         ?>
                                         </tbody>
                                     </table>
-
                                     <!-- For showing and hiding input field on deletion -->
-                                    <script>
-                                        src = "../Table Sorting/searchTable.js"
+                                    <script type="text/javascript">
+                                        function getValue(x, ID) {
+                                            if(x.value == 'Other'){
+                                                document.getElementById("reasonForDeletionInputField" + ID).style.display = 'block'; // you need a identifier for changes
+                                                document.getElementById("reasonForDeletion" + ID).value = ""; // you need a identifier for changes
+                                            } else if(x.value == "Account will not be used"){
+                                                document.getElementById("reasonForDeletionInputField" + ID).style.display = 'none';  // you need a identifier for changes
+                                                document.getElementById("reasonForDeletion" + ID).value = "Account will not be used";
+                                            } else if(x.value == "Worker does not work in the hospital anymore"){
+                                                document.getElementById("reasonForDeletionInputField" + ID).style.display = 'none';  // you need a identifier for changes
+                                                document.getElementById("reasonForDeletion" + ID).value = "Worker does not work in the hospital anymore";
+                                            }
+                                            
+                                            // Store the reason in local storage
+                                            localStorage.setItem('reasonForDeletion', document.getElementById("reasonForDeletion").value);
+                                            
+
+                                            // For debugging
+                                            // // alert(document.getElementById("reasonForDeletion" + ID).id); //Checks if tamang nurse ID yung radio buttons
+
+                                            // var str,
+                                            // element = document.getElementById("reasonForDeletion");
+                                            // if (element != null) {
+                                            //     str = element.value;
+                                            //     alert("WORKS: " + str);
+                                            // }
+                                            // else {
+                                            //     str = null;
+                                            //     alert("NO WORK: " + str);
+                                            // }
+                                        }
                                     </script>
                                     
                                     <?php
                                     // display the links to the pages
                                     for ($page = 1; $page <= $number_of_pages; $page++) {
-                                        echo '<a class="btn btn-primary btn-sm" href="NursesList.php?page=' . $page . '">' . $page . '</a> ';
+                                        echo '<a class="btn btn-primary btn-sm" href="PatientsList.php?page=' . $page . '">' . $page . '</a> ';
                                     }
                                     ?>
                             </div>
                         </div>
                     </div>
+
                 </div>
                 <!-- /.container-fluid -->
 
@@ -384,8 +371,14 @@
         <!-- End of Content Wrapper -->
 
     </div>
+    <!-- End of Page Wrapper -->
 
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
 
+    <!-- Logout Modal-->
     <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -404,10 +397,6 @@
         </div>
     </div>
 
-
-    
-
-
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -425,11 +414,48 @@
     <!-- Page level custom scripts -->
     <script src="js/demo/datatables-demo.js"></script>
 
+    <!-- Use a button to open the snackbar -->
+    <button onclick="showSnackbar('added')">Show Snackbar</button>
+
+    <!-- The actual snackbar -->
+    <div id="snackbar">Some text some message..</div>
+
     <!--GARBAGE -->
     <script>
         window.addEventListener('change', event => {
             showSnackbar('added');
         });
+    </script>
+
+
+    <script>
+        function showSnackbar(msg) {
+            // Get the snackbar DIV
+            var x = document.getElementById("snackbar");
+
+            //Change text
+            if (msg.includes('add nurse')) {
+                document.getElementById("snackbar").innerHTML = "Add Account page opening...";
+            } else if (msg.includes('edit nurse')) {
+                document.getElementById("snackbar").innerHTML = "Opening edit page...";
+            } else if (msg.includes('delete nurse')) {
+                document.getElementById("snackbar").innerHTML = "Item is being deleted...";
+            } else if (msg.includes('error')) {
+                document.getElementById("snackbar").innerHTML = "Error.. Please try again.";
+            } else if (msg.includes('redirect to nurses list page')) {
+                document.getElementById("snackbar").innerHTML = "Opening nurses list page...";
+            } else if (msg.includes('redirect to patients list page')) {
+                document.getElementById("snackbar").innerHTML = "Refreshing patients list page...";
+            }
+
+            // Add the "show" class to DIV
+            x.className = "show";
+
+            // After 3 seconds, remove the show class from DIV
+            setTimeout(function() {
+                x.className = x.className.replace("show", "");
+            }, 3000);
+        }
     </script>
     <script src="../Table Sorting/tablesort.js"></script>
     <script>
@@ -463,9 +489,11 @@
             });
         });
     </script>
+
+    <!-- For modal -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
 </body>
-</html>
 
+</html>

@@ -35,7 +35,7 @@ require_once('../../dbConnection/connection2.php');
 
     // Check if the hospital status is 'Active'
     if ($hospitalStatus != 'Active') {
-        header("location: ../../expired.html");
+        header("location: ../../expired.php");
     }
 
 //This is to make sure that deactivated accounts that are due for deletion are deleted

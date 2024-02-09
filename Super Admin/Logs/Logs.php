@@ -1,39 +1,34 @@
 <?php
-#require_once('../dbConnection/connection.php');
-require_once('../../dbConnection/connection.php');
+    require_once('../../dbConnection/connection2.php');
 
 
-if (isset($_GET['logout'])) {
-    session_destroy();
-    unset($_SESSION);
-    header("location: ../../MainHospital/login_new.php");
-}
+    if (isset($_GET['logout'])) {
+        $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
 
-if (!isset($_SESSION['userID'])) {
-    header("location: ../../MainHospital/login_new.php");
-} else {
+        date_default_timezone_set('Asia/Manila');
 
-    $status = $_SESSION['userStatus'];
+        $currentDateTime = date("Y-m-d H:i:s");
 
-    if ($status === 'Nurse') {
-        header("location: ../../dumHomePage/index.php");
-    }
-}
-require_once('../../dbConnection/connection2.php');
-    $hospitalName = "Helping Hand";
-    $query = "SELECT hospitalStatus FROM Hospital_Table WHERE hospitalName = ?";
-    $stmt = mysqli_prepare($con2, $query);
-    mysqli_stmt_bind_param($stmt, "s", $hospitalName);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_bind_result($stmt, $hospitalStatus);
-    mysqli_stmt_fetch($stmt);
-    mysqli_stmt_close($stmt);
+        // Insert into superAdminLogs
+        $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$userName', 'Logout', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con2, $sqlAddLogs);
 
-    // Check if the hospital status is 'Active'
-    if ($hospitalStatus != 'Active') {
-        header("location: ../../expired.php");
+        if ($query_run_logs) 
+        {
+            session_destroy();
+            unset($_SESSION);
+            header("location: ../login_new.php");
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con2);
+        }
+
     }
 
+    if (!isset($_SESSION['userID'])) {
+        header("location: ../login_new.php");
+    }
 ?>
 
 <!DOCTYPE html>
@@ -68,25 +63,18 @@ require_once('../../dbConnection/connection2.php');
     <script src="https://kit.fontawesome.com/c4254e24a8.js" crossorigin="anonymous"></script>
 
     <!-- For table sorting -->
-    <link rel="stylesheet" href="../Table Sorting/tablesort.css">
-
-    <!-- For table sorting -->
-    <link rel="stylesheet" href="../Table Sorting/tablesort.css">
-
-    <!-- For Modal -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-
-    <!-- for div refresh -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // setInterval(function() {
-            //     $("#refresh").load("assistanceCards.php");
-            //     refresh();
-            // }, 1000);
-        });
-    </script>
+    <link rel="stylesheet" href="tablesort.css">
 </head>
+<style>
+    .odd {
+        background-color: #f9f9f9; /* Set the background color for odd rows */
+    }
+
+    .even {
+        background-color: #e6e6e6; /* Set the background color for even rows */
+    }
+</style>
+
 
 <body id="page-top">
     <!-- Font Awesome -->
@@ -108,37 +96,27 @@ require_once('../../dbConnection/connection2.php');
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
 
-
-
-
-            <!-- Nav Item - Tables -->
-            <li class="nav-item active">
-                <a onclick="showSnackbar('redirect to assistance page')" class="nav-link" href="../Assistance Card Page/assistanceCard.php">
-                    <i class="bi bi-wallet2"></i>
-                    <span>Assistance Cards</span></a>
-            </li>
-            <hr class="sidebar-divider d-none d-md-block">
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Nurses List/NursesList.php">
+                <br><br>
+                <a onclick="showSnackbar('redirect to Hospital Management')" class="nav-link" href="../index.php">
                     <i class="fa-solid fa-user-nurse"></i>
-                    <span>Nurses List</span></a>
+                    <span>Hospitals</span></a>
             </li>
 
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
+             <hr class="sidebar-divider d-none d-md-block">
 
-            <li class="nav-item">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Patients List/PatientsList.php">
-                    <i class="bi bi-person-lines-fill"></i>
-                    <span>Patients List</span></a>
+            <li class="nav-item" >
+                <a onclick="showSnackbar('redirect to Account List')" class="nav-link" href="../Account Management/Account List.php">
+                    <i class="bi bi-wallet2"></i>
+                    <span>Account Management</span></a>
             </li>
 
             <hr class="sidebar-divider d-none d-md-block">
 
-            <li class="nav-item">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Reports Page/reports.php">
+            <li class="nav-item active">
+                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="Logs.php">
                     <i class="bi bi-clipboard2-data"></i>
-                    <span>Reports</span></a>
+                    <span>Logs</span></a>
             </li>
 
             <!-- Divider -->
@@ -210,7 +188,7 @@ require_once('../../dbConnection/connection2.php');
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small"> <?php
 
                                                                                             ?></span>
-                                <img class="img-profile" src="./Images/logout.svg">
+                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -229,15 +207,87 @@ require_once('../../dbConnection/connection2.php');
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
-                <div class="px-4" style="color: black;">
-                    <h1 class="font-weight-bold">Immediate Assistance</h1>
-                    <div id="refresh" class="d-flex flex-wrap">
-                        <?php
-                        require_once("assistanceCards.php")
-                        ?>
+                <div class="container-fluid">
+
+                    <br><br>
+
+                    <!-- DataTales Example -->
+                    <div class="card shadow mb-3">
+				    <div class="card-header py-3">
+				        <h6 class="m-0 font-weight-bold text-primary">Logs</h6>
+				        <br>
+				    </div>
+					    <div class="card-body">
+					        <div class="table-responsive">
+					            <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
+					                <thead>
+					                    <tr>
+					                        <th>User</th>
+					                        <th>Action</th>
+					                        <th>Date_Time</th>
+					                    </tr>
+					                </thead>
+					                <tbody>
+					                    <?php
+
+                                        $count = 0;
+                                        $sql = "SELECT * FROM superAdminLogs";
+                                        $result = mysqli_query($con2, $sql);
+
+                                        $results_per_page = 10;
+                                        $number_of_results = mysqli_num_rows($result);
+
+                                        $number_of_pages = ceil($number_of_results / $results_per_page);
+
+                                        if (!isset($_GET['page'])) {
+                                            $page = 1;
+                                        } else {
+                                            $page = $_GET['page'];
+                                        }
+                                        $this_page_first_result = ($page - 1) * $results_per_page;
+
+                                        // retrieve selected results from database and display them on page
+                                        $sql = 'SELECT * FROM superAdminLogs LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
+                                        $result = mysqli_query($con2, $sql);
+
+
+					                    $count = 0; // Initialize the count variable
+					                    while ($row = mysqli_fetch_array($result)) {
+					                        $count = $count + 1;
+
+					                        // Use the $count variable to determine odd/even rows
+					                        $row_class = ($count % 2 == 0) ? 'even' : 'odd';
+					                    ?>
+
+					                        <tr class="<?php echo $row_class; ?>">
+					                            <td><?php echo $row['User']; ?></td>
+					                            <td><?php echo $row['Action'] ?></td>
+					                            <td><?php echo $row['Date_Time']; ?></td>
+					                        </tr>
+					                    <?php
+					                    }
+					                    ?>
+					                </tbody>
+					            </table>
+					        </div>
+					    </div>
+					</div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <ul class="pagination justify-content-center">
+                                <?php
+                                for ($page = 1; $page <= $number_of_pages; $page++) {
+                                    echo '<li class="page-item"><a class="page-link" href="Logs.php?page=' . $page . '">' . $page . '</a></li>';
+                                }
+                                ?>
+                            </ul>
+                        </div>
                     </div>
-                    <h1 class="font-weight-bold">ADL Assistance</h1>
+
+
                 </div>
+                <!-- /.container-fluid -->
 
             </div>
             <!-- End of Main Content -->
@@ -267,7 +317,7 @@ require_once('../../dbConnection/connection2.php');
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="?logout=1">Logout</a>
+                    <a class="btn btn-primary" href="?logout=true">Logout</a>
                 </div>
             </div>
         </div>
@@ -290,83 +340,7 @@ require_once('../../dbConnection/connection2.php');
     <!-- Page level custom scripts -->
     <script src="js/demo/datatables-demo.js"></script>
 
-    <!-- Use a button to open the snackbar -->
-    <button onclick="showSnackbar('added')">Show Snackbar</button>
-
-    <!-- The actual snackbar -->
-    <div id="snackbar">Some text some message..</div>
-
-    <!--GARBAGE -->
-    <script>
-        window.addEventListener('change', event => {
-            showSnackbar('added');
-        });
-    </script>
-
-
-    <script>
-        function showSnackbar(msg) {
-            // Get the snackbar DIV
-            var x = document.getElementById("snackbar");
-
-            //Change text
-            if (msg.includes('add nurse')) {
-                document.getElementById("snackbar").innerHTML = "Add nurse page opening...";
-            } else if (msg.includes('edit nurse')) {
-                document.getElementById("snackbar").innerHTML = "Opening edit page...";
-            } else if (msg.includes('delete nurse')) {
-                document.getElementById("snackbar").innerHTML = "Item is being deleted...";
-            } else if (msg.includes('error')) {
-                document.getElementById("snackbar").innerHTML = "Error.. Please try again.";
-            } else if (msg.includes('redirect to nurses list page')) {
-                document.getElementById("snackbar").innerHTML = "Opening nurses list page...";
-            } else if (msg.includes('redirect to patients list page')) {
-                document.getElementById("snackbar").innerHTML = "Refreshing patients list page...";
-            }
-
-            // Add the "show" class to DIV
-            x.className = "show";
-
-            // After 3 seconds, remove the show class from DIV
-            setTimeout(function() {
-                x.className = x.className.replace("show", "");
-            }, 3000);
-        }
-    </script>
-    <script src="../Table Sorting/tablesort.js"></script>
-    <script>
-        //Script for searching
-        document.addEventListener("DOMContentLoaded", () => {
-            document.querySelectorAll(".search-input").forEach((inputField) => {
-                const tableRows = inputField
-                    .closest("table")
-                    .querySelectorAll("tbody > tr");
-                const headerCell = inputField.closest("th");
-                const otherHeaderCells = headerCell.closest("tr").children;
-                const columnIndex = Array.from(otherHeaderCells).indexOf(headerCell);
-                const searchableCells = Array.from(tableRows).map(
-                    (row) => row.querySelectorAll("td")[columnIndex]
-                );
-
-                inputField.addEventListener("input", () => {
-                    const searchQuery = inputField.value.toLowerCase();
-
-                    for (const tableCell of searchableCells) {
-                        const row = tableCell.closest("tr");
-                        const value = tableCell.textContent.toLowerCase().replace(",", "");
-
-                        row.style.visibility = null;
-
-                        if (value.search(searchQuery) === -1) {
-                            row.style.visibility = "collapse";
-                        }
-                    }
-                });
-            });
-        });
-    </script>
     <!-- For modal -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>

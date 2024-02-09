@@ -37,7 +37,7 @@ require_once('../../dbConnection/connection2.php');
 
     // Check if the hospital status is 'Active'
     if ($hospitalStatus != 'Active') {
-        header("location: ../../expired.html");
+        header("location: ../../expired.php");
     }
 
 //This code runs after the NursesList.php page i think

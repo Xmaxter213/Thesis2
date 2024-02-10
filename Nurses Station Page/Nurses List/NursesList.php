@@ -201,7 +201,7 @@ if (isset($_POST['edit'])) {
             <hr class="sidebar-divider d-none d-md-block">
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Patients List/PatientsList.php">
+                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Patients List/patientsList.php">
                     <i class="bi bi-person-lines-fill"></i>
                     <span>Patients List</span></a>
             </li>
@@ -209,7 +209,7 @@ if (isset($_POST['edit'])) {
             <hr class="sidebar-divider d-none d-md-block">
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Reports Page/reports.php">
+                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Reports Page/reports.php">
                     <i class="bi bi-clipboard2-data"></i>
                     <span>Reports</span></a>
             </li>
@@ -257,12 +257,12 @@ if (isset($_POST['edit'])) {
                     <ul class="navbar-nav ml-auto">
 
                         <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-                        <li class="nav-item dropdown no-arrow d-sm-none">
+                        <li class="nav-item dropdown no-arnurse d-sm-none">
                             <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-search fa-fw"></i>
                             </a>
                             <!-- Dropdown - Messages -->
-                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
+                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--gnurse-in" aria-labelledby="searchDropdown">
                                 <form class="form-inline mr-auto w-100 navbar-search">
                                     <div class="input-group">
                                         <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
@@ -278,7 +278,7 @@ if (isset($_POST['edit'])) {
 
 
                         <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow">
+                        <li class="nav-item dropdown no-arnurse">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small"> <?php
 
@@ -286,7 +286,7 @@ if (isset($_POST['edit'])) {
                                 <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg">
                             </a>
                             <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--gnurse-in" aria-labelledby="userDropdown">
 
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="index.php?logout=true" data-toggle="modal" data-target="#logoutModal">
@@ -329,26 +329,19 @@ if (isset($_POST['edit'])) {
                                 $result = mysqli_query($con, $sql);
 
                                 //This is for pagination
-                                // define how many results you want per page
-                                $results_per_page = 10;
-                                $number_of_results = mysqli_num_rows($result);
+                                $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
+                                $page = isset($_GET['page']) ? $_GET['page'] : 1;
+                                $start = ($page - 1) * $limit;
+                                $result = $con->query("SELECT * FROM staff_List LIMIT $start, $limit");
+                                $nurses = $result->fetch_all(MYSQLI_ASSOC);
 
-                                // determine number of total pages available
-                                $number_of_pages = ceil($number_of_results / $results_per_page);
+                                $result1 = $con->query("SELECT count(nurse_ID) AS nurse_ID FROM staff_List");
+                                $custCount = $result1->fetch_all(MYSQLI_ASSOC);
+                                $total = $custCount[0]['nurse_ID'];
+                                $pages = ceil( $total / $limit );
 
-                                // determine which page number visitor is currently on
-                                if (!isset($_GET['page'])) {
-                                    $page = 1;
-                                } else {
-                                    $page = $_GET['page'];
-                                }
-
-                                // determine the sql LIMIT starting number for the results on the displaying page
-                                $this_page_first_result = ($page - 1) * $results_per_page;
-
-                                // retrieve selected results from database and display them on page
-                                $sql = 'SELECT * FROM staff_List WHERE activated = 1 LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
-                                $result = mysqli_query($con, $sql);
+                                $Previous = $page - 1;
+                                $Next = $page + 1;
 
                                 if (mysqli_num_rows($result) > 0) {
                                     echo "";
@@ -369,13 +362,13 @@ if (isset($_POST['edit'])) {
                                         </thead>
                                         <tbody>
                                             <?php
-                                            while ($row = mysqli_fetch_array($result)) {
+                                            foreach($nurses as $nurse) :
                                                 $count = $count + 1;
 
                                                 //Decrypt data from db
-                                                $dec_nurse_Name = decryptthis($row['nurse_Name'], $key);
-                                                $dec_nurse_Sex = decryptthis($row['nurse_Sex'], $key);
-                                                $dec_nurse_birth_Date = decryptthis($row['nurse_birth_Date'], $key);
+                                                $dec_nurse_Name = decryptthis($nurse['nurse_Name'], $key);
+                                                $dec_nurse_Sex = decryptthis($nurse['nurse_Sex'], $key);
+                                                $dec_nurse_birth_Date = decryptthis($nurse['nurse_birth_Date'], $key);
                                                 //date in mm/dd/yyyy format; or it can be in other formats as well
                                                 $birthDate = $dec_nurse_birth_Date;
                                                 //explode the date to get month, day and year
@@ -389,29 +382,29 @@ if (isset($_POST['edit'])) {
                                                     $dec_nurse_Age = 0;
                                                 }
 
-                                                $dec_date_Employment = decryptthis($row['date_Employment'], $key);
+                                                $dec_date_Employment = decryptthis($nurse['date_Employment'], $key);
                                             ?>
 
                                                 <tr>
-                                                    <td><?php echo $row['nurse_ID'] ?></td>
+                                                    <td><?php echo $nurse['nurse_ID'] ?></td>
                                                     <td><?php echo $dec_nurse_Name ?></td>
                                                     <td><?php echo $dec_nurse_Sex ?></td>
                                                     <td><?php echo $dec_nurse_Age ?></td>
-                                                    <td><?php echo $row['shift_Schedule']; ?></td>
-                                                    <td><?php echo $row['employment_Status']; ?></td>
+                                                    <td><?php echo $nurse['shift_Schedule']; ?></td>
+                                                    <td><?php echo $nurse['employment_Status']; ?></td>
                                                     <td><?php echo $dec_date_Employment ?></td>
                                                     <td>
 
-                                                        <a onclick="showSnackbar('edit nurse')" href="EditNurse.php?nurse_ID=<?= $row['nurse_ID'] ?>" class="btn btn-info">Edit</a>
+                                                        <a onclick="showSnackbar('edit nurse')" href="EditNurse.php?nurse_ID=<?= $nurse['nurse_ID'] ?>" class="btn btn-info">Edit</a>
                                                     </td>
 
                                                     <td>
-                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $row['nurse_ID'] ?>">
+                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $nurse['nurse_ID'] ?>">
                                                             Delete
                                                         </button>
 
                                                         <!-- Delete modal -->
-                                                        <div class="modal fade" id="delete<?= $row['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                        <div class="modal fade" id="delete<?= $nurse['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
@@ -427,24 +420,24 @@ if (isset($_POST['edit'])) {
                                                                             <label for="deleteReason1">Reason for deletion: </label> <br>
 
                                                                             <!-- Isa lang may required kasi same name naman sila -->
-                                                                            <input type="radio" name="deleteReason" id="deleteReason1"  value="Account will not be used" required onchange="getValue(this, <?php echo $row['nurse_ID'] ?>)">
+                                                                            <input type="radio" name="deleteReason" id="deleteReason1"  value="Account will not be used" required onchange="getValue(this, <?php echo $nurse['nurse_ID'] ?>)">
                                                                             <label for="deleteReason1">Account will not be used</label> <br>
 
-                                                                            <input type="radio" name="deleteReason" id="deleteReason2" value="Worker does not work in the hospital anymore" onchange="getValue(this, <?php echo $row['nurse_ID'] ?>)">
+                                                                            <input type="radio" name="deleteReason" id="deleteReason2" value="Worker does not work in the hospital anymore" onchange="getValue(this, <?php echo $nurse['nurse_ID'] ?>)">
                                                                             <label for="deleteReason2">Worker does not work in the hospital anymore</label> <br>
 
                                                                             <!-- Iba name cuz input field need -->
-                                                                            <input type="radio" name="deleteReason" id="deleteReason3" value="Other" onchange="getValue(this, <?php echo $row['nurse_ID'] ?>)">
+                                                                            <input type="radio" name="deleteReason" id="deleteReason3" value="Other" onchange="getValue(this, <?php echo $nurse['nurse_ID'] ?>)">
                                                                             <label for="deleteReason3">Other</label> <br>
                                                                             
-                                                                            <div id="reasonForDeletionInputField<?= $row['nurse_ID'] ?>" style="display:none;">
+                                                                            <div id="reasonForDeletionInputField<?= $nurse['nurse_ID'] ?>" style="display:none;">
                                                                             <!-- wtf bat iba yung gumagana ?= pero ?php hindi sa code sa baba :/ -->
-                                                                            <input type="text" name="reasonForDeletion<?= $row['nurse_ID'] ?>" id="reasonForDeletion<?= $row['nurse_ID'] ?>" onchange="getValue(this, <?php echo $row['nurse_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" title="Must only contain letters & numbers">
+                                                                            <input type="text" name="reasonForDeletion<?= $nurse['nurse_ID'] ?>" id="reasonForDeletion<?= $nurse['nurse_ID'] ?>" onchange="getValue(this, <?php echo $nurse['nurse_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" title="Must only contain letters & numbers">
                                                                             </div>   
                                                                     </div>
                                                                     <div class="modal-footer">
                                                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                            <button type="submit" name="nurseDelete" value="<?= $row['nurse_ID'] ?>" class="btn btn-danger">Delete</a>
+                                                                            <button type="submit" name="nurseDelete" value="<?= $nurse['nurse_ID'] ?>" class="btn btn-danger">Delete</a>
                                                                         </form>
                                                                     </div>
                                                                 </div>
@@ -452,12 +445,8 @@ if (isset($_POST['edit'])) {
                                                         </div>
                                                     </td>
                                                 </tr>
-                                        <?php
-                                            }
-                                        } else {
-                                            echo "No Record Found";
-                                        }
-                                        ?>
+                                                <?php endforeach;
+                                                } ?>
                                         </tbody>
                                     </table>
 
@@ -498,12 +487,36 @@ if (isset($_POST['edit'])) {
                                         src = "../Table Sorting/searchTable.js"
                                     </script>
                                     
-                                    <?php
-                                    // display the links to the pages
-                                    for ($page = 1; $page <= $number_of_pages; $page++) {
-                                        echo '<a class="btn btn-primary btn-sm" href="NursesList.php?page=' . $page . '">' . $page . '</a> ';
-                                    }
-                                    ?>
+                                    <!-- Pagination start -->
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination">
+                                            <li class="page-item">
+                                            <a class="page-link" href="NursesList.php?page=<?= $Previous; ?>" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo; Previous</span>
+                                            </a>
+                                            </li>
+                                            <?php for($i = 1; $i<= $pages; $i++) : ?>
+                                                <li class="page-item"><a class="page-link" href="NursesList.php?page=<?= $i; ?>"><?= $i; ?></a></li>
+                                            <?php endfor; ?>
+                                            <li class="page-item">
+                                            <a class="page-link" href="NursesList.php?page=<?= $Next; ?>" aria-label="Next">
+                                                <span aria-hidden="true">Next &raquo;</span>
+                                            </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                    <div class="text-center" style="margin-top: 20px; " class="col-md-2">
+                                            <form method="post" action="#">
+                                                    <select name="limit-records" id="limit-records">
+                                                        <option disabled="disabled" selected="selected">---Limit Records---</option>
+                                                        <?php foreach([10,100,500,1000,5000] as $limit): ?>
+                                                            <option <?php if( isset($_POST["limit-records"]) && $_POST["limit-records"] == $limit) echo "selected" ?> value="<?= $limit; ?>"><?= $limit; ?></option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <!-- Pagination end -->
                             </div>
                         </div>
                     </div>
@@ -591,8 +604,8 @@ if (isset($_POST['edit'])) {
                 document.getElementById("snackbar").innerHTML = "Error.. Please try again.";
             } else if (msg.includes('redirect to nurses list page')) {
                 document.getElementById("snackbar").innerHTML = "Refreshing nurses list page...";
-            } else if (msg.includes('redirect to patients list page')) {
-                document.getElementById("snackbar").innerHTML = "Opening patients list page...";
+            } else if (msg.includes('redirect to nurses list page')) {
+                document.getElementById("snackbar").innerHTML = "Opening nurses list page...";
             }
 
             // Add the "show" class to DIV
@@ -609,27 +622,27 @@ if (isset($_POST['edit'])) {
         //Script for searching
         document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll(".search-input").forEach((inputField) => {
-                const tableRows = inputField
+                const tablenurses = inputField
                     .closest("table")
                     .querySelectorAll("tbody > tr");
                 const headerCell = inputField.closest("th");
                 const otherHeaderCells = headerCell.closest("tr").children;
                 const columnIndex = Array.from(otherHeaderCells).indexOf(headerCell);
-                const searchableCells = Array.from(tableRows).map(
-                    (row) => row.querySelectorAll("td")[columnIndex]
+                const searchableCells = Array.from(tablenurses).map(
+                    (nurse) => nurse.querySelectorAll("td")[columnIndex]
                 );
 
                 inputField.addEventListener("input", () => {
                     const searchQuery = inputField.value.toLowerCase();
 
                     for (const tableCell of searchableCells) {
-                        const row = tableCell.closest("tr");
+                        const nurse = tableCell.closest("tr");
                         const value = tableCell.textContent.toLowerCase().replace(",", "");
 
-                        row.style.visibility = null;
+                        nurse.style.visibility = null;
 
                         if (value.search(searchQuery) === -1) {
-                            row.style.visibility = "collapse";
+                            nurse.style.visibility = "collapse";
                         }
                     }
                 });
@@ -643,6 +656,16 @@ if (isset($_POST['edit'])) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+
+    <!-- Pagination -->
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $("#limit-records").change(function(){
+            // alert(this.value)
+            $('form').submit();
+        })
+    })
+    </script>
 </body>
 
 </html>

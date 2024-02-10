@@ -270,33 +270,22 @@ if (isset($_POST['nurseRestore'])) {
 
                             <div class="table-responsive">
                                 <?php
-
                                 $count = 0;
-                                $sql = "SELECT * FROM staff_List WHERE activated = 1";
-                                $result = mysqli_query($con, $sql);
-
                                 //This is for pagination
-                                // define how many results you want per page
-                                $results_per_page = 10;
-                                $number_of_results = mysqli_num_rows($result);
+                                $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
+                                $page = isset($_GET['page']) ? $_GET['page'] : 1;
+                                $start = ($page - 1) * $limit;
+                                $result = $con->query("SELECT staff_List.nurse_ID, staff_List.nurse_Name, staff_List.delete_at, staff_List_Trash.reason_For_Deletion 
+                                FROM staff_List JOIN staff_List_Trash ON staff_List.nurse_ID=staff_List_Trash.nurse_ID ORDER BY staff_List.nurse_ID LIMIT $start, $limit");
+                                $nurses = $result->fetch_all(MYSQLI_ASSOC);
 
-                                // determine number of total pages available
-                                $number_of_pages = ceil($number_of_results / $results_per_page);
+                                $result1 = $con->query("SELECT count(nurse_ID) AS nurse_ID FROM staff_List WHERE activated = 0");
+                                $custCount = $result1->fetch_all(MYSQLI_ASSOC);
+                                $total = $custCount[0]['nurse_ID'];
+                                $pages = ceil( $total / $limit );
 
-                                // determine which page number visitor is currently on
-                                if (!isset($_GET['page'])) {
-                                    $page = 1;
-                                } else {
-                                    $page = $_GET['page'];
-                                }
-
-                                // determine the sql LIMIT starting number for the results on the displaying page
-                                $this_page_first_result = ($page - 1) * $results_per_page;
-
-                                // retrieve selected results from database and display them on page
-                                $sql = 'SELECT staff_List.nurse_ID, staff_List.nurse_Name, staff_List.delete_at, staff_List_Trash.reason_For_Deletion 
-                                FROM staff_List JOIN staff_List_Trash ON staff_List.nurse_ID=staff_List_Trash.nurse_ID ORDER BY staff_List.nurse_ID;';
-                                $result = mysqli_query($con, $sql);
+                                $Previous = $page - 1;
+                                $Next = $page + 1;
 
                                 if (mysqli_num_rows($result) > 0) {
                                     echo "";
@@ -313,25 +302,25 @@ if (isset($_POST['nurseRestore'])) {
                                         </thead>
                                         <tbody>
                                             <?php
-                                            while ($row = mysqli_fetch_array($result)) {
+                                            foreach($nurses as $nurse) :
                                                 $count = $count + 1;
 
                                                 //Decrypt data from db
-                                                $dec_nurse_Name = decryptthis($row['nurse_Name'], $key);
+                                                $dec_nurse_Name = decryptthis($nurse['nurse_Name'], $key);
                                             ?>
 
                                                 <tr>
-                                                    <td><?php echo $row['nurse_ID'] ?></td>
+                                                    <td><?php echo $nurse['nurse_ID'] ?></td>
                                                     <td><?php echo $dec_nurse_Name ?></td>
-                                                    <td><?php echo $row['reason_For_Deletion']; ?></td>
-                                                    <td><?php echo $row['delete_at']; ?></td>
+                                                    <td><?php echo $nurse['reason_For_Deletion']; ?></td>
+                                                    <td><?php echo $nurse['delete_at']; ?></td>
                                                     <td>
-                                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#restore<?= $row['nurse_ID'] ?>">
+                                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#restore<?= $nurse['nurse_ID'] ?>">
                                                             Restore
                                                         </button>
 
                                                         <!-- Restore modal -->
-                                                        <div class="modal fade" id="restore<?= $row['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                        <div class="modal fade" id="restore<?= $nurse['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
@@ -346,7 +335,7 @@ if (isset($_POST['nurseRestore'])) {
                                                                     </div>
                                                                     <div class="modal-footer">
                                                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                            <button type="submit" name="nurseRestore" value="<?= $row['nurse_ID'] ?>" class="btn btn-success">Restore</a>
+                                                                            <button type="submit" name="nurseRestore" value="<?= $nurse['nurse_ID'] ?>" class="btn btn-success">Restore</a>
                                                                         </form>
                                                                     </div>
                                                                 </div>
@@ -354,12 +343,8 @@ if (isset($_POST['nurseRestore'])) {
                                                         </div>
                                                     </td>
                                                 </tr>
-                                        <?php
-                                            }
-                                        } else {
-                                            echo "No Record Found";
-                                        }
-                                        ?>
+                                            <?php endforeach;
+                                            } ?>
                                         </tbody>
                                     </table>
 
@@ -400,12 +385,36 @@ if (isset($_POST['nurseRestore'])) {
                                         src = "../Table Sorting/searchTable.js"
                                     </script>
                                     
-                                    <?php
-                                    // display the links to the pages
-                                    for ($page = 1; $page <= $number_of_pages; $page++) {
-                                        echo '<a class="btn btn-primary btn-sm" href="NursesList.php?page=' . $page . '">' . $page . '</a> ';
-                                    }
-                                    ?>
+                                    <!-- Pagination start -->
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination">
+                                            <li class="page-item">
+                                            <a class="page-link" href="RestoreNurse.php?page=<?= $Previous; ?>" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo; Previous</span>
+                                            </a>
+                                            </li>
+                                            <?php for($i = 1; $i<= $pages; $i++) : ?>
+                                                <li class="page-item"><a class="page-link" href="RestoreNurse.php?page=<?= $i; ?>"><?= $i; ?></a></li>
+                                            <?php endfor; ?>
+                                            <li class="page-item">
+                                            <a class="page-link" href="RestoreNurse.php?page=<?= $Next; ?>" aria-label="Next">
+                                                <span aria-hidden="true">Next &raquo;</span>
+                                            </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                    <div class="text-center" style="margin-top: 20px; " class="col-md-2">
+                                            <form method="post" action="#">
+                                                    <select name="limit-records" id="limit-records">
+                                                        <option disabled="disabled" selected="selected">---Limit Records---</option>
+                                                        <?php foreach([10,100,500,1000,5000] as $limit): ?>
+                                                            <option <?php if( isset($_POST["limit-records"]) && $_POST["limit-records"] == $limit) echo "selected" ?> value="<?= $limit; ?>"><?= $limit; ?></option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <!-- Pagination end -->
                             </div>
                         </div>
                     </div>
@@ -545,6 +554,15 @@ if (isset($_POST['nurseRestore'])) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <!-- Pagination -->
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $("#limit-records").change(function(){
+            // alert(this.value)
+            $('form').submit();
+        })
+    })
+    </script>
 </body>
 
 </html>

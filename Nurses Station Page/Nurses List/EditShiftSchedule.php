@@ -305,10 +305,21 @@ if (isset($_POST['delete'])) {
 
                             <div class="table-responsive">
                                 <?php
-                                // retrieve selected results from database and display them on page
-                                $sql = 'SELECT * FROM shift_Schedule';
-                                $result = mysqli_query($con, $sql);
+                                //This is for pagination
+                                $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
+                                $page = isset($_GET['page']) ? $_GET['page'] : 1;
+                                $start = ($page - 1) * $limit;
+                                $result = $con->query("SELECT * FROM shift_Schedule LIMIT $start, $limit");
+                                $shiftSchedules = $result->fetch_all(MYSQLI_ASSOC);
 
+                                $result1 = $con->query("SELECT count(ID) AS ID FROM shift_Schedule");
+                                $custCount = $result1->fetch_all(MYSQLI_ASSOC);
+                                $total = $custCount[0]['ID'];
+                                $pages = ceil( $total / $limit );
+
+                                $Previous = $page - 1;
+                                $Next = $page + 1;
+                                
                                 if (mysqli_num_rows($result) > 0) {
                                     echo "";
                                 ?>
@@ -323,17 +334,17 @@ if (isset($_POST['delete'])) {
                                         </thead>
                                         <tbody>
                                             <?php
-                                            while ($row = mysqli_fetch_array($result)) {
+                                            foreach($shiftSchedules as $shiftSchedule) :
                                             ?>
 
                                                 <tr>
-                                                    <td><?php echo $row['work_Shift'] ?></td>
-                                                    <td><?php echo $row['time_Range'] ?></td>
+                                                    <td><?php echo $shiftSchedule['work_Shift'] ?></td>
+                                                    <td><?php echo $shiftSchedule['time_Range'] ?></td>
                                                     <td>
-                                                        <a onclick="showSnackbar('edit')" class="btn btn-info" data-toggle="modal" data-target="#edit<?= $row['ID'] ?>">Edit</a>
+                                                        <a onclick="showSnackbar('edit')" class="btn btn-info" data-toggle="modal" data-target="#edit<?= $shiftSchedule['ID'] ?>">Edit</a>
 
                                                         <!-- Edit modal -->
-                                                        <div class="modal fade" id="edit<?= $row['ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                        <div class="modal fade" id="edit<?= $shiftSchedule['ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
@@ -345,14 +356,14 @@ if (isset($_POST['delete'])) {
                                                                     <div class="modal-body">
                                                                         <form action="" method="POST">
                                                                             <div>
-                                                                                <input type="hidden" name="ID" value="<?=  $row['ID'] ?>">
+                                                                                <input type="hidden" name="ID" value="<?=  $shiftSchedule['ID'] ?>">
                                                                             </div>
 
                                                                             <label>Work Shift</label>
-                                                                            <input type="text" name="work_Shift" value="<?=  $row['work_Shift'] ?>" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters">
+                                                                            <input type="text" name="work_Shift" value="<?=  $shiftSchedule['work_Shift'] ?>" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters">
 
                                                                             <label>Time</label>
-                                                                            <input type="text" name="time_Range" value="<?=  $row['time_Range'] ?>" required pattern ="\S(.*\S)?[A-Za-z0-9]+"  class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters">
+                                                                            <input type="text" name="time_Range" value="<?=  $shiftSchedule['time_Range'] ?>" required pattern ="\S(.*\S)?[A-Za-z0-9]+"  class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters">
                                                                         
                                                                         </div>
                                                                     <div class="modal-footer">
@@ -366,12 +377,12 @@ if (isset($_POST['delete'])) {
                                                     </td>
 
                                                     <td>
-                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $row['ID'] ?>">
+                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $shiftSchedule['ID'] ?>">
                                                             Delete
                                                         </button>
 
                                                         <!-- Delete modal -->
-                                                        <div class="modal fade" id="delete<?= $row['ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                        <div class="modal fade" id="delete<?= $shiftSchedule['ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
@@ -386,7 +397,7 @@ if (isset($_POST['delete'])) {
                                                                     <div class="modal-footer">
                                                                         <form action="" method="POST">
                                                                             <div>
-                                                                                <input type="hidden" name="ID" value="<?=  $row['ID'] ?>">
+                                                                                <input type="hidden" name="ID" value="<?=  $shiftSchedule['ID'] ?>">
                                                                             </div>
 
                                                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -398,17 +409,44 @@ if (isset($_POST['delete'])) {
                                                         </div>
                                                     </td>
                                                 </tr>
-                                        <?php
-                                            }
-                                        } else {
-                                            echo "No Record Found";
-                                        }
-                                        ?>
+                                                <?php endforeach;
+                                                } ?>
                                         </tbody>
                                     </table>
                                     <script>
                                         src = "../Table Sorting/searchTable.js"
                                     </script>
+
+                                    <!-- Pagination start -->
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination">
+                                            <li class="page-item">
+                                            <a class="page-link" href="EditShiftSchedule.php?page=<?= $Previous; ?>" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo; Previous</span>
+                                            </a>
+                                            </li>
+                                            <?php for($i = 1; $i<= $pages; $i++) : ?>
+                                                <li class="page-item"><a class="page-link" href="EditShiftSchedule.php?page=<?= $i; ?>"><?= $i; ?></a></li>
+                                            <?php endfor; ?>
+                                            <li class="page-item">
+                                            <a class="page-link" href="EditShiftSchedule.php?page=<?= $Next; ?>" aria-label="Next">
+                                                <span aria-hidden="true">Next &raquo;</span>
+                                            </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                    <div class="text-center" style="margin-top: 20px; " class="col-md-2">
+                                            <form method="post" action="#">
+                                                    <select name="limit-records" id="limit-records">
+                                                        <option disabled="disabled" selected="selected">---Limit Records---</option>
+                                                        <?php foreach([10,100,500,1000,5000] as $limit): ?>
+                                                            <option <?php if( isset($_POST["limit-records"]) && $_POST["limit-records"] == $limit) echo "selected" ?> value="<?= $limit; ?>"><?= $limit; ?></option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <!-- Pagination end -->
                             </div>
                         </div>
                     </div>
@@ -541,6 +579,15 @@ if (isset($_POST['delete'])) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <!-- Pagination -->
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $("#limit-records").change(function(){
+            // alert(this.value)
+            $('form').submit();
+        })
+    })
+    </script>
 </body>
 
 </html>

@@ -244,30 +244,20 @@ include('patientDeleteEntriesDue.php');
 
                             <div class="table-responsive">
                                 <?php
-                                $sql = "SELECT * FROM staff_List_Trash WHERE deleted_at !=NULL";
-                                $result = mysqli_query($con, $sql);
-
                                 //This is for pagination
-                                // define how many results you want per page
-                                $results_per_page = 10;
-                                $number_of_results = mysqli_num_rows($result);
+                                $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
+                                $page = isset($_GET['page']) ? $_GET['page'] : 1;
+                                $start = ($page - 1) * $limit;
+                                $result = $con->query("SELECT * FROM patient_List_Trash WHERE deleted_at !=1 LIMIT $start, $limit");
+                                $patients = $result->fetch_all(MYSQLI_ASSOC);
 
-                                // determine number of total pages available
-                                $number_of_pages = ceil($number_of_results / $results_per_page);
+                                $result1 = $con->query("SELECT count(patient_ID) AS patient_ID FROM patient_List_Trash WHERE deleted_at !=1");
+                                $custCount = $result1->fetch_all(MYSQLI_ASSOC);
+                                $total = $custCount[0]['patient_ID'];
+                                $pages = ceil( $total / $limit );
 
-                                // determine which page number visitor is currently on
-                                if (!isset($_GET['page'])) {
-                                    $page = 1;
-                                } else {
-                                    $page = $_GET['page'];
-                                }
-
-                                // determine the sql LIMIT starting number for the results on the displaying page
-                                $this_page_first_result = ($page - 1) * $results_per_page;
-
-                                // retrieve selected results from database and display them on page
-                                $sql = 'SELECT * FROM patient_List_Trash WHERE deleted_at != 1 LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
-                                $result = mysqli_query($con, $sql);
+                                $Previous = $page - 1;
+                                $Next = $page + 1;
 
                                 if (mysqli_num_rows($result) > 0) {
                                     echo "";
@@ -282,19 +272,15 @@ include('patientDeleteEntriesDue.php');
                                         </thead>
                                         <tbody>
                                             <?php
-                                            while ($row = mysqli_fetch_array($result)) {
+                                            foreach($patients as $patient) :
                                             ?>
                                                 <tr>
-                                                    <td><?php echo $row['patient_ID'] ?></td>
-                                                    <td><?php echo $row['deleted_at']; ?></td>
-                                                    <td><?php echo $row['reason_For_Deletion']; ?></td>
+                                                    <td><?php echo $patient['patient_ID'] ?></td>
+                                                    <td><?php echo $patient['deleted_at']; ?></td>
+                                                    <td><?php echo $patient['reason_For_Deletion']; ?></td>
                                                 </tr>
-                                        <?php
-                                            }
-                                        } else {
-                                            echo "No Record Found";
-                                        }
-                                        ?>
+                                            <?php endforeach;
+                                            } ?>
                                         </tbody>
                                     </table>
 
@@ -335,12 +321,36 @@ include('patientDeleteEntriesDue.php');
                                         src = "../Table Sorting/searchTable.js"
                                     </script>
                                     
-                                    <?php
-                                    // display the links to the pages
-                                    for ($page = 1; $page <= $number_of_pages; $page++) {
-                                        echo '<a class="btn btn-primary btn-sm" href="NursesList.php?page=' . $page . '">' . $page . '</a> ';
-                                    }
-                                    ?>
+                                    <!-- Pagination start -->
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination">
+                                            <li class="page-item">
+                                            <a class="page-link" href="DeletedPatientsList.php?page=<?= $Previous; ?>" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo; Previous</span>
+                                            </a>
+                                            </li>
+                                            <?php for($i = 1; $i<= $pages; $i++) : ?>
+                                                <li class="page-item"><a class="page-link" href="DeletedPatientsList.php?page=<?= $i; ?>"><?= $i; ?></a></li>
+                                            <?php endfor; ?>
+                                            <li class="page-item">
+                                            <a class="page-link" href="DeletedPatientsList.php?page=<?= $Next; ?>" aria-label="Next">
+                                                <span aria-hidden="true">Next &raquo;</span>
+                                            </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                    <div class="text-center" style="margin-top: 20px; " class="col-md-2">
+                                            <form method="post" action="#">
+                                                    <select name="limit-records" id="limit-records">
+                                                        <option disabled="disabled" selected="selected">---Limit Records---</option>
+                                                        <?php foreach([10,100,500,1000,5000] as $limit): ?>
+                                                            <option <?php if( isset($_POST["limit-records"]) && $_POST["limit-records"] == $limit) echo "selected" ?> value="<?= $limit; ?>"><?= $limit; ?></option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <!-- Pagination end -->
                             </div>
                         </div>
                     </div>
@@ -480,6 +490,15 @@ include('patientDeleteEntriesDue.php');
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <!-- Pagination -->
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#limit-records").change(function(){
+                // alert(this.value)
+                $('form').submit();
+            })
+        })
+    </script>
 </body>
 
 </html>

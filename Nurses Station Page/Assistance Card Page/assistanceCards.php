@@ -30,7 +30,43 @@ if ($result->num_rows > 0) {
             $patient_Age = 0;
         }
 
+        if($row['assistance_Status'] == "Unassigned")
+        {
+
+            try {
+                $message = "Patient: " . $dec_patient_Name . " needs help at room: " . $row['room_Number'];
+                $phoneNumber = "09771408389";
+
+                if ($message != null && $phoneNumber != null) {
+                    // my local modem from my phone.
+                    $url = "http://192.168.1.20:8090/SendSMS?username=Mawser&password=1234&phone=" . $phoneNumber . "&message=" . urlencode($message);
+                    $curl = curl_init($url);
+                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                    $curl_response = curl_exec($curl);
+
+                    if ($curl_response === false) {
+                        $info = curl_getinfo($curl);
+                        curl_close($curl);
+                        error_log('Error occurred: ' . var_export($info, true));
+                    }
+
+                    curl_close($curl);
+
+                    $response = json_decode($curl_response);
+
+                    /*if ($response !== null && property_exists($response, 'status') && $response->status == 200) {
+                        echo 'Message has been sent';
+                    } else {
+                        echo 'Technical Problem';
+                    }*/
+                }
+            } catch (Exception $ex) {
+                error_log("Exception: " . $ex->getMessage());
+            }
+
+        }
         assistanceCard($row['patient_ID'], $dec_patient_Name, $row['room_Number'], $patient_Age, $admissionReason, $row['admission_Status'], $row['nurse_ID'], $row['assistance_Status'], $row['gloves_ID']);
+
     }
 } else {
     echo "0";

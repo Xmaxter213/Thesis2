@@ -1,47 +1,61 @@
 <?php
-// process_extension.php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
+require '../vendor/autoload.php';
 require_once('../dbConnection/connection2.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hospitalID = $_POST['hospital_id'];
     $extensionDuration = $_POST['extension_duration'];
 
-    // Get the current expiration date from the database
-    $currentExpirationQuery = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = '$hospitalID'";
-    $currentExpirationResult = mysqli_query($con2, $currentExpirationQuery);
+    // Get the current expiration date from the database using prepared statement
+    $currentExpirationQuery = "SELECT Expiration, hospitalName FROM Hospital_Table WHERE hospital_ID = ?";
+    $stmt = mysqli_prepare($con2, $currentExpirationQuery);
+    mysqli_stmt_bind_param($stmt, 's', $hospitalID);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_store_result($stmt);
 
-    if ($currentExpirationResult && $row = mysqli_fetch_assoc($currentExpirationResult)) {
-        $currentExpiration = new DateTime($row['Expiration']);
-        // Add the selected extension duration in months
-        $newExpiration = $currentExpiration->add(new DateInterval("P{$extensionDuration}M"));
+    if (mysqli_stmt_num_rows($stmt) > 0) {
+        mysqli_stmt_bind_result($stmt, $currentExpiration, $hospitalName);
+        mysqli_stmt_fetch($stmt);
+        
+        $currentExpirationDateTime = new DateTime($currentExpiration);
+        $newExpirationDateTime = clone $currentExpirationDateTime;
+        $newExpirationDateTime->add(new DateInterval("P{$extensionDuration}M"));
 
-        // Update the 'Expiration' column in the database
-        $updateQuery = "UPDATE Hospital_Table SET Expiration = '{$newExpiration->format('Y-m-d')}' WHERE hospital_ID = '$hospitalID'";
-        mysqli_query($con2, $updateQuery);
+        $updateQuery = "UPDATE Hospital_Table SET Expiration = ?, hospitalStatus = ? WHERE hospital_ID = ?";
+        $status = $newExpirationDateTime < new DateTime() ? 'Expired' : 'Active';
+        $stmt = mysqli_prepare($con2, $updateQuery);
+        mysqli_stmt_bind_param($stmt, 'sss', $newExpirationDateTime->format('Y-m-d'), $status, $hospitalID);
+        mysqli_stmt_execute($stmt);
 
-        // Update status based on expiration
-        $currentDate = new DateTime();
-        $interval = $currentDate->diff($newExpiration);
+        // Send email notification
+        $mail = new PHPMailer(true);
+        try {
+            $mail->isSMTP();                                            
+            $mail->Host       = 'smtp.elasticemail.com';                     
+            $mail->SMTPAuth   = true;                                  
+            $mail->Username   = 'j4ishere@gmail.com';                     
+            $mail->Password   = 'A02F3F4222553D746B478EC9E43E48624D90'; 
+            $mail->Port       = 2525;
 
-        if ($interval->format('%R%a') < 0) {
-            // Update the hospital status to 'Expired' in the database
-            $updateStatusQuery = "UPDATE Hospital_Table SET hospitalStatus = 'Expired' WHERE hospital_ID = '$hospitalID'";
-        } else {
-            // Set the status to 'Active' if the duration is greater than or equal to 0 days
-            $updateStatusQuery = "UPDATE Hospital_Table SET hospitalStatus = 'Active' WHERE hospital_ID = '$hospitalID'";
+            $mail->setFrom('j4ishere@gmail.com', 'Helping Hand');
+            $mail->addAddress('JohnByHole1@gmail.com', 'Recipient Name');
+            $mail->isHTML(true);
+            $mail->Subject = 'Subscription Update';
+            $mail->Body    = "Hello {$hospitalName},<br><br>We're pleased to inform you that your subscription has been extended.<br><br>Your subscription is now extended up until: {$newExpirationDateTime->format('Y-m-d')}.<br><br>Thank you for choosing our Helping Hand service!<br><br>Best regards,<br>Helping Hand";
+
+            $mail->send();
+            echo 'Message has been sent';
+        } catch (Exception $e) {
+            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
 
-        mysqli_query($con2, $updateStatusQuery);
-
-        // Close the database connection
         mysqli_close($con2);
-
-        // Redirect back to your page or perform any other actions
         header('Location: index.php');
         exit;
     } else {
-        // Handle error if unable to fetch the current expiration date
         echo "Error fetching current expiration date.";
     }
 }

@@ -7,7 +7,7 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
     $btnClasses = $assistance_Status == "Unassigned" ? "btn-danger" : "btn-primary";
 
     $element = "
-    <div class=\"col-xl-3 col-md-6\">
+    <div class=\"col-lg-4 col-md-6 mb-4\">
         <div class=\"card px-0\" style=\"width: 25rem; color: black; background: $cardClasses\">
             <img src=\"./Images/room.jpg\" class=\"card-img-top\" alt=\"...\">
             <div class=\"card-body\">

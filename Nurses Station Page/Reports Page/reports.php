@@ -27,19 +27,19 @@ if (!isset($_SESSION['userID'])) {
 
 //This code runs after the NursesList.php page i think
 
-$sql = "SELECT * FROM arduino_Report";
-$result = mysqli_query($con, $sql);
+// $sql = "SELECT * FROM arduino_Report";
+// $result = mysqli_query($con, $sql);
 
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $dataPoints = array(
-            array("label" => "Total Assistance", "y" => $row['number_of_Assistance']),
-            array("label" => "Assistance Given", "y" => $row['assistance_Given']),
-            array("label" => "Immediate Count", "y" => $row['immediate_Count']),
-            array("label" => "ADL Count", "y" => $row['adl_Count']),
-        );
-    }
-}
+// if ($result->num_rows > 0) {
+//     while ($row = $result->fetch_assoc()) {
+//         $dataPoints = array(
+//             array("label" => "Total Assistance", "y" => $row['number_of_Assistance']),
+//             array("label" => "Assistance Given", "y" => $row['assistance_Given']),
+//             array("label" => "Immediate Count", "y" => $row['immediate_Count']),
+//             array("label" => "ADL Count", "y" => $row['adl_Count']),
+//         );
+//     }
+// }
 
 ?>
 
@@ -58,9 +58,7 @@ if ($result->num_rows > 0) {
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -89,42 +87,21 @@ if ($result->num_rows > 0) {
 
     <!-- for div refresh -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-    <!-- <script>
-        $(document).ready(function () {
-            setInterval(function () {
-                $("#refresh").load(".card-body");
-                refresh();
-            }, 1000);
-        });
-    </script> -->
-
     <script>
-        window.onload = function () {
+        // $('#nav-tab a[href="#nav-overall-reports"]').tab('show')
 
-            var chart = new CanvasJS.Chart("chartContainer", {
-                theme: "light2",
-                animationEnabled: true,
-                title: {
-                    text: "Patients Overall Requests"
-                },
-                data: [{
-                    type: "pie",
-                    indexLabel: "{y}",
-                    yValueFormatString: "#,##0.##",
-                    indexLabelPlacement: "inside",
-                    indexLabelFontColor: "#36454F",
-                    indexLabelFontSize: 18,
-                    indexLabelFontWeight: "bolder",
-                    showInLegend: true,
-                    legendText: "{label}",
-                    dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
-                }]
-            });
-            chart.render();
-
-        }
+        // $("#nav-tab a").on("click", function(e) {
+        //     e.preventDefault();
+        //     $(this).tab('show');
+        // });
+        // console.log($('a[data-toggle="tab"]'), "report.php");
+        // $(document).ready(function () {
+        //     setInterval(function () {
+        //         $("#refresh").load(".card-body");
+        //         refresh();
+        //     }, 1000);
+        // });
     </script>
-
 </head>
 
 <body id="page-top">
@@ -151,8 +128,7 @@ if ($result->num_rows > 0) {
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to assistance page')" class="nav-link"
-                    href="../Assistance Card Page/assistanceCard.php">
+                <a onclick="showSnackbar('redirect to assistance page')" class="nav-link" href="../Assistance Card Page/assistanceCard.php">
                     <i class="bi bi-wallet2"></i>
                     <span>Assistance Cards</span></a>
             </li>
@@ -160,8 +136,7 @@ if ($result->num_rows > 0) {
             <hr class="sidebar-divider d-none d-md-block">
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link"
-                    href="../Nurses List/NursesList.php">
+                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Nurses List/NursesList.php">
                     <i class="fa-solid fa-user-nurse"></i>
                     <span>Nurses List</span></a>
             </li>
@@ -170,8 +145,7 @@ if ($result->num_rows > 0) {
             <hr class="sidebar-divider d-none d-md-block">
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link"
-                    href="../Patients List/PatientsList.php">
+                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Patients List/PatientsList.php">
                     <i class="bi bi-person-lines-fill"></i>
                     <span>Patients List</span></a>
             </li>
@@ -179,8 +153,7 @@ if ($result->num_rows > 0) {
             <hr class="sidebar-divider d-none d-md-block">
 
             <li class="nav-item active">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link"
-                    href="../Reports Page/reports.php">
+                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Reports Page/reports.php">
                     <i class="bi bi-clipboard2-data"></i>
                     <span>Reports</span></a>
             </li>
@@ -212,11 +185,9 @@ if ($result->num_rows > 0) {
                     </form>
 
                     <!-- Topbar Search -->
-                    <form
-                        class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                         <div class="input-group">
-                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
-                                aria-label="Search" aria-describedby="basic-addon2">
+                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="button">
                                     <i class="fas fa-search fa-sm"></i>
@@ -230,18 +201,14 @@ if ($result->num_rows > 0) {
 
                         <!-- Nav Item - Search Dropdown (Visible Only XS) -->
                         <li class="nav-item dropdown no-arrow d-sm-none">
-                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-search fa-fw"></i>
                             </a>
                             <!-- Dropdown - Messages -->
-                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
-                                aria-labelledby="searchDropdown">
+                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
                                 <form class="form-inline mr-auto w-100 navbar-search">
                                     <div class="input-group">
-                                        <input type="text" class="form-control bg-light border-0 small"
-                                            placeholder="Search for..." aria-label="Search"
-                                            aria-describedby="basic-addon2">
+                                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
                                         <div class="input-group-append">
                                             <button class="btn btn-primary" type="button">
                                                 <i class="fas fa-search fa-sm"></i>
@@ -255,8 +222,7 @@ if ($result->num_rows > 0) {
 
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">
                                     <?php
 
@@ -265,12 +231,9 @@ if ($result->num_rows > 0) {
                                 <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg">
                             </a>
                             <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="index.php?logout=true" data-toggle="modal"
-                                    data-target="#logoutModal">
+                                <a class="dropdown-item" href="index.php?logout=true" data-toggle="modal" data-target="#logoutModal">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Logout
                                 </a>
@@ -287,76 +250,37 @@ if ($result->num_rows > 0) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Reports</h1>
-                    <a href="reports.php" class="btn btn-primary float-end active">Overall Reports</a>
-                    <a href="./individualReports.php" class="btn btn-primary float-end">Individual Reports</a>
+                    <nav>
+                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                            <a class="nav-item nav-link active" id="nav-overall-reports-tab" data-toggle="tab" href="#nav-overall-reports" role="tab">Overall Reports</a>
+                            <a class="nav-item nav-link" id="nav-individual-reports-tab" data-toggle="tab" href="#nav-individual-reports" role="tab">Individual Reports</a>
+                        </div>
+                    </nav>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="nav-overall-reports" role="tabpanel">
+                            <?php require('./getOverallReports.php'); ?>
+                        </div>
+                        <div class="tab-pane fade" id="nav-individual-reports" role="tabpanel">
+                            <?php require('./getIndividualReports.php'); ?>
+                        </div>
+                    </div>
                     <!-- <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
                         For more information about DataTables, please visit the <a target="_blank" href="https://datatables.net">official DataTables documentation</a>.</p> -->
                     <!-- DataTales Example -->
-                    <div class="card shadow mb-3">
+                    <!-- <div class="card shadow mb-3">
                         <div class="card-body" id="refresh">
-                            <?php
-                            $count = 0;
-                            $sql = "SELECT * FROM arduino_Report";
-                            $result = mysqli_query($con, $sql);
-
-                            //This is for pagination
-                            // define how many results you want per page
-                            $results_per_page = 3;
-                            $number_of_results = mysqli_num_rows($result);
-
-                            // determine number of total pages available
-                            $number_of_pages = ceil($number_of_results / $results_per_page);
-
-                            // determine which page number visitor is currently on
-                            if (!isset($_GET['page'])) {
-                                $page = 1;
-                            } else {
-                                $page = $_GET['page'];
-                            }
-
-                            // determine the sql LIMIT starting number for the results on the displaying page
-                            $this_page_first_result = ($page - 1) * $results_per_page;
-
-                            // retrieve selected results from database and display them on page
-                            $sql = 'SELECT * FROM arduino_Report LIMIT ' . $this_page_first_result . ',' . $results_per_page;
-                            $result = mysqli_query($con, $sql);
-
-                            if (mysqli_num_rows($result) > 0) {
-                                echo "";
-                                ?>
-                                <table class="table table-bordered table-sortable" id="dataTable" width="100%"
-                                    cellspacing="0">
-                                    <tbody>
-                                        <?php
-                                        while ($row = mysqli_fetch_array($result)) {
-                                            $count = $count + 1;
-                                            ?>
-
-                                            <div id="chartContainer" style="height: 470px; width: 100%;"></div>
-
-                                </div>
-                                <?php
-                                        }
-                            } else {
-                                echo "No Record Found";
-                            }
-                            ?>
-                        </tbody>
-                        </table>
-                        <script>
-                            src = "../Table Sorting/searchTable.js"
-                        </script>
-                    </div>
+                            <div id="chartContainer" style="height: 470px; width: 100%;"></div>
+                        </div>
+                    </div> -->
                 </div>
+                <!-- /.container-fluid -->
+
             </div>
-            <!-- /.container-fluid -->
+            <!-- End of Main Content -->
+
 
         </div>
-        <!-- End of Main Content -->
-
-
-    </div>
-    <!-- End of Content Wrapper -->
+        <!-- End of Content Wrapper -->
 
     </div>
     <!-- End of Page Wrapper -->
@@ -367,8 +291,7 @@ if ($result->num_rows > 0) {
     </a>
 
     <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -486,14 +409,12 @@ if ($result->num_rows > 0) {
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js"
-        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js"
-        integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
     <script src="PATH/dist/js/app.js"></script>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script src="https://cdn.canvasjs.com/jquery.canvasjs.min.js"></script>
 </body>
 
 </html>

@@ -25,6 +25,9 @@ include('../../dbConnection/AES encryption.php');
 
     <?php //include('message.php');?>
 
+    <!-- Eto yung from previous page, gonna use it for future reference nalang -->
+    <a onclick="showSnackbar('edit nurse')" href="EditPatient.php?patient_ID=<?= $patient['patient_ID'] ?>" class="btn btn-info">Edit</a>
+
     <div class="card">
         <div class="card-header">
             <h4> Edit Patient

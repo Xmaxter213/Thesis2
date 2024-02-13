@@ -46,6 +46,7 @@ if (isset($_POST['add'])) {
     $nurse_first_Name = $_POST['nurse_first_Name'];
     $nurse_last_Name = $_POST['nurse_last_Name'];
     $nurse_full_Name = $nurse_last_Name . ", " . $nurse_first_Name;
+    $nurse_Contact_No = $_POST['nurse_Contact_No'];
     $nurse_Sex = $_POST['nurse_Sex'];
     $nurse_birth_Date = $_POST['nurse_birth_Date'];
     $shift_Schedule = $_POST['shift_Schedule'];
@@ -62,11 +63,12 @@ if (isset($_POST['add'])) {
 
     //Encrypt data from form
     $enc_nurse_Name = encryptthis($nurse_full_Name, $key);
+    $enc_nurse_Contract_No = encryptthis($nurse_Contact_No, $key);
     $enc_nurse_Sex = encryptthis($nurse_Sex, $key);
     $enc_nurse_birth_Date = encryptthis($nurse_birth_Date, $key);
     $enc_date_Employment = encryptthis($date_Employment, $key);
 
-    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', '$enc_nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$employment_Status', '$enc_date_Employment', '$activated')";
+    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', '$enc_nurse_Contract_No', '$enc_nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$employment_Status', '$enc_date_Employment', '$activated')";
     $query_run = mysqli_query($con, $query);
 
     $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status) VALUES (NULL, '$nurse_email','$nurse_password', '$userName', '$account_status')";
@@ -88,6 +90,7 @@ if (isset($_POST['edit'])) {
     $nurse_first_Name = $_POST['nurse_first_Name'];
     $nurse_last_Name = $_POST['nurse_last_Name'];
     $nurse_full_Name = $nurse_last_Name . ", " . $nurse_first_Name;
+    $nurse_Contact_No = $_POST['nurse_Contact_No'];
     $nurse_Sex = $_POST['nurse_Sex'];
     $nurse_birth_Date = $_POST['nurse_birth_Date'];
     $shift_Schedule = $_POST['shift_Schedule'];
@@ -97,11 +100,13 @@ if (isset($_POST['edit'])) {
 
     //Encrypt data from form
     $enc_nurse_Name = encryptthis($nurse_full_Name, $key);
+    $enc_nurse_Name = encryptthis($nurse_full_Name, $key);
+    $enc_nurse_Contact_No = encryptthis($nurse_Contact_No, $key);
     $enc_nurse_Sex = encryptthis($nurse_Sex, $key);
     $enc_nurse_birth_Date = encryptthis($nurse_birth_Date, $key);
     $enc_date_Employment = encryptthis($date_Employment, $key);
 
-    $query = "UPDATE staff_List SET nurse_Name='$enc_nurse_Name', nurse_Sex='$enc_nurse_Sex', nurse_birth_Date ='$enc_nurse_birth_Date', shift_Schedule='$shift_Schedule', employment_Status='$employment_Status', date_Employment='$enc_date_Employment' WHERE nurse_ID='$nurse_ID'";
+    $query = "UPDATE staff_List SET nurse_Name='$enc_nurse_Name', contact_No='$enc_nurse_Contact_No', nurse_Sex='$enc_nurse_Sex', nurse_birth_Date ='$enc_nurse_birth_Date', shift_Schedule='$shift_Schedule', employment_Status='$employment_Status', date_Employment='$enc_date_Employment' WHERE nurse_ID='$nurse_ID'";
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
@@ -316,7 +321,147 @@ if (isset($_POST['edit'])) {
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Active Nurses Accounts List</h6>
-                            <a onclick="showSnackbar('add nurse')" href="AddNurse.php" class="btn btn-primary float-end">Add</a>
+                            <a class="btn btn-primary" data-toggle="modal" data-target="#addNurse">Add</a>
+
+                            <!-- Edit modal -->
+                            <div class="modal fade" id="addNurse" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Edit</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="" method="POST">
+                                                <div>
+                                                    <label>Nurse First Name</label>
+                                                    <input type="text" name="nurse_first_Name" id="nurse_first_Name" required pattern="\S(.*\S)?[A-Za-z]+" class="form-control" placeholder="Enter Nurse's First Name" required title="Must only contain letters" oninput="updateEmailPassword()">
+                                                </div>
+
+                                                <div>
+                                                    <label>Nurse Last Name</label>
+                                                    <input type="text" name="nurse_last_Name" id="nurse_last_Name" required pattern="\S(.*\S)?[A-Za-z]+" class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters" oninput="updateEmailPassword()">
+                                                </div>
+                                                <br>
+                                                
+                                                <div>
+                                                    <label>Nurse Contact No.</label>
+                                                    <input type="text" name="nurse_Contact_No" id="nurse_Contact_No" required pattern="\S(.*\S)?[0-9]+" class="form-control" placeholder="Enter Nurse's Contact No." required title="Must only contain numbers">
+                                                </div>
+                                                <br>
+
+                                                <div>
+                                                    <label>Nurse Sex</label>
+                                                    <select id="nurse_Sex" name="nurse_Sex">
+                                                        <option value="Male">Male</option>
+                                                        <option value="Female">Female</option>
+                                                    </select>
+                                                </div>
+                                                <br>
+                                                
+                                                <div>
+                                                    <label>Nurse's Email</label>
+                                                    <input type="text" name="nurse_email" id="nurse_email" class="form-control" placeholder="Automatically generated" readonly>
+                                                    
+                                                    <label>Nurse's Password</label>
+                                                    <input type="text" name="nurse_password" id="nurse_password" class="form-control" placeholder="Automatically generated" readonly>
+                                                </div>
+
+                                            <script>
+                                                function updateEmailPassword() {
+                                                    var firstName = document.getElementById('nurse_first_Name').value;
+                                                    var lastName = document.getElementById('nurse_last_Name').value;
+                                                    
+                                                    // Update email field
+                                                    document.getElementById('nurse_email').value = `${firstName.toLowerCase()}${lastName.toLowerCase()}@gmail.com`;
+
+                                                    // Update password field (you can modify this logic as needed)
+                                                    document.getElementById('nurse_password').value = `${firstName.toLowerCase()}${lastName.toLowerCase()}123`; 
+                                                }
+                                            </script>
+
+                                            <div>
+                                                <br>
+                                                <label>Account Status</label>
+                                                <select id="Account_Status" name="Account_Status">
+                                                    <option value="Nurse">Nurse</option>
+                                                    <option value="Admin">Admin</option>
+                                                </select>
+                                            </div>
+                                            <br>
+                                            <?php
+                                                // Calculate the date 19 years ago in the format Year-Month-Day
+                                                $nineteenYearsAgo = date('Y-m-d', strtotime('-19 years'));
+                                            ?>
+                                                <!-- HTML input field -->
+                                                <label>Birth Date</label>
+                                                <input type="date" name="nurse_birth_Date" name="nurse_birth_Date" min='01/01/1899' max="<?php echo $nineteenYearsAgo; ?>">
+                                            
+                                            <div>
+                                            <br>
+
+
+                                            <div>
+                                                <?php 
+                                                    // retrieve selected results from database and display them on page
+                                                    $sqlShiftSched = 'SELECT * FROM shift_Schedule';
+                                                    $resultShiftSched = mysqli_query($con, $sqlShiftSched);
+                                                    
+
+                                                    if (mysqli_num_rows($resultShiftSched) > 0) {
+                                                ?>
+                                                <label>Shift Status</label>
+                                                <select id="shift_Schedule" name="shift_Schedule">
+                                                    <?php
+                                                        while ($row = mysqli_fetch_array($resultShiftSched)) {
+                                                            $concatenatedRow = $row["work_Shift"] . ": " . $row["time_Range"];
+                                                    ?>
+                                                            <option value="<?php echo $row["work_Shift"];
+                                                            // The value we usually set is the primary key
+                                                            ?>">
+                                                                <?php echo $concatenatedRow;
+                                                            ?>
+                                                            </option>
+                                                            <?php
+                                                        }
+                                                    }?>
+                                                </select>
+                                            </div>
+                                            <br>
+                                            <div>
+                                                <label>Employment Status</label>
+                                                <select id="employment_Status" name="employment_Status">
+                                                    <option value="Employed">Employed</option>
+                                                    <option value="Unemployed">Unemployed</option>
+                                                </select>
+                                            </div>
+                                            <br>
+                                            <div>
+                                                <label>Date of Employment</label>
+                                                <input type="date" id="date_Employment" name="date_Employment" value="" min="2018-01-01" max="2030-12-31" />
+                                            </div>
+                                            <script>
+                                                //Make date today the max value
+                                                var today = new Date().toISOString().split('T')[0]; 
+                                                document.getElementById("date_Employment").setAttribute("max", today);
+
+                                                //Date picker filled required
+                                                document.getElementById("date_Employment").required = true;
+                                            </script>
+                                            <div>
+                                                <input type="hidden" name="activated" value=1>
+                                            </div>
+                                            </div>
+                                        <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button onclick="showSnackbar('add nurse')" type = "submit" class = "btn btn-primary" name = "add" >Add</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             
                         </div>
                         <div class="card-body">
@@ -351,6 +496,7 @@ if (isset($_POST['edit'])) {
                                             <tr>
                                                 <th>Nurse ID <input type="text" class="search-input" placeholder="Nurse ID"></th>
                                                 <th>Nurse Name <input type="text" class="search-input" placeholder="Nurse Name"></th>
+                                                <th>Nurse Contract No. <input type="text" class="search-input" placeholder="Nurse Contract No."></th>
                                                 <th>Nurse Sex <input type="text" class="search-input" placeholder="Nurse Sex"></th>
                                                 <th>Nurse Age <input type="text" class="search-input" placeholder="Nurse Age"></th>
                                                 <th>Shift Schedule <input type="text" class="search-input" placeholder="Shift Schedule"></th>
@@ -367,6 +513,7 @@ if (isset($_POST['edit'])) {
 
                                                 //Decrypt data from db
                                                 $dec_nurse_Name = decryptthis($nurse['nurse_Name'], $key);
+                                                $dec_nurse_Contact_No = decryptthis($nurse['contact_No'], $key);
                                                 $dec_nurse_Sex = decryptthis($nurse['nurse_Sex'], $key);
                                                 $dec_nurse_birth_Date = decryptthis($nurse['nurse_birth_Date'], $key);
                                                 //date in mm/dd/yyyy format; or it can be in other formats as well
@@ -388,14 +535,130 @@ if (isset($_POST['edit'])) {
                                                 <tr>
                                                     <td><?php echo $nurse['nurse_ID'] ?></td>
                                                     <td><?php echo $dec_nurse_Name ?></td>
+                                                    <td><?php echo $dec_nurse_Contact_No ?></td>
                                                     <td><?php echo $dec_nurse_Sex ?></td>
                                                     <td><?php echo $dec_nurse_Age ?></td>
                                                     <td><?php echo $nurse['shift_Schedule']; ?></td>
                                                     <td><?php echo $nurse['employment_Status']; ?></td>
                                                     <td><?php echo $dec_date_Employment ?></td>
                                                     <td>
+                                                        <a onclick="showSnackbar('edit nurse')" class="btn btn-info" data-toggle="modal" data-target="#edit<?= $nurse['nurse_ID'] ?>">Edit</a>
 
-                                                        <a onclick="showSnackbar('edit nurse')" href="EditNurse.php?nurse_ID=<?= $nurse['nurse_ID'] ?>" class="btn btn-info">Edit</a>
+                                                        <!-- Edit modal -->
+                                                        <div class="modal fade" id="edit<?= $nurse['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="exampleModalLabel">Edit</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <?php
+                                                                        //explode the date to get month, day and year
+                                                                        $exploded_nurse_Name = explode(", ", $dec_nurse_Name);
+                                                                        $nurse_last_Name = $exploded_nurse_Name[0];
+                                                                        $nurse_first_Name = $exploded_nurse_Name[1];
+                                                                        ?>
+
+                                                                        <form action="" method="POST">
+                                                                        <div>
+                                                                            <input type="hidden" name="nurse_ID" value="<?=  $nurse['nurse_ID'] ?>">
+                                                                        </div>
+                                                                        <div>
+                                                                            <label>Nurse First Name</label>
+                                                                            <input type="text" name="nurse_first_Name" value="<?=  $nurse_first_Name ?>" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Nurse's First Name" required title="Must only contain letters">
+                                                                        </div>
+
+                                                                        <div>
+                                                                            <label>Nurse Last Name</label>
+                                                                            <input type="text" name="nurse_last_Name" value="<?=  $nurse_last_Name ?>" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Nurse's Last Name" required title="Must only contain letters">
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div>
+                                                                            <label>Nurse Contact No.</label>
+                                                                            <input type="text" name="nurse_Contact_No" value="<?=  $dec_nurse_Contact_No ?>" id="nurse_Contact_No" required pattern="\S(.*\S)?[0-9]+" class="form-control" placeholder="Enter Nurse's Contact No." required title="Must only contain numbers">
+                                                                        </div>
+                                                                        <br>
+
+                                                                        <div>
+                                                                            <label>Nurse Sex</label>
+                                                                            <select id="nurse_Sex" name="nurse_Sex">
+                                                                                <option value="Male"<?php if ($dec_nurse_Sex == 'Male') echo ' selected="selected"'; ?>>Male</option>
+                                                                                <option value="Female"<?php if ($dec_nurse_Sex == 'Female') echo ' selected="selected"'; ?>>Female</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        
+                                                                        <div>
+                                                                            <br>
+                                                                            <label>Birth Date</label>
+                                                                            <input type="date" id="nurse_birth_Date" value="<?=  $dec_nurse_birth_Date ?>" name="nurse_birth_Date" min='01/01/1899' max='13/13/2000'/>
+                                                                        </div>
+                                                                        <script>
+                                                                            //Make date today the max value
+                                                                            var today = new Date().toISOString().split('T')[0];
+                                                                            document.getElementById("nurse_birth_Date").setAttribute("max", today);
+
+                                                                            //Date picker filled required
+                                                                            document.getElementById("nurse_birth_Date").required = true;
+                                                                        </script>
+                                                                        <br>
+                                                                        <div>
+                                                                        <?php 
+                                                                            // retrieve selected results from database and display them on page
+                                                                            $sqlShiftSched = 'SELECT * FROM shift_Schedule';
+                                                                            $resultShiftSched = mysqli_query($con, $sqlShiftSched);
+                                                                            
+
+                                                                            if (mysqli_num_rows($resultShiftSched) > 0) {
+                                                                        ?>
+                                                                        <label>Shift Status</label>
+                                                                        <select id="shift_Schedule" name="shift_Schedule">
+                                                                            <?php
+                                                                                while ($row2 = mysqli_fetch_array($resultShiftSched)) {
+                                                                                    $concatenatedRow = $row2["work_Shift"] . ": " . $row2["time_Range"];
+                                                                            ?>
+                                                                                    <option  value="<?php echo $row2["work_Shift"];
+                                                                                    // The value we usually set is the primary key
+                                                                                    ?>" <?php if ($nurse['shift_Schedule'] == $row2["work_Shift"]) echo ' selected="selected"'; ?>>
+                                                                                        <?php echo $concatenatedRow;
+                                                                                    ?>
+                                                                                    </option>
+                                                                                    <?php
+                                                                                }
+                                                                            }?>
+                                                                        </select>
+                                                                        </div>
+                                                                        <br>
+                                                                        <div>
+                                                                            <label>Employment Status</label>
+                                                                            <select id="employment_Status" name="employment_Status" value="<?=  $dec_employment_Status ?>">
+                                                                                <option value="Employed" <?php if ($nurse['employment_Status']  == 'Employed') echo ' selected="selected"'; ?>>Employed</option>
+                                                                                <option value="Unemployed" <?php if ($nurse['employment_Status'] == 'Unemployed') echo ' selected="selected"'; ?>>Unemployed</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        <br>
+                                                                        <div>
+                                                                            <label>Date of Employment</label>
+                                                                            <input type="date" id="date_Employment" name="date_Employment" value="<?=  $dec_date_Employment ?>" min="2018-01-01" max="2030-12-31" />
+                                                                        </div>
+                                                                        <script>
+                                                                            //Make date today the max value
+                                                                            document.getElementById("date_Employment").setAttribute("max", today);
+
+                                                                            //Date picker filled required
+                                                                            document.getElementById("date_Employment").required = true;
+                                                                        </script>
+                                                                    <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                            <button onclick="showSnackbar('edit save')" type = "submit" class = "btn btn-success" name = "edit" >Save</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </td>
 
                                                     <td>

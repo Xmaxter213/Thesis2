@@ -6,7 +6,7 @@ require '../vendor/autoload.php';
 require_once('../dbConnection/connection2.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $hospitalID = $_POST['hospital_id'];
+    $hospitalID = $_POST['hospital_ID'];
     $extensionDuration = $_POST['extension_duration'];
 
     // Get the current expiration date from the database using prepared statement

@@ -144,6 +144,16 @@ require_once('../../dbConnection/connection2.php');
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-toggle="modal" data-target="#smsSettingsModal">
+                    <i class="bi bi-clipboard2-data"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
             <!-- Sidebar Toggler (Sidebar) -->
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
@@ -272,6 +282,30 @@ require_once('../../dbConnection/connection2.php');
             </div>
         </div>
     </div>
+    
+    <!-- SMS Modal-->
+    <div class="modal fade" id="smsSettingsModal" tabindex="-1" role="dialog" aria-labelledby="smsSettingsModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="smsSettingsModalLabel">SMS Settings</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="smsToggle" name="smsSetting">
+                            <label class="form-check-label" for="smsToggle" id="smsStatusLabel"></label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="location.reload()">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
@@ -365,6 +399,64 @@ require_once('../../dbConnection/connection2.php');
             });
         });
     </script>
+
+    <script>
+        // Add an event listener for the checkbox click
+        document.addEventListener('DOMContentLoaded', function() {
+            var smsToggle = document.getElementById('smsToggle');
+            var smsStatusLabel = document.getElementById('smsStatusLabel');
+
+            // Check if there is a cookie for smsSetting
+            var smsSetting = getCookie('smsSetting');
+            if (smsSetting === 'on') {
+                smsToggle.checked = true;
+                smsStatusLabel.textContent = 'SMS On';
+            } else {
+                smsToggle.checked = false;
+                smsStatusLabel.textContent = 'SMS Off';
+            }
+
+            // Add event listener for checkbox click
+            smsToggle.addEventListener('click', function() {
+                if (smsToggle.checked) {
+                    smsStatusLabel.textContent = 'SMS On';
+                    setCookie('smsSetting', 'on', 365); // Set cookie with expiry of 1 year
+                } else {
+                    smsStatusLabel.textContent = 'SMS Off';
+                    setCookie('smsSetting', 'off', 365); // Set cookie with expiry of 1 year
+                }
+            });
+        });
+
+        // Function to set a cookie
+        function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        // Function to get a cookie by name
+        function getCookie(name) {
+            var nameEQ = name + "=";
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i];
+                while (cookie.charAt(0) == ' ') {
+                    cookie = cookie.substring(1, cookie.length);
+                }
+                if (cookie.indexOf(nameEQ) == 0) {
+                    return cookie.substring(nameEQ.length, cookie.length);
+                }
+            }
+            return null;
+        }
+    </script>
+
+
     <!-- For modal -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>

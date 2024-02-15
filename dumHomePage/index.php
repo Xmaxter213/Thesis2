@@ -22,6 +22,10 @@
         {
         	header("location: ../Nurses Station Page/Assistance Card Page/assistanceCard.php");
         }
+		if($status === 'Nurse')
+        {
+        	header("location: ../Nurse Page/Assistance Card Page/assistanceCard.php");
+        }
 	}
 
 ?>

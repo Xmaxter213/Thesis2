@@ -6,6 +6,12 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
     $bgClasses = $assistance_Status == "Unassigned" ? "bg-danger" : "bg-primary";
     $btnClasses = $assistance_Status == "Unassigned" ? "btn-danger" : "btn-primary";
 
+    // Check if admission status is "On the way"
+    $changeStatusButton = "";
+    if ($assistance_Status != "On The Way") {
+        $changeStatusButton = "<button type=\"button\" href=\"#\" class=\"btn btn-info\" data-toggle=\"modal\" data-target=\"#changeStatusModal-{$patient_ID}\">Change Status</button>";
+    }
+
     $element = "
     <div class=\"col-lg-4\">
         <div class=\"card px-0\" style=\"width: 25rem; color: black; background: $cardClasses\">
@@ -23,30 +29,32 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
                     </div>
                 </form>
                 <br>
-                <button type=\"button\" href=\"#\" class=\"btn $btnClasses\" data-toggle=\"modal\" data-target=\"#view-{$patient_ID}\">View Details</button>
+                <div class=\"d-flex justify-content-between\">
+                    <button type=\"button\" href=\"#\" class=\"btn $btnClasses\" data-toggle=\"modal\" data-target=\"#view-{$patient_ID}\">View Details</button>
+                    $changeStatusButton
+                </div>
 
+                <!-- View Details Modal -->
                 <div class=\"modal fade\" tabindex=\"-1\" id=\"view-{$patient_ID}\" role=\"dialog\" aria-labelledby=\"viewModalLabel\" aria-hidden=\"true\">
+                    <!-- Modal content for viewing patient details -->
+                </div>
+
+                <!-- Change Status Modal -->
+                <div class=\"modal fade\" tabindex=\"-1\" id=\"changeStatusModal-{$patient_ID}\" role=\"dialog\" aria-labelledby=\"changeStatusModalLabel-{$patient_ID}\" aria-hidden=\"true\">
                     <div class=\"modal-dialog\" role=\"document\">
                         <div class=\"modal-content\">
                             <div class=\"modal-header\">
-                                <h5 class=\"modal-title\" id=\"exampleModalLabel\">Patient Details</h5>
+                                <h5 class=\"modal-title\" id=\"changeStatusModalLabel-{$patient_ID}\">Change Status</h5>
                                 <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">
                                     <span aria-hidden=\"true\">&times;</span>
                                 </button>
                             </div>
                             <div class=\"modal-body\">
-                                <h6 class=\"font-weight-bold\">Patient ID: <span class=\"font-weight-normal\">$patient_ID</span></h6>
-                                <h6 class=\"font-weight-bold\">Patient Name: <span class=\"font-weight-normal\">$patient_Name</span></h6>
-                                <h6 class=\"font-weight-bold\">Room Number: <span class=\"font-weight-normal\">$room_Number</span></h6>
-                                <h6 class=\"font-weight-bold\">Age: <span class=\"font-weight-normal\">$birth_Date</span></h6>
-                                <h6 class=\"font-weight-bold\">Reason for Admission: <span class=\"font-weight-normal text-justify\">$reason_Admission</span></h6>
-                                <h6 class=\"font-weight-bold\">Admission Status: <span class=\"font-weight-normal\">$admission_Status</span></h6>
-                                <h6 class=\"font-weight-bold\">Assigned Nurse ID: <span class=\"font-weight-normal\">$nurse_ID</span></h6>
-                                <h6 class=\"font-weight-bold\">Assistance Status: <span class=\"font-weight-normal\">$assistance_Status</span></h6>
-                                <h6 class=\"font-weight-bold\">Gloves ID: <span class=\"font-weight-normal\">$gloves_ID</span></h6>
+                                <p>Change status to 'On the way'?</p>
                             </div>
                             <div class=\"modal-footer\">
-                                <button type=\"button\" class=\"btn btn-secondary\" data-dismiss=\"modal\">Close</button>
+                                <button type=\"button\" class=\"btn btn-secondary\" data-dismiss=\"modal\">No</button>
+                                <button type=\"button\" class=\"btn btn-primary\" onclick=\"changeStatus('$patient_ID')\">Yes</button>
                             </div>
                         </div>
                     </div>
@@ -59,3 +67,25 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
     echo $element;
 }
 ?>
+
+<!-- JavaScript for AJAX request -->
+<script>
+    function changeStatus(patientID) {
+        // Send AJAX request to update status
+        $.ajax({
+            url: 'assistanceStatusChange.php',
+            method: 'POST',
+            data: { patientID: patientID },
+            success: function(response) {
+                // Handle response if needed
+                console.log(response);
+                // Reload the page after successful status change
+                location.reload();
+            },
+            error: function(xhr, status, error) {
+                // Handle error if needed
+                console.error(xhr.responseText);
+            }
+        });
+    }
+</script>

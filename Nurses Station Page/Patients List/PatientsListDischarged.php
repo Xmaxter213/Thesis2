@@ -88,20 +88,20 @@ if (isset($_POST['add'])) {
     }
 }
 
-if (isset($_POST['patientDischarge'])) {
-    $patient_ID = $_POST['patientDischarge'];
+if (isset($_POST['patientAdmit'])) {
+    $patient_ID = $_POST['patientAdmit'];
 
-    $query = "UPDATE patient_List SET admission_Status='Discharged' WHERE patient_ID='$patient_ID'";
+    $query = "UPDATE patient_List SET admission_Status='Admitted' WHERE patient_ID='$patient_ID'";
     
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
         $_SESSION['message'] = "Catagory Updated Successfully";
-        header('Location: PatientsList.php');
+        header('Location: PatientsListDischarged.php');
         exit(0);
     } else {
         $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: PatientsList.php');
+        header('Location: PatientsListDischarged.php');
         exit(0);
     }
 }
@@ -336,8 +336,8 @@ if (isset($_POST['edit'])) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
-                    <a href="PatientsList.php" class="btn btn-primary float-end active">Admitted Patients List</a>
-                    <a href="PatientsListDischarged.php" class="btn btn-primary float-end">Discharged Patients List</a>
+                    <a href="PatientsList.php" class="btn btn-primary float-end">Admitted Patients List</a>
+                    <a href="PatientsListDischarged.php" class="btn btn-primary float-end active">Discharged Patients List</a>
                     <a href="RestorePatient.php" class="btn btn-primary float-end">Restore Data</a>
                     <a href="DeletedPatientsList.php" class="btn btn-primary float-end">Deleted Patients List</a>
                     <br><br>
@@ -393,6 +393,14 @@ if (isset($_POST['edit'])) {
                                             <div>
                                                 <label>Reason for Admission</label>
                                                 <input type="text" class="form-control" name="reason_Admission" placeholder="Enter Reason for Admission" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters & numbers"/>
+                                            </div>
+                                            <br>
+                                            <div>
+                                            <label>Admission Status</label>
+                                            <select id="admission_Status" name="admission_Status">
+                                                <option value="Admitted">Admitted</option>
+                                                <option value="Discharged">Discharged</option>
+                                            </select>
                                             </div>
                                             <br>
                                             <div>
@@ -478,10 +486,10 @@ if (isset($_POST['edit'])) {
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con->query("SELECT * FROM patient_List WHERE activated = 1 AND admission_Status = 'Admitted' LIMIT $start, $limit");
+                                $result = $con->query("SELECT * FROM patient_List WHERE activated = 1 AND admission_Status = 'Discharged' LIMIT $start, $limit");
                                 $patients = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con->query("SELECT count(patient_ID) AS patient_ID FROM patient_List WHERE activated = 1 AND admission_Status = 'Admitted'");
+                                $result1 = $con->query("SELECT count(patient_ID) AS patient_ID FROM patient_List WHERE activated = 1 AND admission_Status = 'Discharged'");
                                 $custCount = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $custCount[0]['patient_ID'];
                                 $pages = ceil( $total / $limit );
@@ -503,7 +511,7 @@ if (isset($_POST['edit'])) {
                                                 <th>Admission Status <input type="text" class="search-input" placeholder="Admission Status"></th>
                                                 <th>Assigned Nurse ID <input type="text" class="search-input" placeholder="Assigned Nurse ID"></th>
                                                 <th>Device Assigned ID <input type="text" class="search-input" placeholder="Device Assigned ID"></th>
-                                                <th>Discharge</th>
+                                                <th>Admit</th>
                                                 <th>Edit</th>
                                                 <th>Delete</th>
                                             </tr>
@@ -556,27 +564,27 @@ if (isset($_POST['edit'])) {
                                                     }?>
                                                     </td>
                                                     <td>
-                                                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#discharge<?= $patient['patient_ID'] ?>">
-                                                            Discharge
+                                                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#admit<?= $patient['patient_ID'] ?>">
+                                                            Admit
                                                         </button>
 
-                                                        <!-- Discharge Patient modal -->
-                                                        <div class="modal fade" id="discharge<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="dischargeModalLabel" aria-hidden="true">
+                                                        <!-- Admit Patient modal -->
+                                                        <div class="modal fade" id="admit<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="admitModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
-                                                                        <h5 class="modal-title" id="exampleModalLabel">Are you sure you want to discharge this patient?</h5>
+                                                                        <h5 class="modal-title" id="exampleModalLabel">Are you sure you want to admit this patient?</h5>
                                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                             <span aria-hidden="true">&times;</span>
                                                                         </button>
                                                                     </div>
                                                                     <div class="modal-body">
                                                                         <form action="" method="POST">
-                                                                            <label>Patient will be discharged and will be placed on the discharged patients page.</label><br>
+                                                                            <label>Patient will be admitted and will be placed back on the Admitted Patients List page.</label><br>
                                                                     </div>
                                                                     <div class="modal-footer">
                                                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                            <button type="submit" name="patientDischarge" value="<?= $patient['patient_ID'] ?>" class="btn btn-danger">Discharge</a>
+                                                                            <button type="submit" name="patientAdmit" value="<?= $patient['patient_ID'] ?>" class="btn btn-success">Admit Patient</a>
                                                                         </form>
                                                                     </div>
                                                                 </div>
@@ -645,14 +653,6 @@ if (isset($_POST['edit'])) {
                                                                             <div>
                                                                                 <label>Reason for Admission</label>
                                                                                 <input type="text" class="form-control" name="reason_Admission" value="<?=  $dec_reason_Admission ?>" placeholder="Enter Reason for Admission" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters & numbers"/>
-                                                                            </div>
-                                                                            <br>
-                                                                            <div>
-                                                                            <label>Admission Status</label>
-                                                                            <select id="admission_Status" name="admission_Status" value="<?=  $patient['admission_Status'] ?>">
-                                                                                <option value="Admitted" <?php if ($patient["admission_Status"] == "Admitted"){ echo "selected";}?>>Admitted</option>
-                                                                                <option value="Discharged" <?php if ($patient["admission_Status"] == "Discharged"){ echo "selected";}?>>Discharged</option>
-                                                                            </select>
                                                                             </div>
                                                                             <br>
                                                                             <div>

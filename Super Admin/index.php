@@ -290,7 +290,7 @@
                                                             </div>
                                                             <div class="modal-body">
                                                                 <form method="post" action="process_extension.php">
-                                                                    <input type="hidden" name="hospital_id" value="<?php echo $hospital['hospital_ID']; ?>">
+                                                                    <input type="hidden" name="hospital_ID" value="<?php echo $hospital['hospital_ID']; ?>">
                                                                     <div class="form-group">
                                                                         <label for="extensionDropdown">Select Duration:</label>
                                                                         <select class="form-control" id="extensionDropdown" name="extension_duration">

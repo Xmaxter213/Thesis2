@@ -6,9 +6,26 @@ require_once('../../dbConnection/connection.php');
 include('../../dbConnection/AES encryption.php');
 
 if (isset($_GET['logout'])) {
-    session_destroy();
-    unset($_SESSION);
-    header("location: ../../MainHospital/login_new.php");
+    $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
+
+        date_default_timezone_set('Asia/Manila');
+
+        $currentDateTime = date("Y-m-d H:i:s");
+
+        // Insert into superAdminLogs
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Logout', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+        if ($query_run_logs) 
+        {
+            session_destroy();
+            unset($_SESSION);
+            header("location: ../MainHospital/login_new.php");
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con);
+        }
 }
 
 if (!isset($_SESSION['userID'])) {
@@ -163,6 +180,15 @@ if (!isset($_SESSION['userID'])) {
                     <i class="bi bi-clipboard2-data"></i>
                     <span>Reports</span></a>
             </li>
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <li class="nav-item">
+                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Logs/Logs.php">
+                    <i class="bi bi-clipboard2-data"></i>
+                    <span>Logs</span></a>
+            </li>
+
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 

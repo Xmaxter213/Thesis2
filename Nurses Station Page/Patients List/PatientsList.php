@@ -9,9 +9,26 @@ include('../../dbConnection/AES encryption.php');
 include('patientDeleteEntriesDue.php');
 
 if (isset($_GET['logout'])) {
-    session_destroy();
-    unset($_SESSION);
-    header("location: ../../MainHospital/login_new.php");
+    $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
+
+        date_default_timezone_set('Asia/Manila');
+
+        $currentDateTime = date("Y-m-d H:i:s");
+
+        // Insert into superAdminLogs
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Logout', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+        if ($query_run_logs) 
+        {
+            session_destroy();
+            unset($_SESSION);
+            header("location: ../MainHospital/login_new.php");
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con);
+        }
 }
 
 if (!isset($_SESSION['userID'])) {
@@ -78,9 +95,47 @@ if (isset($_POST['add'])) {
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
-        $_SESSION['message'] = "Catagory Added Successfully";
-        header('Location: PatientsList.php');
-        exit(0);
+
+        
+
+        // Prepare the SELECT query using mysqli
+        $query = "SELECT patient_ID FROM patient_List WHERE patient_Name = ?";
+        $getnurseID = $con->prepare($query);
+        $getnurseID->bind_param("s", $enc_patient_Name);
+
+        // Execute the SELECT query
+        $database = $getnurseID->execute();
+
+        // Store and fetch the result
+        $getnurseID->store_result();
+        $getnurseID->bind_result($ID);
+        $getnurseID->fetch();
+
+        // Close the statement
+        $getnurseID->close();
+
+        // Rest of your code
+        $userName = $_SESSION['userID'];
+
+        date_default_timezone_set('Asia/Manila');
+        $currentDateTime = date("Y-m-d H:i:s");
+
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Created Patient - ID: $ID', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+
+         if ($query_run_logs) 
+        {
+            $_SESSION['message'] = "Catagory Added Successfully";
+            header('Location: PatientsList.php');
+            exit(0);
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con);
+        }
+
+        
     } else {
         $_SESSION['message'] = "Someting Went Wrong !";
         header('Location: PatientsList.php');
@@ -143,17 +198,31 @@ if (isset($_POST['edit'])) {
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
+        $userName = $_SESSION['userID'];
+
+        date_default_timezone_set('Asia/Manila');
+        $currentDateTime = date("Y-m-d H:i:s");
+
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Updated Patient ID: $patient_ID', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 
-        $_SESSION['message'] = "Catagory Updated Successfully";
-        header('Location: PatientsList.php');
-        exit(0);
-    } else {
+         if ($query_run_logs) 
+        {
+            $_SESSION['message'] = "Catagory Updated Successfully";
+            header('Location: PatientsList.php');
+            exit(0);
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con);
+        }
+    }
+     else {
         $_SESSION['message'] = "Someting Went Wrong !";
         header('Location: PatientsList.php');
         exit(0);
-    }
-}
+    }}
 ?>
 
 <!DOCTYPE html>
@@ -242,6 +311,15 @@ if (isset($_POST['edit'])) {
                 <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Reports Page/reports.php">
                     <i class="bi bi-clipboard2-data"></i>
                     <span>Reports</span></a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <li class="nav-item">
+                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Logs/Logs.php">
+                    <i class="bi bi-clipboard2-data"></i>
+                    <span>Logs</span></a>
             </li>
 
             <!-- Divider -->

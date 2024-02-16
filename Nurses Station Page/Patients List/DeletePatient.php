@@ -21,9 +21,25 @@ if(isset($_POST['patientDelete']))
 
     if($query_run1 && $query_run2)
     {
-        $_SESSION['message'] = "Catagory Deleted Successfully";
-        header('Location: PatientsList.php');
-        exit(0);
+        $userName = $_SESSION['userID'];
+
+        date_default_timezone_set('Asia/Manila');
+        $currentDateTime = date("Y-m-d H:i:s");
+
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Deleted Patient Account ID: $patient_ID', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+
+         if ($query_run_logs) 
+        {
+            $_SESSION['message'] = "Catagory Deleted Successfully";
+            header('Location: PatientsList.php');
+            exit(0);
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con2);
+        }
     }
     else
     {

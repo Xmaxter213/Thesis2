@@ -54,9 +54,25 @@ if (isset($_POST['nurseRestore'])) {
     $query_remove_delete_run = mysqli_query($con, $query_Delete_Trash);
 
     if ($query_reactivate_run && $query_remove_delete_run) {
-        $_SESSION['message'] = "Account has been restored";
-        header('Location: RestoreNurse.php');
-        exit(0);
+        $userName = $_SESSION['userID'];
+
+        date_default_timezone_set('Asia/Manila');
+        $currentDateTime = date("Y-m-d H:i:s");
+
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Restored Nurse/Admin Account ID: $nurse_ID', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+
+         if ($query_run_logs) 
+        {
+            $_SESSION['message'] = "Catagory Updated Successfully";
+            header('Location: RestoreNurse.php');
+            exit(0);
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con);
+        }
     } else {
         $_SESSION['message'] = "Someting Went Wrong !";
         header('Location: RestoreNurse.php');
@@ -159,6 +175,15 @@ if (isset($_POST['nurseRestore'])) {
                 <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Reports Page/reports.php">
                     <i class="bi bi-clipboard2-data"></i>
                     <span>Reports</span></a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <li class="nav-item">
+                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Logs/Logs.php">
+                    <i class="bi bi-clipboard2-data"></i>
+                    <span>Logs</span></a>
             </li>
 
             <!-- Divider -->

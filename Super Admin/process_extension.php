@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail->Port       = 2525;
 
             $mail->setFrom('j4ishere@gmail.com', 'Helping Hand');
-            $mail->addAddress('JohnByHole1@gmail.com', 'Recipient Name');
+            $mail->addAddress('boholbryan25@gmail.com', 'Recipient Name');
             $mail->isHTML(true);
             $mail->Subject = 'Subscription Update';
             $mail->Body    = "Hello {$hospitalName},<br><br>We're pleased to inform you that your subscription has been extended.<br><br>Your subscription is now extended up until: {$newExpirationDateTime->format('Y-m-d')}.<br><br>Thank you for choosing our Helping Hand service!<br><br>Best regards,<br>Helping Hand";

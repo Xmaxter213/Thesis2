@@ -27,9 +27,42 @@ if (isset($_POST['add'])) {
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
-        $_SESSION['message'] = "Catagory Added Successfully";
-        header('Location: EditShiftSchedule.php');
-        exit(0);
+
+        // Prepare the SELECT query using mysqli
+        $query = "SELECT ID FROM shift_Schedule WHERE work_Shift = ?";
+        $getnurseID = $con->prepare($query);
+        $getnurseID->bind_param("s", $work_Shift);
+
+        // Execute the SELECT query
+        $database = $getnurseID->execute();
+
+        // Store and fetch the result
+        $getnurseID->store_result();
+        $getnurseID->bind_result($ID);
+        $getnurseID->fetch();
+
+        // Close the statement
+        $getnurseID->close();
+
+        $userName = $_SESSION['userID'];
+
+        date_default_timezone_set('Asia/Manila');
+        $currentDateTime = date("Y-m-d H:i:s");
+
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Created Shift Schedule ID: $ID', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+
+         if ($query_run_logs) 
+        {
+            $_SESSION['message'] = "Catagory Updated Successfully";
+            header('Location: EditShiftSchedule.php');
+            exit(0);
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con);
+        }
     } else {
         $_SESSION['message'] = "Someting Went Wrong !";
         header('Location: EditShiftSchedule.php');
@@ -45,9 +78,25 @@ if (isset($_POST['editsave'])) {
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
-        $_SESSION['message'] = "Catagory Added Successfully";
-        header('Location: EditShiftSchedule.php');
-        exit(0);
+        $userName = $_SESSION['userID'];
+
+        date_default_timezone_set('Asia/Manila');
+        $currentDateTime = date("Y-m-d H:i:s");
+
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Updated Shift Schedule ID: $ID', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+
+         if ($query_run_logs) 
+        {
+            $_SESSION['message'] = "Catagory Updated Successfully";
+            header('Location: EditShiftSchedule.php');
+            exit(0);
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con);
+        }
     } else {
         $_SESSION['message'] = "Someting Went Wrong !";
         header('Location: EditShiftSchedule.php');
@@ -62,9 +111,25 @@ if (isset($_POST['delete'])) {
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
-        $_SESSION['message'] = "Catagory Added Successfully";
-        header('Location: EditShiftSchedule.php');
-        exit(0);
+        $userName = $_SESSION['userID'];
+
+        date_default_timezone_set('Asia/Manila');
+        $currentDateTime = date("Y-m-d H:i:s");
+
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Deleted Shift Schedule ID: $ID', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+
+         if ($query_run_logs) 
+        {
+            $_SESSION['message'] = "Catagory Updated Successfully";
+            header('Location: EditShiftSchedule.php');
+            exit(0);
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con);
+        }
     } else {
         $_SESSION['message'] = "Someting Went Wrong !";
         header('Location: EditShiftSchedule.php');
@@ -168,6 +233,15 @@ if (isset($_POST['delete'])) {
                 <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Reports Page/reports.php">
                     <i class="bi bi-clipboard2-data"></i>
                     <span>Reports</span></a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <li class="nav-item">
+                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Logs/Logs.php">
+                    <i class="bi bi-clipboard2-data"></i>
+                    <span>Logs</span></a>
             </li>
 
             <!-- Divider -->

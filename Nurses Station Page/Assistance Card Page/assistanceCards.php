@@ -11,7 +11,7 @@ require_once('AssiscanceCardElement.php');
 // Function to send SMS
 function sendSMS($message, $phoneNumber)
 {
-    $url = "http://192.168.1.20:8090/SendSMS?username=Mawser&password=1234&phone=" . $phoneNumber . "&message=" . urlencode($message);
+    $url = "http://172.16.79.30:8090/SendSMS?username=Mawser&password=1234&phone=" . $phoneNumber . "&message=" . urlencode($message);
     $curl = curl_init($url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     $curl_response = curl_exec($curl);

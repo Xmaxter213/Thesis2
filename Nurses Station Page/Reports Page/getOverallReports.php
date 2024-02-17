@@ -33,6 +33,49 @@ if ($result->num_rows > 0) {
 <script>
     window.onload = function () {
 
+        var chart = new CanvasJS.Chart("chartContainer", {
+            theme: "light2",
+            animationEnabled: true,
+            title: {
+                text: "Shares of Electricity Generation by Fuel"
+            },
+            subtitles: [{
+                text: "United Kingdom, 2016",
+                fontSize: 15
+            }],
+            data: [{
+                type: "pie",
+                indexLabelFontSize: 18,
+                showInLegend: true,
+                radius: 80,
+                indexLabel: "{label} - {y}",
+                yValueFormatString: "###0.0\"%\"",
+                click: explodePie,
+                //dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
+                 dataPoints: [
+                     { y: 42, label: "Gas" },
+                     { y: 21, label: "Nuclear" },
+                     { y: 24.5, label: "Renewable" },
+                     { y: 9, label: "Coal" },
+                    { y: 3.1, label: "Other Fuels" }
+                 ]
+            }]
+        });
+        chart.render();
+
+        function explodePie(e) {
+            for (var i = 0; i < e.dataSeries.dataPoints.length; i++) {
+                if (i !== e.dataPointIndex)
+                    e.dataSeries.dataPoints[i].exploded = false;
+            }
+        }
+
+    }
+</script>
+
+<!-- <script>
+    window.onload = function () {
+
 
         var chart3 = new CanvasJS.Chart("overall", {
             theme: "light2",
@@ -50,17 +93,17 @@ if ($result->num_rows > 0) {
                 indexLabelFontWeight: "bolder",
                 showInLegend: true,
                 legendText: "{label}",
-                dataPoints: <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
+                dataPoints:
             }]
         });
         chart3.render();
 
     }
-</script>
+</script> -->
 
 <!-- <h1>Overall Reports</h1> -->
 <div class="card shadow mb-3">
     <div class="card-body">
-        <div id="overall" style="height: 400px; width: 100%;"></div>
+        <div id="chartContainer" style="height: 370px; width: 100%;"></div>
     </div>
 </div>

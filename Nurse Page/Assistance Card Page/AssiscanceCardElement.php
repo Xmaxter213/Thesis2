@@ -30,7 +30,6 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
                 </form>
                 <br>
                 <div class=\"d-flex justify-content-between\">
-                    <button type=\"button\" href=\"#\" class=\"btn $btnClasses\" data-toggle=\"modal\" data-target=\"#view-{$patient_ID}\">View Details</button>
                     $changeStatusButton
                 </div>
 

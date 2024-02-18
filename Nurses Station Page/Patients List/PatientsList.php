@@ -145,13 +145,35 @@ if (isset($_POST['add'])) {
 
 if (isset($_POST['patientDischarge'])) {
     $patient_ID = $_POST['patientDischarge'];
+    $getReasonForDischarge = 'reasonForDischarge' . $patient_ID;
+    $reasonForDischarge = $_POST[$getReasonForDischarge];
 
+    // Get logged in user
+    $userName = $_SESSION['userID'];
+    
     $query = "UPDATE patient_List SET admission_Status='Discharged' WHERE patient_ID='$patient_ID'";
     
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
-        $_SESSION['message'] = "Catagory Updated Successfully";
+        date_default_timezone_set('Asia/Manila');
+        $currentDateTime = date("Y-m-d H:i:s");
+
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Discharged patient $patient_ID. Reason: $reasonForDischarge', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+
+         if ($query_run_logs) 
+        {
+            $_SESSION['message'] = "Catagory Updated Successfully";
+            header('Location: PatientsList.php');
+            exit(0);
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con);
+        }
+
         header('Location: PatientsList.php');
         exit(0);
     } else {
@@ -651,6 +673,23 @@ if (isset($_POST['edit'])) {
                                                                     <div class="modal-body">
                                                                         <form action="" method="POST">
                                                                             <label>Patient will be discharged and will be placed on the discharged patients page.</label><br>
+
+                                                                            <br>
+                                                                            <label for="dischargeReason1">Reason for discharging patient: </label> <br>
+
+                                                                            <!-- Isa lang may required kasi same name naman sila -->
+                                                                            <input type="radio" name="dischargeReason" id="dischargeReason1"  value="Discharge order given by doctor" required onchange="getValueDischarge(this, <?php echo $patient['patient_ID'] ?>)">
+                                                                            <label for="deleteReason1">Discharge order given by doctor</label> <br>
+
+                                                                            <!-- Iba name cuz input field need -->
+                                                                            <input type="radio" name="dischargeReason" id="dischargeReason3" value="Other" onchange="getValueDischarge(this, <?php echo $patient['patient_ID'] ?>)">
+                                                                            <label for="dischargeReason3">Other</label> <br>
+                                                                            
+                                                                            <div id="reasonForDischargeInputField<?= $patient['patient_ID'] ?>" style="display:none;">
+
+                                                                            <!-- wtf bat iba yung gumagana ?= pero ?php hindi sa code sa baba :/ -->
+                                                                            <textarea rows="4" cols="50" type="text" name="reasonForDischarge<?= $patient['patient_ID'] ?>" id="reasonForDischarge<?= $patient['patient_ID'] ?>" onchange="getValueDischarge(this, <?php echo $patient['patient_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for discharge" title="Must only contain letters & numbers">
+                                                                            </textarea>    
                                                                     </div>
                                                                     <div class="modal-footer">
                                                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -865,8 +904,9 @@ if (isset($_POST['edit'])) {
                                                                             
                                                                             <div id="reasonForDeletionInputField<?= $patient['patient_ID'] ?>" style="display:none;">
                                                                             <!-- wtf bat iba yung gumagana ?= pero ?php hindi sa code sa baba :/ -->
-                                                                            <input type="text" name="reasonForDeletion<?= $patient['patient_ID'] ?>" id="reasonForDeletion<?= $patient['patient_ID'] ?>" onchange="getValue(this, <?php echo $patient['patient_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" title="Must only contain letters & numbers">
-                                                                            </div>   
+                                                                            <textarea rows="4" cols="50" type="text" name="reasonForDeletion<?= $patient['patient_ID'] ?>" id="reasonForDeletion<?= $patient['patient_ID'] ?>" onchange="getValue(this, <?php echo $patient['patient_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" title="Must only contain letters & numbers">
+                                                                            </textarea>    
+                                                                        </div>   
                                                                     </div>
                                                                     <div class="modal-footer">
                                                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -882,6 +922,36 @@ if (isset($_POST['edit'])) {
                                 } ?>
                                         </tbody>
                                     </table>
+                                    <!-- For showing and hiding input field on discharge -->
+                                    <script type="text/javascript">
+                                        function getValueDischarge(x, ID) {
+                                            if(x.value == 'Other'){
+                                                document.getElementById("reasonForDischargeInputField" + ID).style.display = 'block'; // you need a identifier for changes
+                                                document.getElementById("reasonForDischarge" + ID).value = ""; // you need a identifier for changes
+                                            } else if(x.value == "Discharge order given by doctor"){
+                                                document.getElementById("reasonForDischargeInputField" + ID).style.display = 'none';  // you need a identifier for changes
+                                                document.getElementById("reasonForDischarge" + ID).value = "Discharge order given by doctor";
+                                            }
+                                            
+                                            // Store the reason in local storage
+                                            localStorage.setItem('reasonForDischarge', document.getElementById("reasonForDischarge").value);      
+
+                                            // For debugging
+                                            // // alert(document.getElementById("reasonForDeletion" + ID).id); //Checks if tamang nurse ID yung radio buttons
+
+                                            // var str,
+                                            // element = document.getElementById("reasonForDischarge" + ID);
+                                            // if (element != null) {
+                                            //     str = element.value;
+                                            //     alert("WORKS: " + str);
+                                            // }
+                                            // else {
+                                            //     str = null;
+                                            //     alert("NO WORK: " + str);
+                                            // }
+                                        }
+                                    </script>
+                                    
                                     <!-- For showing and hiding input field on deletion -->
                                     <script type="text/javascript">
                                         function getValue(x, ID) {

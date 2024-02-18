@@ -90,13 +90,32 @@ if (isset($_POST['add'])) {
 
 if (isset($_POST['patientAdmit'])) {
     $patient_ID = $_POST['patientAdmit'];
+    $getReasonForAdmit = 'reasonForAdmit' . $patient_ID;
+    $reasonForAdmit = $_POST[$getReasonForAdmit];
 
     $query = "UPDATE patient_List SET admission_Status='Admitted' WHERE patient_ID='$patient_ID'";
     
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
-        $_SESSION['message'] = "Catagory Updated Successfully";
+        date_default_timezone_set('Asia/Manila');
+        $currentDateTime = date("Y-m-d H:i:s");
+
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Discharged patient $patient_ID. Reason: $reasonForAdmit', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+
+         if ($query_run_logs) 
+        {
+            $_SESSION['message'] = "Catagory Updated Successfully";
+            header('Location: PatientsListDischarged.php');
+            exit(0);
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con);
+        }
+
         header('Location: PatientsListDischarged.php');
         exit(0);
     } else {
@@ -581,6 +600,23 @@ if (isset($_POST['edit'])) {
                                                                     <div class="modal-body">
                                                                         <form action="" method="POST">
                                                                             <label>Patient will be admitted and will be placed back on the Admitted Patients List page.</label><br>
+
+                                                                            <br>
+                                                                            <label for="admitReason1">Reason for discharging patient: </label> <br>
+
+                                                                            <!-- Isa lang may required kasi same name naman sila -->
+                                                                            <input type="radio" name="admitReason" id="admitReason1"  value="Accidentally discharged patient" required onchange="getValueAdmit(this, <?php echo $patient['patient_ID'] ?>)">
+                                                                            <label for="admitReason1">Accidentally discharged patient</label> <br>
+
+                                                                            <!-- Iba name cuz input field need -->
+                                                                            <input type="radio" name="admitReason" id="admitReason2" value="Other" onchange="getValueAdmit(this, <?php echo $patient['patient_ID'] ?>)">
+                                                                            <label for="admitReason2">Other</label> <br>
+                                                                            
+                                                                            <div id="reasonForAdmitInputField<?= $patient['patient_ID'] ?>" style="display:none;">
+
+                                                                            <!-- wtf bat iba yung gumagana ?= pero ?php hindi sa code sa baba :/ -->
+                                                                            <textarea rows="4" cols="50" type="text" name="reasonForAdmit<?= $patient['patient_ID'] ?>" id="reasonForAdmit<?= $patient['patient_ID'] ?>" onchange="getValueAdmit(this, <?php echo $patient['patient_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for admit" title="Must only contain letters & numbers">
+                                                                            </textarea>    
                                                                     </div>
                                                                     <div class="modal-footer">
                                                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -787,7 +823,8 @@ if (isset($_POST['edit'])) {
                                                                             
                                                                             <div id="reasonForDeletionInputField<?= $patient['patient_ID'] ?>" style="display:none;">
                                                                             <!-- wtf bat iba yung gumagana ?= pero ?php hindi sa code sa baba :/ -->
-                                                                            <input type="text" name="reasonForDeletion<?= $patient['patient_ID'] ?>" id="reasonForDeletion<?= $patient['patient_ID'] ?>" onchange="getValue(this, <?php echo $patient['patient_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" title="Must only contain letters & numbers">
+                                                                            <textarea rows="4" cols="50" type="text" name="reasonForDeletion<?= $patient['patient_ID'] ?>" id="reasonForDeletion<?= $patient['patient_ID'] ?>" onchange="getValue(this, <?php echo $patient['patient_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" title="Must only contain letters & numbers">
+                                                                            </textarea>
                                                                             </div>   
                                                                     </div>
                                                                     <div class="modal-footer">
@@ -804,6 +841,36 @@ if (isset($_POST['edit'])) {
                                 } ?>
                                         </tbody>
                                     </table>
+                                    <!-- For showing and hiding input field on admit -->
+                                    <script type="text/javascript">
+                                        function getValueAdmit(x, ID) {
+                                            if(x.value == 'Other'){
+                                                document.getElementById("reasonForAdmitInputField" + ID).style.display = 'block'; // you need a identifier for changes
+                                                document.getElementById("reasonForAdmit" + ID).value = ""; // you need a identifier for changes
+                                            } else if(x.value == "Accidentally discharged patient"){
+                                                document.getElementById("reasonForAdmitInputField" + ID).style.display = 'none';  // you need a identifier for changes
+                                                document.getElementById("reasonForAdmit" + ID).value = "Accidentally discharged patient";
+                                            }
+                                            
+                                            // Store the reason in local storage
+                                            localStorage.setItem('reasonForAdmit', document.getElementById("reasonForAdmit").value);      
+
+                                            // For debugging
+                                            // // alert(document.getElementById("reasonForDeletion" + ID).id); //Checks if tamang nurse ID yung radio buttons
+
+                                            // var str,
+                                            // element = document.getElementById("reasonForDischarge" + ID);
+                                            // if (element != null) {
+                                            //     str = element.value;
+                                            //     alert("WORKS: " + str);
+                                            // }
+                                            // else {
+                                            //     str = null;
+                                            //     alert("NO WORK: " + str);
+                                            // }
+                                        }
+                                    </script>
+
                                     <!-- For showing and hiding input field on deletion -->
                                     <script type="text/javascript">
                                         function getValue(x, ID) {

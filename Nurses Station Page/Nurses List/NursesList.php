@@ -777,8 +777,8 @@ if (isset($_POST['edit'])) {
                                                                             
                                                                             <div id="reasonForDeletionInputField<?= $nurse['nurse_ID'] ?>" style="display:none;">
                                                                             <!-- wtf bat iba yung gumagana ?= pero ?php hindi sa code sa baba :/ -->
-                                                                            <input type="text" name="reasonForDeletion<?= $nurse['nurse_ID'] ?>" id="reasonForDeletion<?= $nurse['nurse_ID'] ?>" onchange="getValue(this, <?php echo $nurse['nurse_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" title="Must only contain letters & numbers">
-                                                                            </div>   
+                                                                            <textarea rows="4" cols="50" type="text" name="reasonForDeletion<?= $nurse['nurse_ID'] ?>" id="reasonForDeletion<?= $nurse['nurse_ID'] ?>" onchange="getValue(this, <?php echo $nurse['nurse_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for deletion" title="Must only contain letters & numbers">
+                                                                            </textarea>   
                                                                     </div>
                                                                     <div class="modal-footer">
                                                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

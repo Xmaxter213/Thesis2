@@ -93,6 +93,9 @@ if (isset($_POST['patientAdmit'])) {
     $getReasonForAdmit = 'reasonForAdmit' . $patient_ID;
     $reasonForAdmit = $_POST[$getReasonForAdmit];
 
+    // Get logged in user
+    $userName = $_SESSION['userID'];
+
     $query = "UPDATE patient_List SET admission_Status='Admitted' WHERE patient_ID='$patient_ID'";
     
     $query_run = mysqli_query($con, $query);

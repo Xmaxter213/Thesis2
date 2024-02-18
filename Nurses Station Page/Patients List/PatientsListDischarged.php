@@ -104,7 +104,7 @@ if (isset($_POST['patientAdmit'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Discharged patient $patient_ID. Reason: $reasonForAdmit', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Re-admitted patient $patient_ID. Reason: $reasonForAdmit', '$currentDateTime')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 

@@ -399,14 +399,38 @@ if (isset($_POST['edit'])) {
                     <a href="DeletedNursesList.php" class="btn btn-primary float-end">Deleted Nurses List</a>
                     <br><br>
 
-                    <!-- DataTales Example -->
+                    <!-- DataTables Example -->
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Active Nurses Accounts List</h6>
-                            <a class="btn btn-primary" data-toggle="modal" data-target="#addNurse">Add</a>
+                            <!-- <a class="btn btn-primary" data-toggle="modal" data-target="#addNurse">Add</a> -->
+                            <a class="btn btn-primary" data-toggle="modal" data-target="#addNursePasswordVerificationModal">Add</a>
 
-                            <!-- Edit modal -->
-                            <div class="modal fade" id="addNurse" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <!-- Modal for add nurse, password verification -->
+                            <div class="modal fade" id="addNursePasswordVerificationModal" tabindex="-1" role="dialog" aria-labelledby="addNursePasswordVerificationModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addNursePasswordVerificationModalLabel">Password Verification</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="" method="POST">
+                                                <div class="form-group">
+                                                    <label for="password">Enter Your Password:</label>
+                                                    <input type="password" class="form-control" id="password" name="password" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary" name="verifyAddNurse">Verify Password</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Add nurse modal -->
+                            <div class="modal fade" id="addNurse" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -559,10 +583,10 @@ if (isset($_POST['edit'])) {
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con->query("SELECT * FROM staff_List LIMIT $start, $limit");
+                                $result = $con->query("SELECT * FROM staff_List  WHERE activated = 1 LIMIT $start, $limit");
                                 $nurses = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con->query("SELECT count(nurse_ID) AS nurse_ID FROM staff_List");
+                                $result1 = $con->query("SELECT count(nurse_ID) AS nurse_ID FROM staff_List WHERE activated = 1");
                                 $custCount = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $custCount[0]['nurse_ID'];
                                 $pages = ceil( $total / $limit );
@@ -624,7 +648,31 @@ if (isset($_POST['edit'])) {
                                                     <td><?php echo $nurse['employment_Status']; ?></td>
                                                     <td><?php echo $dec_date_Employment ?></td>
                                                     <td>
-                                                        <a onclick="showSnackbar('edit nurse')" class="btn btn-info" data-toggle="modal" data-target="#edit<?= $nurse['nurse_ID'] ?>">Edit</a>
+                                                        <a onclick="showSnackbar('edit nurse')" class="btn btn-info" data-toggle="modal" data-target="#editNursePasswordVerificationModal<?= $nurse['nurse_ID'] ?>">Edit</a>
+
+                                                        <!-- Modal for edit nurse, password verification -->
+                                                        <div class="modal fade" id="editNursePasswordVerificationModal<?= $nurse['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="editNursePasswordVerificationModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="editNursePasswordVerificationModalLabel">Password Verification</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form action="" method="POST">
+                                                                            <div class="form-group">
+                                                                                <input type="hidden" id="nurse_ID" name="nurse_ID" value="<?=  $nurse['nurse_ID'] ?>">
+                                                                                <label for="password">Enter Your Password:</label>
+                                                                                <input type="password" class="form-control" id="password" name="password" required>
+                                                                            </div>
+                                                                            <button type="submit" class="btn btn-primary" name="verifyEditNurse">Verify Password</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
 
                                                         <!-- Edit modal -->
                                                         <div class="modal fade" id="edit<?= $nurse['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -744,9 +792,33 @@ if (isset($_POST['edit'])) {
                                                     </td>
 
                                                     <td>
-                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $nurse['nurse_ID'] ?>">
+                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteNursePasswordVerificationModal<?= $nurse['nurse_ID'] ?>">
                                                             Delete
                                                         </button>
+
+                                                        <!-- Modal for delete nurse, password verification -->
+                                                        <div class="modal fade" id="deleteNursePasswordVerificationModal<?= $nurse['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteNursePasswordVerificationModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="deleteNursePasswordVerificationModalLabel">Password Verification</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form action="" method="POST">
+                                                                            <div class="form-group">
+                                                                                <input type="text" id="nurse_ID" name="nurse_ID" value="<?=  $nurse['nurse_ID'] ?>">
+                                                                                <label for="password">Enter Your Password:</label>
+                                                                                <input type="password" class="form-control" id="password" name="password" required>
+                                                                            </div>
+                                                                            <button type="submit" class="btn btn-primary" name="verifyDeleteNurse">Verify Password</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
 
                                                         <!-- Delete modal -->
                                                         <div class="modal fade" id="delete<?= $nurse['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -1014,3 +1086,111 @@ if (isset($_POST['edit'])) {
 </body>
 
 </html>
+
+<?php
+    if (isset($_POST['verifyAddNurse'])) {
+        $enteredPassword = $_POST['password'];
+    
+        $userName = $_SESSION['userID'];
+    
+        //This is for checking if pw is correct
+        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $getuserpassword = $con->prepare($query);
+        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->execute();
+        $getuserpassword->store_result();
+        $getuserpassword->bind_result($verifyPassword);
+        $getuserpassword->fetch();
+        $getuserpassword->close();
+
+
+        
+        if ($enteredPassword === $verifyPassword) {
+            echo "<script type='text/javascript'>
+            $(document).ready(function(){
+            $('#addNurse').modal('show');
+            });
+            </script>";
+            
+            // // 'di na pala kailangan to, I'll just keep it just in case ganito pagawa ni sir, I haven't added the +5 mins yet
+            // $query = "UPDATE staff_List SET nurse_Name='$enc_nurse_Name', contact_No='$enc_nurse_Contact_No' WHERE nurse_ID='$nurse_ID'";
+            // $query_run = mysqli_query($con, $query);
+            // // Get the current date and time in SQL format
+            // $currentDateTime = date('Y-m-d H:i:s');
+
+            // $query = "UPDATE staff_List SET CRUD_auth = '$currentDateTime' WHERE userName = ?";
+            // $getuserpassword = $con->prepare($query);
+            // $getuserpassword->bind_param("s", $userName);
+            // $getuserpassword->execute();
+            // $getuserpassword->store_result();
+            // $getuserpassword->bind_result($verifyPassword);
+            // $getuserpassword->fetch();
+            // $getuserpassword->close();
+            
+        } else {
+            // Password is incorrect, display an error message
+            echo '<script>alert("Incorrect password. Please try again.");</script>';
+        }
+    }
+
+    if (isset($_POST['verifyEditNurse'])) {
+        $enteredPassword = $_POST['password'];
+        $userName = $_SESSION['userID'];
+        $nurse_ID = $_POST['nurse_ID']; //One to edit
+
+        $testing = 1;
+        //This is for checking if pw is correct
+        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $getuserpassword = $con->prepare($query);
+        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->execute();
+        $getuserpassword->store_result();
+        $getuserpassword->bind_result($verifyPassword);
+        $getuserpassword->fetch();
+        $getuserpassword->close();
+
+        if ($enteredPassword === $verifyPassword) {
+            echo "<script>alert('working');</script>";
+            echo "<script>alert('$nurse_ID');</script>";
+            
+            echo "<script type='text/javascript'>
+            $(document).ready(function(){
+            $('#edit$nurse_ID').modal('show');
+            });
+            </script>";   
+        } else {
+            // Password is incorrect, display an error message
+            echo '<script>alert("Incorrect password. Please try again.");</script>';
+        }
+    }
+
+    if (isset($_POST['verifyDeleteNurse'])) {
+        $enteredPassword = $_POST['password'];
+        $userName = $_SESSION['userID'];
+        $nurse_ID = $_POST['nurse_ID']; //One to delete
+
+        $testing = 1;
+        //This is for checking if pw is correct
+        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $getuserpassword = $con->prepare($query);
+        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->execute();
+        $getuserpassword->store_result();
+        $getuserpassword->bind_result($verifyPassword);
+        $getuserpassword->fetch();
+        $getuserpassword->close();
+
+        if ($enteredPassword === $verifyPassword) {
+            // echo "<script>alert('$nurse_ID');</script>";
+            
+            echo "<script type='text/javascript'>
+            $(document).ready(function(){
+            $('#delete$nurse_ID').modal('show');
+            });
+            </script>";   
+        } else {
+            // Password is incorrect, display an error message
+            echo '<script>alert("Incorrect password. Please try again.");</script>';
+        }
+    }
+?>

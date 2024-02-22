@@ -496,6 +496,11 @@ if (isset($_POST['edit'])) {
                                             </div>
                                             <br>
                                             <div>
+                                                <!-- Admission status default to admitted -->
+                                                <input type="hidden" name="admission_Status" value="Admitted">
+                                            </div>
+                                            <br>
+                                            <div>
                                                 <?php 
                                                     // retrieve selected results from database and display them on page
                                                     $sqlNursesList = 'SELECT staff_List.nurse_ID, staff_List.nurse_Name, userLogin.status FROM staff_List JOIN userLogin WHERE staff_List.nurse_ID = userLogin.ID AND staff_List.activated = "1" AND userLogin.status = "Nurse"';

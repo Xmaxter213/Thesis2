@@ -57,22 +57,48 @@ if (!isset($_SESSION['userID'])) {
 
 $immediate_Counts = 0;
 $ADL_Counts = 0;
-$avg_Immediate = 0;
-$avg_ADL = 0;
+$total_Counts = 0;
 
-// Query for immediate sum,  ADL sum & the average of ADL Response & Immediate Response
-$sql = "SELECT SUM(ADL_Count) AS total_ADL_Count, AVG(ADL_Avg_Response) AS avg_ADL_Response, 
-SUM(immediate_Count) AS total_Immediate_Count, AVG(immediate_Avg_Response) AS avg_Immediate_Response FROM arduino_Device_List";
+// Query for immediate sum & ADL sum
+$sql = "SELECT SUM(CASE WHEN assistance_Type = 'IMMEDIATE' THEN 1 ELSE 0 END) AS immediate_count, 
+SUM(CASE WHEN assistance_Type = 'ADL' THEN 1 ELSE 0 END) AS adl_count, SUM(CASE WHEN assistance_Type = 'IMMEDIATE' THEN 1 ELSE 0 END)
++ SUM(CASE WHEN assistance_Type = 'ADL' THEN 1 ELSE 0 END) AS total_count FROM arduino_Reports";
 
 $result = mysqli_query($con, $sql);
 
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
 
-        $ADL_Counts += $row["total_ADL_Count"];
-        $immediate_Counts += $row["total_Immediate_Count"];
-        $avg_ADL = $row["avg_ADL_Response"];
-        $avg_Immediate = $row["avg_Immediate_Response"];
+        $ADL_Counts = $row["adl_count"];
+        $immediate_Counts = $row["immediate_count"];
+        $total_Counts = $row["total_count"];
+
+    }
+}
+
+$timeArray = array();
+
+// Query for dummy data of overall response rates
+$sqlQuery2 = "SELECT assistance_Type, SEC_TO_TIME(SUM(TIME_TO_SEC(response_Time)))
+AS total_time FROM arduino_Reports GROUP BY assistance_Type";
+
+$result2 = mysqli_query($con, $sqlQuery2);
+if ($result2->num_rows > 0) {
+    while ($row2 = $result2->fetch_assoc()) {
+        // Getting the time in seconds
+        $timeFromDatabase = $row2['total_time'];
+        $timeParts = explode(":", $timeFromDatabase);
+        $totalSeconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60) + $timeParts[2];
+
+        // Getting the percentage value for response rates
+        $referenceValue = 24 * 3600;
+        $percentage = ($totalSeconds / $referenceValue) * 100;
+        $percentage = number_format($percentage, 2);
+
+        // Modify label based on assistance_Type value
+        $label = $row2['assistance_Type'] == 'ADL' ? 'ADL Total Response Rate' : 'Immediate Total Response Rate';
+
+        array_push($timeArray, array("y" => $percentage, "label" => $label));
     }
 }
 
@@ -143,34 +169,51 @@ if ($result->num_rows > 0) {
     <script>
         window.onload = function () {
 
-            var chart = new CanvasJS.Chart("chartContainer", {
+            var overallCommand = new CanvasJS.Chart("containerCommands", {
                 theme: "light2",
+                exportEnabled: true,
                 animationEnabled: true,
                 title: {
                     text: "Overall Reports"
                 },
                 subtitles: [{
-                    text: "United Kingdom, 2016",
-                    fontSize: 16
+                    fontSize: 18
                 }],
                 data: [{
                     type: "pie",
                     indexLabelFontSize: 18,
-                    showInLegend: true,
-                    radius: 80,
-                    indexLabel: "{label} - {y}",
-                    yValueFormatString: "###0.0\"%\"",
+                    radius: 200,
+                    indexLabel: "{label} = {y}",
+                    yValueFormatString: "#",
                     click: explodePie,
                     dataPoints: [
-                        { y: 42, label: "Gas" },
-                        { y: 21, label: "Nuclear" },
-                        { y: 24.5, label: "Renewable" },
-                        { y: 9, label: "Coal" },
-                        { y: 3.1, label: "Other Fuels" }
+                        { y: <?php echo json_encode($ADL_Counts, JSON_NUMERIC_CHECK); ?>, label: "ADL Count" },
+                        { y: <?php echo json_encode($immediate_Counts, JSON_NUMERIC_CHECK); ?>, label: "Immediate Count" },
+                        { y: <?php echo json_encode($total_Counts, JSON_NUMERIC_CHECK); ?>, label: "Total Commands" },
                     ]
                 }]
             });
-            chart.render();
+
+            var overallRates = new CanvasJS.Chart("containerRate", {
+                theme: "light2",
+                exportEnabled: true,
+                animationEnabled: true,
+                title: {
+                    text: "Overall Response Rates"
+                },
+                data: [{
+                    type: "pie",
+                    startAngle: 25,
+                    toolTipContent: "<b>{label}</b>: {y}%",
+                    showInLegend: "true",
+                    legendText: "{label}",
+                    indexLabelFontSize: 16,
+                    indexLabel: "{label} - {y}%",
+                    dataPoints: <?php echo json_encode($timeArray, JSON_NUMERIC_CHECK); ?>
+                }]
+            });
+            overallCommand.render();
+            overallRates.render();
 
             function explodePie(e) {
                 for (var i = 0; i < e.dataSeries.dataPoints.length; i++) {
@@ -235,8 +278,7 @@ if ($result->num_rows > 0) {
             <hr class="sidebar-divider d-none d-md-block">
 
             <li class="nav-item active">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link"
-                    href="../Reports Page/reports.php">
+                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="./overallTest.php">
                     <i class="bi bi-clipboard2-data"></i>
                     <span>Reports</span></a>
             </li>
@@ -355,19 +397,18 @@ if ($result->num_rows > 0) {
                             Reports</button></a>
                     <a href="./individualTest.php"><button type="button" class="btn btn-primary">Individual
                             Reports</button></a>
-                    <div class="tab-content">
-                        <div class="tab-pane fade show active" id="nav-overall-reports" role="tabpanel">
-                            <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+                    <a href="./periodicalChart.php"><button type="button" class="btn btn-primary">Periodical
+                            Reports</button></a>
+                    <div class="card shadow mb-3">
+                        <div class="card-body">
+                            <div id="containerCommands" style="height: 400px; width: 100%;"></div>
                         </div>
                     </div>
-                    <!-- <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
-                        For more information about DataTables, please visit the <a target="_blank" href="https://datatables.net">official DataTables documentation</a>.</p> -->
-                    <!-- DataTales Example -->
-                    <!-- <div class="card shadow mb-3">
-                        <div class="card-body" id="refresh">
-                            <div id="chartContainer" style="height: 470px; width: 100%;"></div>
+                    <div class="card shadow mb-3">
+                        <div class="card-body">
+                            <div id="containerRate" style="height: 400px; width: 100%;"></div>
                         </div>
-                    </div> -->
+                    </div>
                 </div>
                 <!-- /.container-fluid -->
 

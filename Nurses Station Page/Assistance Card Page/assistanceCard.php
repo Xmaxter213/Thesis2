@@ -153,7 +153,7 @@ require_once('../../dbConnection/connection2.php');
             <hr class="sidebar-divider d-none d-md-block">
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Reports Page/reports.php">
+                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Reports Page/overallTest.php">
                     <i class="bi bi-clipboard2-data"></i>
                     <span>Reports</span></a>
             </li>

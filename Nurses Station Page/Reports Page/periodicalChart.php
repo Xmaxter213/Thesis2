@@ -27,6 +27,7 @@ if (isset($_GET['logout'])) {
 
 if (!isset($_SESSION['userID'])) {
     header("location: ../../MainHospital/login_new.php");
+    exit;
 } else {
 
     $status = $_SESSION['userStatus'];
@@ -34,16 +35,11 @@ if (!isset($_SESSION['userID'])) {
 
     if ($status === 'Nurse') {
         header("location: ../../dumHomePage/index.php");
+        exit;
     }
 }
 
-$individualPatients = array();
-$adlCount = array();
-$pulse_Rate = array();
-$battery_Percent = array();
-
-$time_Response_Adl = array();
-$time_Response_Immediate = array();
+$dataNames = array();
 
 $sql = "SELECT patient_List.patient_ID, patient_List.patient_Name, patient_List.room_Number, patient_List.birth_Date, patient_List.reason_Admission, 
 patient_List.admission_Status, patient_List.nurse_ID, patient_List.assistance_Status, patient_List.gloves_ID
@@ -52,51 +48,21 @@ arduino_Device_List.ADL_Count, arduino_Device_List.ADL_Avg_Response, arduino_Dev
 arduino_Device_List.assistance_Given, arduino_Device_List.nurses_In_Charge, arduino_Device_List.pulse_Rate, arduino_Device_List.battery_percent, 
 arduino_Device_List.date_called FROM patient_List INNER JOIN arduino_Device_List ON patient_List.gloves_ID = arduino_Device_List.device_ID WHERE 
 patient_List.admission_Status = 'Admitted'";
+
 $result = mysqli_query($con, $sql);
-
-
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $patientName = decryptthis($row["patient_Name"], $key);
 
-        // Data Retrieval of Individual Reports Chart
-        array_push($individualPatients, array("label" => $patientName, "y" => $row['immediate_Count']));
-        array_push($adlCount, array("label" => $patientName, "y" => $row['ADL_Count']));
-        array_push($battery_Percent, array("label" => $patientName, "y" => $row['battery_percent']));
-        array_push($pulse_Rate, array("label" => $patientName, "y" => $row['pulse_Rate']));
-
-        // Getting the time in seconds for ADL
-        $timeFromDatabase = $row['ADL_Avg_Response'];
+        // Getting the time in seconds
+        $timeFromDatabase = "01:40:56";
         $timeParts = explode(":", $timeFromDatabase);
         $totalSeconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60) + $timeParts[2];
 
-        // Getting the percentage value for ADL
-        // $referenceValue = 24 * 3600;
-        // $percentage = ($totalSeconds / $referenceValue) * 100;
-        // $percentage = number_format($percentage, 2);
-
-        // Getting the time in seconds for Immediate
-        $timeFromDatabase2 = $row['immediate_Avg_Response'];
-        $timeParts2 = explode(":", $timeFromDatabase2);
-        $totalSeconds2 = ($timeParts2[0] * 3600) + ($timeParts2[1] * 60) + $timeParts2[2];
-
-        // Getting the percentage value for Immediate
-        // $referenceValue2 = 24 * 3600;
-        // $percentage2 = ($totalSeconds2 / $referenceValue2) * 100;
-        // $percentage2 = number_format($percentage2, 2);
-
-
-        // Data Retrieval of Response Time Chart
-        array_push($time_Response_Adl, array("label" => $patientName, "y" => $totalSeconds));
-        array_push($time_Response_Immediate, array("label" => $patientName, "y" => $totalSeconds2));
+        array_push($dataNames, $patientName);
 
     }
 }
-
-// Getting the time in seconds
-$timeFromDatabase = "00:00:23";
-$timeParts = explode(":", $timeFromDatabase);
-$totalSeconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60) + $timeParts[2];
 
 // Check if the duration is less than a minute (60 seconds)
 if ($totalSeconds < 60) {
@@ -125,7 +91,6 @@ if ($totalSeconds < 60) {
         $timeOutput = "$totalMinutes minutes";
     }
 }
-
 
 ?>
 
@@ -192,161 +157,160 @@ if ($totalSeconds < 60) {
         // });
     </script>
 
-    <script>
-        // $('#nav-tab a[#nav-individual-reports]').on("show.bs.tab", function(e) {
-        //     console.log(e);
-        // })
-        window.onload = function () {
-            // console.log("This fired!");
-            var chart1 = new CanvasJS.Chart("immediateChart", {
-                theme: "light2",
-                exportEnabled: true,
-                animationEnabled: true,
-                title: {
-                    text: "Patient Reports"
-                },
-                axisY: {
-                    includeZero: true
-                },
-                legend: {
-                    cursor: "pointer",
-                    itemclick: toggleDataSeries
-                },
-                toolTip: {
-                    shared: true,
-                    content: toolTipFormatter
-                },
-                data: [{
-                    type: "bar",
-                    showInLegend: true,
-                    indexLabel: "{y}",
-                    indexLabelPlacement: "inside",
-                    indexLabelFontColor: "#36454F",
-                    indexLabelFontSize: 16,
-                    indexLabelFontWeight: "bolder",
-                    name: "Immediate Count",
-                    color: "rgb(223,121,112)",
-                    dataPoints: <?php echo json_encode($individualPatients, JSON_NUMERIC_CHECK); ?>
-                },
-                {
-                    type: "bar",
-                    showInLegend: true,
-                    indexLabel: "{y}",
-                    indexLabelPlacement: "inside",
-                    indexLabelFontColor: "#36454F",
-                    indexLabelFontSize: 16,
-                    indexLabelFontWeight: "bolder",
-                    name: "ADL Count",
-                    color: "rgb(119,160,51)",
-                    dataPoints: <?php echo json_encode($adlCount, JSON_NUMERIC_CHECK); ?>
-                },
-                {
-                    type: "bar",
-                    showInLegend: true,
-                    indexLabel: "{y}",
-                    indexLabelPlacement: "inside",
-                    indexLabelFontColor: "#36454F",
-                    indexLabelFontSize: 16,
-                    indexLabelFontWeight: "bolder",
-                    name: "Battery Percentage",
-                    color: "rgb(128,100,161)",
-                    dataPoints: <?php echo json_encode($battery_Percent, JSON_NUMERIC_CHECK); ?>
-                },
-                {
-                    type: "bar",
-                    showInLegend: true,
-                    indexLabel: "{y}",
-                    indexLabelPlacement: "inside",
-                    indexLabelFontColor: "#36454F",
-                    indexLabelFontSize: 16,
-                    indexLabelFontWeight: "bolder",
-                    name: "Pulse Rate",
-                    color: "rgb(74,172,197)",
-                    dataPoints: <?php echo json_encode($pulse_Rate, JSON_NUMERIC_CHECK); ?>
-                },
-                ]
-            });
+    <!-- Put charts here -->
 
-            var chart2 = new CanvasJS.Chart("responseRate", {
-                theme: "light2",
-                exportEnabled: true,
+    <script>
+        window.onload = function () {
+
+            var dailyChart = new CanvasJS.Chart("containerDaily", {
                 animationEnabled: true,
+                theme: "light2",
                 title: {
-                    text: "Response Time"
-                },
-                axisY: {
-                    title: "ADL Time (seconds)"
-                },
-                axisY2: {
-                    title: "Immediate Time (seconds)"
+                    text: "Daily Response Time"
                 },
                 subtitles: [{
-                    text: "How long it took for the patient to receive assistance in seconds"
+                    text: "Total of how long it took for the patient to receive assistance in a day"
                 }],
-
-                toolTip: {
-                    shared: true
+                axisY: {
+                    title: "Response Time (seconds)"
                 },
-                legend: {
-                    cursor: "pointer",
-                    itemclick: toggleDataSeries2
-                },
-
                 data: [{
-                    type: "column",
+                    type: "line",
                     indexLabel: "{y} 'seconds'",
-                    name: "ADL Response Time",
-                    legendText: "ADL Response Time",
-                    showInLegend: true,
-                    dataPoints: <?php echo json_encode($time_Response_Adl, JSON_NUMERIC_CHECK); ?>
-                },
-                {
-                    type: "column",
-                    indexLabel: "{y} 'seconds'",
-                    name: "Immediate Response Time",
-                    legendText: "Immediate Response Time",
-                    axisYType: "secondary",
-                    showInLegend: true,
-                    dataPoints: <?php echo json_encode($time_Response_Immediate, JSON_NUMERIC_CHECK); ?>
-                }
-                ]
-
+                    indexLabelFontSize: 16,
+                    dataPoints: [{
+                        y: 7.45,
+                        label: "Tony, Stark"
+                    }, // Representing 0.45 seconds
+                    {
+                        y: 4.41,
+                        label: "Tobey, Maguire"
+                    }, // Representing 0.414 seconds
+                    {
+                        y: 8.52,
+                        label: "Tom, Holland"
+                    }, // Representing 0.52 seconds
+                    {
+                        y: 5.46,
+                        label: "Jonas, Bohol"
+                    }, // Representing 0.46 seconds
+                    ]
+                }]
             });
 
-            function toolTipFormatter(e) {
-                var str = "";
-                var str2;
-                for (var i = 0; i < e.entries.length; i++) {
-                    var str1 = "<span style= \"color:" + e.entries[i].dataSeries.color + "\">" + e.entries[i].dataSeries.name + "</span>: <strong>" + e.entries[i].dataPoint.y + "</strong> <br/>";
-                    str = str.concat(str1);
-                }
-                str2 = "<strong>" + e.entries[0].dataPoint.label + "</strong> <br/>";
-                return str2.concat(str);
-            }
+            var weeklyChart = new CanvasJS.Chart("containerWeekly", {
+                animationEnabled: true,
+                theme: "light2",
+                title: {
+                    text: "Weekly Response Time"
+                },
+                subtitles: [{
+                    text: "Total of how long it took for the patient to receive assistance in a week"
+                }],
+                axisY: {
+                    title: "Response Time (seconds)"
+                },
+                data: [{
+                    type: "line",
+                    indexLabel: "{y} 'seconds'",
+                    dataPoints: [{
+                        y: 23.45,
+                        label: "Tony, Stark"
+                    }, // Representing 0.45 seconds
+                    {
+                        y: 45.41,
+                        label: "Tobey, Maguire"
+                    }, // Representing 0.414 seconds
+                    {
+                        y: 87.52,
+                        label: "Tom, Holland"
+                    }, // Representing 0.52 seconds
+                    {
+                        y: 39.46,
+                        label: "Jonas, Bohol"
+                    }, // Representing 0.46 seconds
+                    ]
+                }]
+            });
 
-            function toggleDataSeries(e) {
-                if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-                    e.dataSeries.visible = false;
-                } else {
-                    e.dataSeries.visible = true;
-                }
-                chart.render();
-            }
+            var monthlyChart = new CanvasJS.Chart("containerMonthly", {
+                animationEnabled: true,
+                theme: "light2",
+                title: {
+                    text: "Monthly Response Time"
+                },
+                subtitles: [{
+                    text: "Total of how long it took for the patient to receive assistance for a month"
+                }],
+                axisY: {
+                    title: "Response Time (seconds)"
+                },
+                data: [{
+                    type: "line",
+                    indexLabel: "{y} 'seconds'",
+                    dataPoints: [{
+                        y: 250.45,
+                        label: "Tony, Stark"
+                    }, // Representing 0.45 seconds
+                    {
+                        y: 189.41,
+                        label: "Tobey, Maguire"
+                    }, // Representing 0.414 seconds
+                    {
+                        y: 210.52,
+                        label: "Tom, Holland"
+                    }, // Representing 0.52 seconds
+                    {
+                        y: 198.46,
+                        label: "Jonas, Bohol"
+                    }, // Representing 0.46 seconds
+                    ]
+                }]
+            });
 
-            function toggleDataSeries2(e) {
-                if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-                    e.dataSeries.visible = false;
-                } else {
-                    e.dataSeries.visible = true;
-                }
-                chart.render();
-            }
+            var annuallyChart = new CanvasJS.Chart("containerAnnually", {
+                animationEnabled: true,
+                theme: "light2",
+                title: {
+                    text: "Annually Response Time"
+                },
+                subtitles: [{
+                    text: "Total of how long it took for the patient to receive assistance for a year"
+                }],
+                axisY: {
+                    title: "Response Time (seconds)"
+                },
+                data: [{
+                    type: "line",
+                    indexLabel: "{y} 'seconds'",
+                    dataPoints: [{
+                        y: 4420.81,
+                        label: "Tony, Stark"
+                    }, // Representing aggregated response time for John over the year
+                    {
+                        y: 9065.304,
+                        label: "Tobey, Maguire"
+                    }, // Representing aggregated response time for Alice over the year
+                    {
+                        y: 3946.4,
+                        label: "Tom, Holland"
+                    }, // Representing aggregated response time for Bob over the year
+                    {
+                        y: 6418.56,
+                        label: "Jonas, Bohol"
+                    }, // Representing aggregated response time for Emily over the year
+                    ]
+                }]
+            });
+
+            dailyChart.render();
+            weeklyChart.render();
+            monthlyChart.render();
+            annuallyChart.render();
 
         }
-
-        chart1.render();
-        chart2.render();
     </script>
+
 </head>
 
 <body id="page-top">
@@ -513,7 +477,7 @@ if ($totalSeconds < 60) {
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-
+                    <br>
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Reports</h1>
                     <a href="./overallTest.php"><button type="button" class="btn btn-primary">Overall
@@ -522,25 +486,64 @@ if ($totalSeconds < 60) {
                             Reports</button></a>
                     <a href="./periodicalChart.php"><button type="button" class="btn btn-primary">Periodical
                             Reports</button></a>
-
                     <div class="card shadow mb-3">
                         <div class="card-body">
-                            <div id="immediateChart" style="height: 400px; width: 100%;"></div>
+                            <nav>
+                                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                                    <a class="nav-item nav-link active" id="nav-daily-tab" data-toggle="tab"
+                                        href="#nav-daily" role="tab" aria-controls="nav-daily"
+                                        aria-selected="true">Daily</a>
+                                    <a class="nav-item nav-link" id="nav-weekly-tab" data-toggle="tab"
+                                        href="#nav-weekly" role="tab" aria-controls="nav-weekly"
+                                        aria-selected="false">Weekly</a>
+                                    <a class="nav-item nav-link" id="nav-monthly-tab" data-toggle="tab"
+                                        href="#nav-monthly" role="tab" aria-controls="nav-monthly"
+                                        aria-selected="false">Monthly</a>
+                                    <a class="nav-item nav-link" id="nav-annually-tab" data-toggle="tab"
+                                        href="#nav-annually" role="tab" aria-controls="nav-annually"
+                                        aria-selected="false">Annually</a>
+                                </div>
+                            </nav>
+                            <div class="tab-content" id="nav-tabContent">
+                                <div class="tab-pane fade show active" id="nav-daily" role="tabpanel"
+                                    aria-labelledby="nav-daily-tab">
+                                    <!-- Tab Content -->
+                                    <div class="tab-content">
+                                        <div class="tab-pane fade show active" id="nav-overall-reports" role="tabpanel">
+                                            <div id="containerDaily" style="height: 400px; width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="nav-weekly" role="tabpanel"
+                                    aria-labelledby="nav-weekly-tab">
+                                    <!-- Tab Content -->
+                                    <div class="tab-content">
+                                        <div class="tab-pane fade show active" id="nav-overall-reports" role="tabpanel">
+                                            <div id="containerWeekly" style="height: 400px; width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="nav-monthly" role="tabpanel"
+                                    aria-labelledby="nav-monthly-tab">
+                                    <!-- Tab Content -->
+                                    <div class="tab-content">
+                                        <div class="tab-pane fade show active" id="nav-overall-reports" role="tabpanel">
+                                            <div id="containerMonthly" style="height: 400px; width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="nav-annually" role="tabpanel"
+                                    aria-labelledby="nav-annually-tab">
+                                    <!-- Tab Content -->
+                                    <div class="tab-content">
+                                        <div class="tab-pane fade show active" id="nav-overall-reports" role="tabpanel">
+                                            <div id="containerAnnually" style="height: 400px; width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="card shadow mb-3">
-                        <div class="card-body">
-                            <div id="responseRate" style="height: 400px; width: 100%;"></div>
-                        </div>
-                    </div>
-                    <!-- <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
-                        For more information about DataTables, please visit the <a target="_blank" href="https://datatables.net">official DataTables documentation</a>.</p> -->
-                    <!-- DataTales Example -->
-                    <!-- <div class="card shadow mb-3">
-                        <div class="card-body" id="refresh">
-                            <div id="chartContainer" style="height: 470px; width: 100%;"></div>
-                        </div>
-                    </div> -->
                 </div>
                 <!-- /.container-fluid -->
 

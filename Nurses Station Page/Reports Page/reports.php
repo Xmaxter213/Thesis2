@@ -176,7 +176,7 @@ if (!isset($_SESSION['userID'])) {
 
             <li class="nav-item active">
                 <a onclick="showSnackbar('redirect to patients list page')" class="nav-link"
-                    href="../Reports Page/reports.php">
+                    href="./overallTest.php">
                     <i class="bi bi-clipboard2-data"></i>
                     <span>Reports</span></a>
             </li>

@@ -28,18 +28,19 @@ else
 
 $stmtselect->close();
 
-$sqlgetuserID = "SELECT userName, ID FROM userLogin WHERE email = ? AND password = ? LIMIT 1";
+$sqlgetuserID = "SELECT userName, ID, verifyPassword FROM userLogin WHERE email = ? AND password = ? LIMIT 1";
 $getuserID = $con->prepare($sqlgetuserID);
 $getuserID->bind_param("ss", $email, $password);
 $database = $getuserID->execute();
 $getuserID->store_result();
 
 if ($database && $getuserID->num_rows > 0) {
-    $getuserID->bind_result($userName, $ID);
+    $getuserID->bind_result($userName, $ID, $verifyPassword);
     $getuserID->fetch();
 
     $_SESSION['userID'] = $userName;  // Assuming userName is the correct field you want to store
     $_SESSION['idNUM'] = $ID;
+    $_SESSION['verifyPass'] =$verifyPassword;
 } else {
     echo 'Error getting userID';
 }

@@ -1,30 +1,32 @@
 <?php
 require_once('../../dbConnection/connection.php');
-
-//The functions for the encryption
 include('../../dbConnection/AES encryption.php');
 
-// Check if the AJAX request contains the patientID
+$nurseID = $_SESSION['idNUM'] ?? null;
+
 if(isset($_POST['patientID'])) {
     $patientID = $_POST['patientID'];
 
-    // Update the assistance status in the database
-    $updatedStatus = 'On The Way'; // Set the new status here
-    $sql = "UPDATE patient_List SET assistance_Status = ? WHERE patient_ID = ?";
-    $stmt = $con->prepare($sql);
-    $stmt->bind_param("si", $updatedStatus, $patientID);
+    $updatedStatus = 'On The Way';
+    $stmt_patient = $con->prepare("UPDATE patient_List SET assistance_Status = ? WHERE patient_ID = ?");
+    $stmt_patient->bind_param("si", $updatedStatus, $patientID);
+    $stmt_patient->execute();
+    $stmt_patient->close();
 
-    if ($stmt->execute()) {
-        // Success
-        echo json_encode(array('status' => 'success', 'message' => 'Status updated successfully'));
-    } else {
-        // Error
-        echo json_encode(array('status' => 'error', 'message' => 'Error updating status'));
-    }
+    $stmt_gloves = $con->prepare("SELECT gloves_ID FROM patient_List WHERE patient_ID = ?");
+    $stmt_gloves->bind_param("i", $patientID);
+    $stmt_gloves->execute();
+    $gloves_ID = $stmt_gloves->get_result()->fetch_assoc()['gloves_ID'];
+    $stmt_gloves->close();
 
-    $stmt->close();
+    $currentDateTime = date('Y-m-d H:i:s');
+    $stmt_reports = $con->prepare("UPDATE arduino_Reports SET Nurse_Assigned_Status = ?, nurse_ID = ?, patient_ID = ? WHERE device_ID = ?");
+    $stmt_reports->bind_param("siii", $currentDateTime, $nurseID, $patientID, $gloves_ID);
+    $stmt_reports->execute();
+    $stmt_reports->close();
+
+    echo json_encode(array('status' => 'success', 'message' => 'Status updated successfully'));
 } else {
-    // Invalid request
     echo json_encode(array('status' => 'error', 'message' => 'Invalid request'));
 }
 ?>

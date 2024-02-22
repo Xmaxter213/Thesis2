@@ -13,18 +13,18 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
     }
 
     $element = "
-    <div class=\"col-lg-4\">
-        <div class=\"card px-0\" style=\"width: 25rem; color: black; background: $cardClasses\">
+    <div class=\"col-lg-4 col-md-6 col-sm-12 mb-4\"> <!-- Added mb-4 for bottom margin -->
+        <div class=\"card px-0\" style=\"width: 100%; color: black; background: $cardClasses; margin-bottom: 20px;\"> <!-- Adjusted width and added margin-bottom -->
             <img src=\"./Images/room.jpg\" class=\"card-img-top\" alt=\"...\">
             <div class=\"card-body\">
                 <h5 class=\"font-weight-bold\">Patient Name: <span class=\"font-weight-normal\">$patient_Name</span> <span class=\"badge $bgClasses text-white\">$assistance_Status</span></h5>
                 <h5 class=\"font-weight-bold\">Room #: $room_Number</h5>
-                <form action=\"./assistanceCard.php\">
+                <form id=\"assistanceForm-$patient_ID\" action=\"javascript:void(0);\">
                     <div class=\"d-flex align-items-center justify-content-center\">
                         <h5 class=\"me-2 mb-0\">Remarks: </h5>
                         <div class=\"input-group\">
-                            <input type=\"text\" class=\"form-control\" placeholder=\"Enter Remarks\" aria-describedby=\"button-addon\" required>
-                            <button class=\"btn $btnClasses\" type=\"submit\" id=\"button-addon\">Submit</button>
+                            <input type=\"text\" class=\"form-control\" id=\"remarksInput-$patient_ID\" placeholder=\"Enter Remarks\" aria-describedby=\"button-addon\" required>
+                            <button class=\"btn $btnClasses\" type=\"submit\" id=\"button-addon\" onclick=\"submitAssistanceForm('$patient_ID')\">Submit</button>
                         </div>
                     </div>
                 </form>
@@ -58,6 +58,27 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
                         </div>
                     </div>
                 </div>
+
+                <!-- Submit Status Modal -->
+                <div class=\"modal fade\" tabindex=\"-1\" id=\"submitAssistanceModal-{$patient_ID}\" role=\"dialog\" aria-labelledby=\"changeStatusModalLabel-{$patient_ID}\" aria-hidden=\"true\">
+                    <div class=\"modal-dialog\" role=\"document\">
+                        <div class=\"modal-content\">
+                            <div class=\"modal-header\">
+                                <h5 class=\"modal-title\" id=\"changeStatusModalLabel-{$patient_ID}\">Change Status</h5>
+                                <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">
+                                    <span aria-hidden=\"true\">&times;</span>
+                                </button>
+                            </div>
+                            <div class=\"modal-body\">
+                                <p>Finished attending patient?</p>
+                            </div>
+                            <div class=\"modal-footer\">
+                                <button type=\"button\" class=\"btn btn-secondary\" data-dismiss=\"modal\">No</button>
+                                <button type=\"button\" class=\"btn btn-primary\" onclick=\"confirmAssistanceSubmission('$patient_ID')\">Yes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -67,10 +88,9 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
 }
 ?>
 
-<!-- JavaScript for AJAX request -->
+<!-- JavaScript for AJAX request and handling form submission -->
 <script>
     function changeStatus(patientID) {
-        // Send AJAX request to update status
         $.ajax({
             url: 'assistanceStatusChange.php',
             method: 'POST',
@@ -78,7 +98,33 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
             success: function(response) {
                 // Handle response if needed
                 console.log(response);
-                // Reload the page after successful status change
+            },
+            error: function(xhr, status, error) {
+                // Handle error if needed
+                console.error(xhr.responseText);
+            }
+        });
+    }
+
+    function submitAssistanceForm(patientID) {
+        var remarks = $('#remarksInput-' + patientID).val().trim();
+        if (remarks !== '') {
+            $('#submitAssistanceModal-' + patientID).modal('show');
+        } else {
+            alert('Please enter remarks before submitting.');
+        }
+    }
+
+    function confirmAssistanceSubmission(patientID) {
+        var remarks = $('#remarksInput-' + patientID).val().trim();
+        $.ajax({
+            url: 'assistanceSubmit.php',
+            method: 'POST',
+            data: { patientID: patientID, remarks: remarks },
+            success: function(response) {
+                // Handle response if needed
+                console.log(response);
+                // Reload the page after successful submission
                 location.reload();
             },
             error: function(xhr, status, error) {

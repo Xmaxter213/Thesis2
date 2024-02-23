@@ -346,10 +346,33 @@ if (isset($_POST['delete'])) {
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Shift Schedules Table</h6>
-                            <a onclick="showSnackbar('add nurse')" class="btn btn-primary float-end" data-toggle="modal" data-target="#add">Add Shift Schedule</a>
+                            <a onclick="showSnackbar('add nurse')" class="btn btn-primary float-end" data-toggle="modal" data-target="#addShiftSchedulePasswordVerificationModal">Add Shift Schedule</a>
+
+                            <!-- Modal for add schedule, password verification -->
+                            <div class="modal fade" id="addShiftSchedulePasswordVerificationModal" tabindex="-1" role="dialog" aria-labelledby="addShiftSchedulePasswordVerificationModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addNursePasswordVerificationModalLabel">Password Verification</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="" method="POST">
+                                                <div class="form-group">
+                                                    <label for="password">Enter Your Password:</label>
+                                                    <input type="password" class="form-control" id="password" name="password" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary" name="verifyAddShiftSchedule">Verify Password</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             <!-- Add modal -->
-                            <div class="modal fade" id="add" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <div class="modal fade" id="addShiftSchedule" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -415,8 +438,32 @@ if (isset($_POST['delete'])) {
                                                     <td><?php echo $shiftSchedule['work_Shift'] ?></td>
                                                     <td><?php echo $shiftSchedule['time_Range'] ?></td>
                                                     <td>
-                                                        <a onclick="showSnackbar('edit')" class="btn btn-info" data-toggle="modal" data-target="#edit<?= $shiftSchedule['ID'] ?>">Edit</a>
+                                                        <a onclick="showSnackbar('edit')" class="btn btn-info" data-toggle="modal" data-target="#editShiftSchedulePasswordVerificationModal<?= $shiftSchedule['ID'] ?>">Edit</a>
 
+                                                        <!-- Modal for edit shift schedule, password verification -->
+                                                        <div class="modal fade" id="editShiftSchedulePasswordVerificationModal<?= $shiftSchedule['ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="editShiftSchedulePasswordVerificationModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="editShiftSchedulePasswordVerificationModalLabel">Password Verification</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form action="" method="POST">
+                                                                            <div class="form-group">
+                                                                                <input type="hidden" id="ID" name="ID" value="<?=  $shiftSchedule['ID'] ?>">
+                                                                                <label for="password">Enter Your Password:</label>
+                                                                                <input type="password" class="form-control" id="password" name="password" required>
+                                                                            </div>
+                                                                            <button type="submit" class="btn btn-primary" name="verifyEditShiftSchedule">Verify Password</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
                                                         <!-- Edit modal -->
                                                         <div class="modal fade" id="edit<?= $shiftSchedule['ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
@@ -451,9 +498,33 @@ if (isset($_POST['delete'])) {
                                                     </td>
 
                                                     <td>
-                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $shiftSchedule['ID'] ?>">
+                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteNursePasswordVerificationModal<?= $shiftSchedule['ID'] ?>">
                                                             Delete
                                                         </button>
+
+                                                        <!-- Modal for delete nurse, password verification -->
+                                                        <div class="modal fade" id="deleteNursePasswordVerificationModal<?= $shiftSchedule['ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteNursePasswordVerificationModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="deleteNursePasswordVerificationModalLabel">Password Verification</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form action="" method="POST">
+                                                                            <div class="form-group">
+                                                                                <input type="hidden" id="ID" name="ID" value="<?=  $shiftSchedule['ID'] ?>">
+                                                                                <label for="password">Enter Your Password:</label>
+                                                                                <input type="password" class="form-control" id="password" name="password" required>
+                                                                            </div>
+                                                                            <button type="submit" class="btn btn-primary" name="verifyDeleteShiftSchedule">Verify Password</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
 
                                                         <!-- Delete modal -->
                                                         <div class="modal fade" id="delete<?= $shiftSchedule['ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -665,3 +736,110 @@ if (isset($_POST['delete'])) {
 </body>
 
 </html>
+
+<?php
+    if (isset($_POST['verifyAddShiftSchedule'])) {
+        $enteredPassword = $_POST['password'];
+    
+        $userName = $_SESSION['userID'];
+    
+        //This is for checking if pw is correct
+        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $getuserpassword = $con->prepare($query);
+        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->execute();
+        $getuserpassword->store_result();
+        $getuserpassword->bind_result($verifyPassword);
+        $getuserpassword->fetch();
+        $getuserpassword->close();
+
+
+        
+        if ($enteredPassword === $verifyPassword) {
+            echo "<script type='text/javascript'>
+            $(document).ready(function(){
+            $('#addShiftSchedule').modal('show');
+            });
+            </script>";
+            
+            // // 'di na pala kailangan to, I'll just keep it just in case ganito pagawa ni sir, I haven't added the +5 mins yet
+            // $query = "UPDATE staff_List SET nurse_Name='$enc_nurse_Name', contact_No='$enc_nurse_Contact_No' WHERE nurse_ID='$nurse_ID'";
+            // $query_run = mysqli_query($con, $query);
+            // // Get the current date and time in SQL format
+            // $currentDateTime = date('Y-m-d H:i:s');
+
+            // $query = "UPDATE staff_List SET CRUD_auth = '$currentDateTime' WHERE userName = ?";
+            // $getuserpassword = $con->prepare($query);
+            // $getuserpassword->bind_param("s", $userName);
+            // $getuserpassword->execute();
+            // $getuserpassword->store_result();
+            // $getuserpassword->bind_result($verifyPassword);
+            // $getuserpassword->fetch();
+            // $getuserpassword->close();
+            
+        } else {
+            // Password is incorrect, display an error message
+            echo '<script>alert("Incorrect password. Please try again.");</script>';
+        }
+    }
+
+    if (isset($_POST['verifyEditShiftSchedule'])) {
+        $enteredPassword = $_POST['password'];
+        $userName = $_SESSION['userID'];
+        $shift_Schedule_ID = $_POST['ID']; //One to edit
+
+        $testing = 1;
+        //This is for checking if pw is correct
+        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $getuserpassword = $con->prepare($query);
+        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->execute();
+        $getuserpassword->store_result();
+        $getuserpassword->bind_result($verifyPassword);
+        $getuserpassword->fetch();
+        $getuserpassword->close();
+
+        if ($enteredPassword === $verifyPassword) {
+            // echo "<script>alert('$shift_Schedule_ID');</script>";
+            
+            echo "<script type='text/javascript'>
+            $(document).ready(function(){
+            $('#edit$shift_Schedule_ID').modal('show');
+            });
+            </script>";   
+        } else {
+            // Password is incorrect, display an error message
+            echo '<script>alert("Incorrect password. Please try again.");</script>';
+        }
+    }
+
+    if (isset($_POST['verifyDeleteShiftSchedule'])) {
+        $enteredPassword = $_POST['password'];
+        $userName = $_SESSION['userID'];
+        $shift_Schedule_ID = $_POST['ID']; //One to delete
+
+        $testing = 1;
+        //This is for checking if pw is correct
+        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $getuserpassword = $con->prepare($query);
+        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->execute();
+        $getuserpassword->store_result();
+        $getuserpassword->bind_result($verifyPassword);
+        $getuserpassword->fetch();
+        $getuserpassword->close();
+
+        if ($enteredPassword === $verifyPassword) {
+            // echo "<script>alert('$nurse_ID');</script>";
+            
+            echo "<script type='text/javascript'>
+            $(document).ready(function(){
+            $('#delete$shift_Schedule_ID').modal('show');
+            });
+            </script>";   
+        } else {
+            // Password is incorrect, display an error message
+            echo '<script>alert("Incorrect password. Please try again.");</script>';
+        }
+    }
+?>

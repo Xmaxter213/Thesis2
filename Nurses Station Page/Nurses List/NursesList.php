@@ -809,7 +809,7 @@ if (isset($_POST['edit'])) {
                                                                     <div class="modal-body">
                                                                         <form action="" method="POST">
                                                                             <div class="form-group">
-                                                                                <input type="text" id="nurse_ID" name="nurse_ID" value="<?=  $nurse['nurse_ID'] ?>">
+                                                                                <input type="hidden" id="nurse_ID" name="nurse_ID" value="<?=  $nurse['nurse_ID'] ?>">
                                                                                 <label for="password">Enter Your Password:</label>
                                                                                 <input type="password" class="form-control" id="password" name="password" required>
                                                                             </div>
@@ -1150,8 +1150,7 @@ if (isset($_POST['edit'])) {
         $getuserpassword->close();
 
         if ($enteredPassword === $verifyPassword) {
-            echo "<script>alert('working');</script>";
-            echo "<script>alert('$nurse_ID');</script>";
+            // echo "<script>alert('$nurse_ID');</script>";
             
             echo "<script type='text/javascript'>
             $(document).ready(function(){

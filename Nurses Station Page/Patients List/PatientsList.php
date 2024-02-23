@@ -447,7 +447,29 @@ if (isset($_POST['edit'])) {
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Patients Table</h6>
                             <br>
-                            <a class="btn btn-primary float-end" data-toggle="modal" data-target="#addPatient">Add Patient</a>
+                            <a class="btn btn-primary float-end" data-toggle="modal" data-target="#addPatientPasswordVerificationModal">Add Patient</a>
+
+                            <div class="modal fade" id="addPatientPasswordVerificationModal" tabindex="-1" role="dialog" aria-labelledby="addPatientPasswordVerificationModal" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addPatientPasswordVerificationModal">Password Verification</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="" method="POST">
+                                                <div class="form-group">
+                                                    <label for="password">Enter Your Password:</label>
+                                                    <input type="password" class="form-control" id="password" name="password" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary" name="verifyAddPatient">Verify Password</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             <!-- Add patient modal -->
                             <div class="modal fade" id="addPatient" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -661,9 +683,33 @@ if (isset($_POST['edit'])) {
                                                     }?>
                                                     </td>
                                                     <td>
-                                                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#discharge<?= $patient['patient_ID'] ?>">
+                                                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#dischargePatientPasswordVerificationModal<?= $patient['patient_ID'] ?>">
                                                             Discharge
                                                         </button>
+
+                                                        <!-- Modal for discharge nurse, password verification -->
+                                                        <div class="modal fade" id="dischargePatientPasswordVerificationModal<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteNursePasswordVerificationModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="dischargePatientPasswordVerificationModal">Password Verification</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form action="" method="POST">
+                                                                            <div class="form-group">
+                                                                                <input type="hidden" id="patient_ID" name="patient_ID" value="<?=  $patient['patient_ID'] ?>">
+                                                                                <label for="password">Enter Your Password:</label>
+                                                                                <input type="password" class="form-control" id="password" name="password" required>
+                                                                            </div>
+                                                                            <button type="submit" class="btn btn-primary" name="verifyDischargePatient">Verify Password</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
 
                                                         <!-- Discharge Patient modal -->
                                                         <div class="modal fade" id="discharge<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="dischargeModalLabel" aria-hidden="true">
@@ -707,7 +753,33 @@ if (isset($_POST['edit'])) {
                                                     </td>
 
                                                     <td>
-                                                        <a onclick="showSnackbar('edit')" class="btn btn-info" data-toggle="modal" data-target="#edit<?= $patient['patient_ID'] ?>">Edit</a>
+                                                        <a onclick="showSnackbar('edit')" class="btn btn-info" data-toggle="modal" data-target="#editPatientPasswordVerificationModal<?= $patient['patient_ID'] ?>">Edit</a>
+
+
+                                                         <!-- Modal for edit nurse, password verification -->
+                                                        <div class="modal fade" id="editPatientPasswordVerificationModal<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="editNursePasswordVerificationModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="editPatientPasswordVerificationModal">Password Verification</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form action="" method="POST">
+                                                                            <div class="form-group">
+                                                                                <input type="hidden" id="patient_ID" name="patient_ID" value="<?=  $patient['patient_ID'] ?>">
+                                                                                <label for="password">Enter Your Password:</label>
+                                                                                <input type="password" class="form-control" id="password" name="password" required>
+                                                                            </div>
+                                                                            <button type="submit" class="btn btn-primary" name="verifyEditPatient">Verify Password</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
 
                                                         <!-- Edit modal -->
                                                         <div class="modal fade" id="edit<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -876,9 +948,34 @@ if (isset($_POST['edit'])) {
                                                     </td>
 
                                                     <td>
-                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete<?= $patient['patient_ID'] ?>">
+                                                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deletePatientPasswordVerificationModal<?= $patient['patient_ID'] ?>">
                                                             Delete
                                                         </button>
+
+                                                         <!-- Modal for delete nurse, password verification -->
+                                                        <div class="modal fade" id="deletePatientPasswordVerificationModal<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteNursePasswordVerificationModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="deletePatientPasswordVerificationModal">Password Verification</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form action="" method="POST">
+                                                                            <div class="form-group">
+                                                                                <input type="hidden" id="patient_ID" name="patient_ID" value="<?=  $patient['patient_ID'] ?>">
+                                                                                <label for="password">Enter Your Password:</label>
+                                                                                <input type="password" class="form-control" id="password" name="password" required>
+                                                                            </div>
+                                                                            <button type="submit" class="btn btn-primary" name="verifyDeletePatient">Verify Password</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
 
                                                         <!-- Delete modal -->
                                                         <div class="modal fade" id="delete<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -1171,3 +1268,138 @@ if (isset($_POST['edit'])) {
 </body>
 
 </html>
+
+<?php
+    if (isset($_POST['verifyAddPatient'])) {
+        $enteredPassword = $_POST['password'];
+    
+        $userName = $_SESSION['userID'];
+    
+        //This is for checking if pw is correct
+        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $getuserpassword = $con->prepare($query);
+        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->execute();
+        $getuserpassword->store_result();
+        $getuserpassword->bind_result($verifyPassword);
+        $getuserpassword->fetch();
+        $getuserpassword->close();
+
+
+        
+        if ($enteredPassword === $verifyPassword) {
+            echo "<script type='text/javascript'>
+            $(document).ready(function(){
+            $('#addPatient').modal('show');
+            });
+            </script>";
+            
+            // // 'di na pala kailangan to, I'll just keep it just in case ganito pagawa ni sir, I haven't added the +5 mins yet
+            // $query = "UPDATE staff_List SET nurse_Name='$enc_nurse_Name', contact_No='$enc_nurse_Contact_No' WHERE nurse_ID='$nurse_ID'";
+            // $query_run = mysqli_query($con, $query);
+            // // Get the current date and time in SQL format
+            // $currentDateTime = date('Y-m-d H:i:s');
+
+            // $query = "UPDATE staff_List SET CRUD_auth = '$currentDateTime' WHERE userName = ?";
+            // $getuserpassword = $con->prepare($query);
+            // $getuserpassword->bind_param("s", $userName);
+            // $getuserpassword->execute();
+            // $getuserpassword->store_result();
+            // $getuserpassword->bind_result($verifyPassword);
+            // $getuserpassword->fetch();
+            // $getuserpassword->close();
+            
+        } else {
+            // Password is incorrect, display an error message
+            echo '<script>alert("Incorrect password. Please try again.");</script>';
+        }
+    }
+
+    if (isset($_POST['verifyEditPatient'])) {
+        $enteredPassword = $_POST['password'];
+        $userName = $_SESSION['userID'];
+        $patient_ID = $_POST['patient_ID']; //One to edit
+
+
+        //This is for checking if pw is correct
+        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $getuserpassword = $con->prepare($query);
+        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->execute();
+        $getuserpassword->store_result();
+        $getuserpassword->bind_result($verifyPassword);
+        $getuserpassword->fetch();
+        $getuserpassword->close();
+
+        if ($enteredPassword === $verifyPassword) {
+            // echo "<script>alert('$nurse_ID');</script>";
+            
+            echo "<script type='text/javascript'>
+            $(document).ready(function(){
+            $('#edit$patient_ID').modal('show');
+            });
+            </script>";   
+        } else {
+            // Password is incorrect, display an error message
+            echo '<script>alert("Incorrect password. Please try again.");</script>';
+        }
+    }
+
+    if (isset($_POST['verifyDeletePatient'])) {
+        $enteredPassword = $_POST['password'];
+        $userName = $_SESSION['userID'];
+        $patient_ID = $_POST['patient_ID']; //One to delete
+
+        //This is for checking if pw is correct
+        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $getuserpassword = $con->prepare($query);
+        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->execute();
+        $getuserpassword->store_result();
+        $getuserpassword->bind_result($verifyPassword);
+        $getuserpassword->fetch();
+        $getuserpassword->close();
+
+        if ($enteredPassword === $verifyPassword) {
+            // echo "<script>alert('$nurse_ID');</script>";
+            
+            echo "<script type='text/javascript'>
+            $(document).ready(function(){
+            $('#delete$patient_ID').modal('show');
+            });
+            </script>";   
+        } else {
+            // Password is incorrect, display an error message
+            echo '<script>alert("Incorrect password. Please try again.");</script>';
+        }
+    }
+
+    if (isset($_POST['verifyDischargePatient'])) {
+        $enteredPassword = $_POST['password'];
+        $userName = $_SESSION['userID'];
+        $patient_ID = $_POST['patient_ID']; //One to delete
+
+        //This is for checking if pw is correct
+        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $getuserpassword = $con->prepare($query);
+        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->execute();
+        $getuserpassword->store_result();
+        $getuserpassword->bind_result($verifyPassword);
+        $getuserpassword->fetch();
+        $getuserpassword->close();
+
+        if ($enteredPassword === $verifyPassword) {
+            // echo "<script>alert('$nurse_ID');</script>";
+            
+            echo "<script type='text/javascript'>
+            $(document).ready(function(){
+            $('#discharge$patient_ID').modal('show');
+            });
+            </script>";   
+        } else {
+            // Password is incorrect, display an error message
+            echo '<script>alert("Incorrect password. Please try again.");</script>';
+        }
+    }
+?>

@@ -338,9 +338,33 @@ if (isset($_POST['patientRestore'])) {
                                                     <td><?php echo $patient['reason_For_Deletion']; ?></td>
                                                     <td><?php echo $patient['delete_at']; ?></td>
                                                     <td>
-                                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#restore<?= $patient['patient_ID'] ?>">
+                                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#restorePatientPasswordVerificationModal<?= $patient['patient_ID'] ?>">
                                                             Restore
                                                         </button>
+
+                                                         <!-- Modal for restoring nurse, password verification -->
+                                                        <div class="modal fade" id="restorePatientPasswordVerificationModal<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="restoreNursePasswordVerificationModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="restorePatientPasswordVerificationModal">Password Verification</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form action="" method="POST">
+                                                                            <div class="form-group">
+                                                                                <input type="hidden" id="patient_ID" name="patient_ID" value="<?=  $patient['patient_ID'] ?>">
+                                                                                <label for="password">Enter Your Password:</label>
+                                                                                <input type="password" class="form-control" id="password" name="password" required>
+                                                                            </div>
+                                                                            <button type="submit" class="btn btn-primary" name="verifyRestorePatient">Verify Password</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
 
                                                         <!-- Restore modal -->
                                                         <div class="modal fade" id="restore<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -589,3 +613,50 @@ if (isset($_POST['patientRestore'])) {
 </body>
 
 </html>
+
+<?php
+    if (isset($_POST['verifyRestorePatient'])) {
+        $enteredPassword = $_POST['password'];
+        $userName = $_SESSION['userID'];
+        $patient_ID = $_POST['patient_ID']; //One to edit
+    
+        //This is for checking if pw is correct
+        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $getuserpassword = $con->prepare($query);
+        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->execute();
+        $getuserpassword->store_result();
+        $getuserpassword->bind_result($verifyPassword);
+        $getuserpassword->fetch();
+        $getuserpassword->close();
+
+
+        
+        if ($enteredPassword === $verifyPassword) {
+            echo "<script type='text/javascript'>
+            $(document).ready(function(){
+            $('#restore$patient_ID').modal('show');
+            });
+            </script>";
+            
+            // // 'di na pala kailangan to, I'll just keep it just in case ganito pagawa ni sir, I haven't added the +5 mins yet
+            // $query = "UPDATE staff_List SET nurse_Name='$enc_nurse_Name', contact_No='$enc_nurse_Contact_No' WHERE nurse_ID='$nurse_ID'";
+            // $query_run = mysqli_query($con, $query);
+            // // Get the current date and time in SQL format
+            // $currentDateTime = date('Y-m-d H:i:s');
+
+            // $query = "UPDATE staff_List SET CRUD_auth = '$currentDateTime' WHERE userName = ?";
+            // $getuserpassword = $con->prepare($query);
+            // $getuserpassword->bind_param("s", $userName);
+            // $getuserpassword->execute();
+            // $getuserpassword->store_result();
+            // $getuserpassword->bind_result($verifyPassword);
+            // $getuserpassword->fetch();
+            // $getuserpassword->close();
+            
+        } else {
+            // Password is incorrect, display an error message
+            echo '<script>alert("Incorrect password. Please try again.");</script>';
+        }
+    }
+?>

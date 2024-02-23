@@ -79,11 +79,11 @@ if (isset($_POST['add'])) {
 
     if ($query_run) {
         $_SESSION['message'] = "Catagory Added Successfully";
-        header('Location: PatientsList.php');
+        header('Location: PatientsListDischarged.php');
         exit(0);
     } else {
         $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: PatientsList.php');
+        header('Location: PatientsListDischarged.php');
         exit(0);
     }
 }
@@ -168,11 +168,11 @@ if (isset($_POST['edit'])) {
 
 
         $_SESSION['message'] = "Catagory Updated Successfully";
-        header('Location: PatientsList.php');
+        header('Location: PatientsListDischarged.php');
         exit(0);
     } else {
         $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: PatientsList.php');
+        header('Location: PatientsListDischarged.php');
         exit(0);
     }
 }
@@ -886,11 +886,8 @@ if (isset($_POST['edit'])) {
                                                                             <label for="deleteReason1">Reason for deletion: </label> <br>
 
                                                                             <!-- Isa lang may required kasi same name naman sila -->
-                                                                            <input type="radio" name="deleteReason" id="deleteReason1"  value="Account will not be used" required onchange="getValue(this, <?php echo $patient['patient_ID'] ?>)">
-                                                                            <label for="deleteReason1">Account will not be used</label> <br>
-
-                                                                            <input type="radio" name="deleteReason" id="deleteReason2" value="Worker does not work in the hospital anymore" onchange="getValue(this, <?php echo $patient['patient_ID'] ?>)">
-                                                                            <label for="deleteReason2">Worker does not work in the hospital anymore</label> <br>
+                                                                            <input type="radio" name="deleteReason" id="deleteReason1"  value="Patient data will not be used" required onchange="getValue(this, <?php echo $patient['patient_ID'] ?>)">
+                                                                            <label for="deleteReason1">Patient data will not be used</label> <br>
 
                                                                             <!-- Iba name cuz input field need -->
                                                                             <input type="radio" name="deleteReason" id="deleteReason3" value="Other" onchange="getValue(this, <?php echo $patient['patient_ID'] ?>)">
@@ -904,7 +901,7 @@ if (isset($_POST['edit'])) {
                                                                     </div>
                                                                     <div class="modal-footer">
                                                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                                            <button type="submit" name="patientDelete" value="<?= $patient['patient_ID'] ?>" class="btn btn-danger">Delete</a>
+                                                                            <button type="submit" name="dischargedPatientDelete" value="<?= $patient['patient_ID'] ?>" class="btn btn-danger">Delete</a>
                                                                         </form>
                                                                     </div>
                                                                 </div>
@@ -952,12 +949,9 @@ if (isset($_POST['edit'])) {
                                             if(x.value == 'Other'){
                                                 document.getElementById("reasonForDeletionInputField" + ID).style.display = 'block'; // you need a identifier for changes
                                                 document.getElementById("reasonForDeletion" + ID).value = ""; // you need a identifier for changes
-                                            } else if(x.value == "Account will not be used"){
+                                            } else if(x.value == "Patient data will not be used"){
                                                 document.getElementById("reasonForDeletionInputField" + ID).style.display = 'none';  // you need a identifier for changes
-                                                document.getElementById("reasonForDeletion" + ID).value = "Account will not be used";
-                                            } else if(x.value == "Worker does not work in the hospital anymore"){
-                                                document.getElementById("reasonForDeletionInputField" + ID).style.display = 'none';  // you need a identifier for changes
-                                                document.getElementById("reasonForDeletion" + ID).value = "Worker does not work in the hospital anymore";
+                                                document.getElementById("reasonForDeletion" + ID).value = "Patient data will not be used";
                                             }
                                             
                                             // Store the reason in local storage
@@ -983,15 +977,15 @@ if (isset($_POST['edit'])) {
                                 <nav aria-label="Page navigation">
                                     <ul class="pagination">
                                         <li class="page-item">
-                                        <a class="page-link" href="PatientsList.php?page=<?= $Previous; ?>" aria-label="Previous">
+                                        <a class="page-link" href="PatientsListDischarged.php?page=<?= $Previous; ?>" aria-label="Previous">
                                             <span aria-hidden="true">&laquo; Previous</span>
                                         </a>
                                         </li>
                                         <?php for($i = 1; $i<= $pages; $i++) : ?>
-                                            <li class="page-item"><a class="page-link" href="PatientsList.php?page=<?= $i; ?>"><?= $i; ?></a></li>
+                                            <li class="page-item"><a class="page-link" href="PatientsListDischarged.php?page=<?= $i; ?>"><?= $i; ?></a></li>
                                         <?php endfor; ?>
                                         <li class="page-item">
-                                        <a class="page-link" href="PatientsList.php?page=<?= $Next; ?>" aria-label="Next">
+                                        <a class="page-link" href="PatientsListDischarged.php?page=<?= $Next; ?>" aria-label="Next">
                                             <span aria-hidden="true">Next &raquo;</span>
                                         </a>
                                         </li>

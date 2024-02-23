@@ -278,7 +278,8 @@ if (isset($_POST['patientRestore'])) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
-                    <a href="PatientsList.php" class="btn btn-primary float-end">Patients List Table</a>
+                    <a href="PatientsList.php" class="btn btn-primary float-end">Admitted Patients List</a>
+                    <a href="PatientsListDischarged.php" class="btn btn-primary float-end">Discharged Patients List</a>
                     <a href="RestorePatient.php" class="btn btn-primary float-end active">Restore Data</a>
                     <a href="DeletedPatientsList.php" class="btn btn-primary float-end">Deleted Patients List</a>
                     <br><br>

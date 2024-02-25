@@ -10,9 +10,9 @@ $assist_status = NULL;
 
 // Update arduino_Reports table
 $stmt_reports = $con->prepare("UPDATE arduino_Reports 
-    SET Assitance_Finished = ?, Nurse_Remarks = ? 
+    SET Assitance_Finished = ?, assistance_Given = ? 
     WHERE patient_ID = ? AND nurse_ID = ? 
-    AND Assitance_Finished IS NULL");
+    AND Assitance_Finished IS NULL LIMIT 1");
 if ($stmt_reports) {
     $stmt_reports->bind_param("ssii", $currentDateTime, $remarks, $patientID, $nurseID);
     $stmt_reports->execute();

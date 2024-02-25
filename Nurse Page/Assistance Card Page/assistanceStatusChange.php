@@ -20,7 +20,7 @@ if(isset($_POST['patientID'])) {
     $stmt_gloves->close();
 
     $currentDateTime = date('Y-m-d H:i:s');
-    $stmt_reports = $con->prepare("UPDATE arduino_Reports SET Nurse_Assigned_Status = ?, nurse_ID = ?, patient_ID = ? WHERE device_ID = ?");
+    $stmt_reports = $con->prepare("UPDATE arduino_Reports SET Nurse_Assigned_Status = ?, nurse_ID = ?, patient_ID = ? WHERE device_ID = ? AND Nurse_Assigned_Status IS NULL LIMIT 1");
     $stmt_reports->bind_param("siii", $currentDateTime, $nurseID, $patientID, $gloves_ID);
     $stmt_reports->execute();
     $stmt_reports->close();

@@ -51,6 +51,8 @@ require_once('../../dbConnection/connection2.php');
         header("location: ../../expired.php");
     }
 
+
+    $verpass = $_SESSION['verifyPass'];
 ?>
 
 <!DOCTYPE html>
@@ -256,6 +258,10 @@ require_once('../../dbConnection/connection2.php');
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Logout
                                 </a>
+                                <a class="dropdown-item" data-toggle="modal" data-target="#setPasswordModal">
+                                    <i class="fas fa-unlock fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Change password
+                                </a>
                             </div>
                         </li>
 
@@ -332,6 +338,53 @@ require_once('../../dbConnection/connection2.php');
                 </div>
             </div>
         </div>
+
+
+    <!-- password Modal-->
+    <div class="modal fade" id="setPasswordModal" tabindex="-1" role="dialog" aria-labelledby="setPasswordModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="setPasswordModalLabel">Set New Password</h5>
+                    <?php if ($verpass == 1): ?>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <?php endif; ?>
+                </div>
+                <div class="modal-body">
+                    <form id="passwordForm">
+                        <div class="form-group">
+                            <label for="password">Password:</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <span class="input-group-text" onclick="password_show_hide();">
+                                    <i class="fas fa-eye" id="show_eye"></i>
+                                    <i class="fas fa-eye-slash d-none" id="hide_eye"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password:</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                                <span class="input-group-text" onclick="confirm_password_show_hide();">
+                                    <i class="fas fa-eye" id="showConfirmPassword"></i>
+                                    <i class="fas fa-eye-slash d-none" id="hideConfirmPassword"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <?php if ($verpass == 1): ?>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <?php endif; ?>
+                    <button type="button" class="btn btn-primary" id="savePassword">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
@@ -480,6 +533,85 @@ require_once('../../dbConnection/connection2.php');
             }
             return null;
         }
+    </script>
+
+    <!-- function for change password -->
+    <script>
+        function password_show_hide() {
+            var passwordField = $('#password');
+            var showEye = $('#show_eye');
+            var hideEye = $('#hide_eye');
+            if (passwordField.attr('type') === 'password') {
+                passwordField.attr('type', 'text');
+                showEye.addClass('d-none');
+                hideEye.removeClass('d-none');
+            } else {
+                passwordField.attr('type', 'password');
+                showEye.removeClass('d-none');
+                hideEye.addClass('d-none');
+            }
+        }
+
+        function confirm_password_show_hide() {
+            var confirmPasswordField = $('#confirmPassword');
+            var showConfirmPassword = $('#showConfirmPassword');
+            var hideConfirmPassword = $('#hideConfirmPassword');
+            if (confirmPasswordField.attr('type') === 'password') {
+                confirmPasswordField.attr('type', 'text');
+                showConfirmPassword.addClass('d-none');
+                hideConfirmPassword.removeClass('d-none');
+            } else {
+                confirmPasswordField.attr('type', 'password');
+                showConfirmPassword.removeClass('d-none');
+                hideConfirmPassword.addClass('d-none');
+            }
+        }
+
+        
+        function showSnackbar(message) {
+            var snackbar = $("#snackbar");
+            snackbar.text(message);
+            snackbar.addClass("show");
+            setTimeout(function() { snackbar.removeClass("show"); }, 3000);
+        }
+
+        $(document).ready(function() {
+            <?php if ($verpass == 0): ?>
+                $('#setPasswordModal').modal('show');
+            <?php endif; ?>
+
+            $('#savePassword').click(function() {
+                var password = $('#password').val();
+                var confirmPassword = $('#confirmPassword').val();
+
+                if (password !== confirmPassword) {
+                    alert("Passwords do not match");
+                    return;
+                }
+
+                if (password == '' && confirmPassword == '') {
+                    alert("Fields are empty");
+                    return;
+                }
+
+                // Log a message before sending AJAX request
+                console.log("Sending AJAX request...");
+
+                $.ajax({
+                    type: "POST",
+                    url: "change_First_Pass.php",
+                    data: { password: password },
+                    success: function(response) {
+                        console.log("AJAX request successful:", response);
+                        $('#setPasswordModal').modal('hide');
+                        showSnackbar("Password changed successfully");
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX request failed:", error);
+                    }
+                });
+            });
+        });
     </script>
 
 

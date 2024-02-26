@@ -1,6 +1,6 @@
 <?php
 require_once('../../dbConnection/connection.php');
-//include('message.php');
+//include('message.php');http://localhost/thesis2/Nurses%20Station%20Page/Nurses%20List/NursesList.php
 
 //The functions for the encryption
 include('../../dbConnection/AES encryption.php');
@@ -87,12 +87,21 @@ if ($result2->num_rows > 0) {
     while ($row2 = $result2->fetch_assoc()) {
         // Getting the time in seconds
         $timeFromDatabase = $row2['total_time'];
-        $timeParts = explode(":", $timeFromDatabase);
-        $totalSeconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60) + $timeParts[2];
+        if($timeFromDatabase !== null){
+            $timeParts = explode(":", $timeFromDatabase);
+            $totalSeconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60) + $timeParts[2];
+        } else {
+            $totalSeconds = 0;
+        }
 
         // Getting the percentage value for response rates
         $referenceValue = 24 * 3600;
-        $percentage = ($totalSeconds / $referenceValue) * 100;
+        if($referenceValue != 0){
+            $percentage = ($totalSeconds / $referenceValue) * 100;
+        } else {
+            $percentage = 0;
+        }
+        
         $percentage = number_format($percentage, 2);
 
         // Modify label based on assistance_Type value

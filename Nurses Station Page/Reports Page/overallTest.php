@@ -61,8 +61,7 @@ $total_Counts = 0;
 
 // Query for immediate sum & ADL sum
 $sql = "SELECT SUM(CASE WHEN assistance_Type = 'IMMEDIATE' THEN 1 ELSE 0 END) AS immediate_count, 
-SUM(CASE WHEN assistance_Type = 'ADL' THEN 1 ELSE 0 END) AS adl_count, SUM(CASE WHEN assistance_Type = 'IMMEDIATE' THEN 1 ELSE 0 END)
-+ SUM(CASE WHEN assistance_Type = 'ADL' THEN 1 ELSE 0 END) AS total_count FROM arduino_Reports";
+SUM(CASE WHEN assistance_Type = 'ADL' THEN 1 ELSE 0 END) AS adl_count FROM arduino_Reports";
 
 $result = mysqli_query($con, $sql);
 
@@ -71,8 +70,6 @@ if ($result->num_rows > 0) {
 
         $ADL_Counts = $row["adl_count"];
         $immediate_Counts = $row["immediate_count"];
-        $total_Counts = $row["total_count"];
-
     }
 }
 
@@ -198,7 +195,6 @@ if ($result2->num_rows > 0) {
                     dataPoints: [
                         { y: <?php echo json_encode($ADL_Counts, JSON_NUMERIC_CHECK); ?>, label: "ADL Count" },
                         { y: <?php echo json_encode($immediate_Counts, JSON_NUMERIC_CHECK); ?>, label: "Immediate Count" },
-                        { y: <?php echo json_encode($total_Counts, JSON_NUMERIC_CHECK); ?>, label: "Total Commands" },
                     ]
                 }]
             });

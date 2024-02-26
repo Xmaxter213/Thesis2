@@ -278,6 +278,7 @@ require_once('../../dbConnection/connection2.php');
                         require_once("assistanceCards.php")
                         ?>
                     </div>
+                    <br>
                     <h1 class="font-weight-bold">ADL Assistance</h1>
                 </div>
 

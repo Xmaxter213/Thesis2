@@ -4,9 +4,9 @@ require_once('../dbConnection/connection.php');
 $email = $_POST['email'];
 $password = $_POST['password'];
 
-$sql = "SELECT * FROM userLogin WHERE email = ? AND password = ? status = 'Super Admin' LIMIT 1";
+$sql = "SELECT * FROM userLogin WHERE email = ? AND password = ? AND status = 'Super Admin' LIMIT 1";
 $stmtselect = $con->prepare($sql);
-$stmtselect->bind_param("ss", $email, $password);
+$stmtselect->bind_param("ss", $email, $password );
 $result = $stmtselect->execute();
 $stmtselect->store_result();
 
@@ -14,7 +14,7 @@ if ($result)
 {
     if ($stmtselect->num_rows > 0) 
     {
-        $sqlgetuserID = "SELECT userName FROM userLogin WHERE email = ? AND password = ? status = 'Super Admin' LIMIT 1";
+        $sqlgetuserID = "SELECT userName FROM userLogin WHERE email = ? AND password = ? AND status = 'Super Admin' LIMIT 1";
         $getuserID = $con->prepare($sqlgetuserID);
         $getuserID->bind_param("ss", $email, $password);
         $database = $getuserID->execute();

@@ -213,7 +213,72 @@
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Hospitals</h6>
-                            <a onclick="showSnackbar('add nurse')" href="AddNurse.php" class="btn btn-primary float-end">Add</a>
+                           <a class="btn btn-primary" data-toggle="modal" data-target="#addHospital">Add</a>
+                            
+                        </div>
+
+                            <!-- Add hospital modal -->
+                            <div class="modal fade" id="addHospital" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Add Hospital</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="" method="POST">
+                                                <div>
+                                                    <label>Subscriber's First Name</label>
+                                                    <input type="text" name="nurse_first_Name" id="Subscriber_first_Name" required pattern="\S(.*\S)?[A-Za-z]+" class="form-control" placeholder="Enter Subscriber's First Name" required title="Must only contain letters">
+                                                </div>
+                                                <br>
+
+                                                <div>
+                                                    <label>Subscriber's Last Name</label>
+                                                    <input type="text" name="nurse_last_Name" id="Subscriber_last_Name" required pattern="\S(.*\S)?[A-Za-z]+" class="form-control" placeholder="Enter Subscriber's Last Name" required title="Must only contain letters" >
+                                                </div>
+                                                <br>
+                                                
+                                                <div>
+                                                    <label>Subscriber's Email</label>
+                                                    <input type="text" name="nurse_Contact_No" id="Subscriber_Contact_No" class="form-control" placeholder="Enter Subscriber's Email">
+                                                </div>
+                                                <br>
+
+                                                <div>
+                                                    <label>Hospital Name</label>
+                                                    <input type="text" name="Hospital_Name" id="Hospital_Name" class="form-control" placeholder="Enter Hospital Name">
+                                                </div>
+                                                <br>
+
+                                            
+
+
+
+                                            <!-- SPACE FOR SUBSCRIPTION DURATION
+
+                                             <div>
+                                                <br>
+                                                <label>Account Status</label>
+                                                <select id="Account_Status" name="Account_Status">
+                                                    <option value="Nurse">Nurse</option>
+                                                    <option value="Admin">Admin</option>
+                                                </select>
+                                            </div> -->
+
+                                            <br>
+                                             
+                                            </div>
+                                        <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button onclick="showSnackbar('add nurse')" type = "submit" class = "btn btn-primary" name = "add" >Add</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             
                         </div>
                         <div class="card-body">
@@ -420,6 +485,8 @@
             </div>
         </div>
     </div>
+
+                            
 
 
     

@@ -1388,7 +1388,7 @@ if (isset($_POST['edit'])) {
             
             echo "<script type='text/javascript'>
             $(document).ready(function(){
-            $('#admit$patient_ID').modal('show');
+            $('#discharge$patient_ID').modal('show');
             });
             </script>";   
         } else {

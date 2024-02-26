@@ -1,5 +1,5 @@
 <?php
-    require_once('../../dbConnection/connection2.php');
+    require_once('../../dbConnection/connection.php');
 
 
     if (isset($_GET['logout'])) {
@@ -11,7 +11,7 @@
 
         // Insert into superAdminLogs
         $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$userName', 'Logout', '$currentDateTime')";
-        $query_run_logs = mysqli_query($con2, $sqlAddLogs);
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
         if ($query_run_logs) 
         {
@@ -21,7 +21,7 @@
         } 
         else 
         {
-            echo 'Error inserting logs: ' . mysqli_error($con2);
+            echo 'Error inserting logs: ' . mysqli_error($con);
         }
 
     }
@@ -36,9 +36,9 @@ if (isset($_POST['add'])) {
     $password = $_POST['password'];
     $status = $_POST['status'];
     
-    $query = "INSERT INTO superAdminAccounts ( userName, email, password, status) 
-    VALUES ('$userName','$email', '$password', '$status')";
-    $query_run = mysqli_query($con2, $query);
+    $query = "INSERT INTO userLogin ( email, password, userName, status, verifyPassword) 
+    VALUES ('$email','$password', '$userName', '$status', '1')";
+    $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
 
@@ -51,7 +51,7 @@ if (isset($_POST['add'])) {
         $currentDateTime = date("Y-m-d H:i:s");
 
         $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$userName', 'Created Account', '$currentDateTime')";
-        $query_run_logs = mysqli_query($con2, $sqlAddLogs);
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
          if ($query_run_logs) 
         {
@@ -60,7 +60,7 @@ if (isset($_POST['add'])) {
         } 
         else 
         {
-            echo 'Error inserting logs: ' . mysqli_error($con2);
+            echo 'Error inserting logs: ' . mysqli_error($con);
         }
 
         
@@ -256,17 +256,17 @@ if (isset($_POST['add'])) {
 
                                 <?php
                                 $count = 0;
-                                $sql = "SELECT * FROM superAdminAccounts";
-                                $result = mysqli_query($con2, $sql);
+                                $sql = "SELECT * FROM userLogin WHERE status = 'Super Admin'";
+                                $result = mysqli_query($con, $sql);
 
                                 //This is for pagination
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con2->query("SELECT * FROM superAdminAccounts LIMIT $start, $limit");
-                                $superadmins = $result->fetch_all(MYSQLI_ASSOC);
+                                $result = $con->query("SELECT * FROM userLogin WHERE status = 'Super Admin' LIMIT $start, $limit");
+                                $userLogin = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con2->query("SELECT count(ID) AS ID FROM superAdminAccounts");
+                                $result1 = $con->query("SELECT count(ID) AS ID FROM userLogin WHERE status = 'Super Admin'");
                                 $count2 = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $count2[0]['ID'];
                                 $pages = ceil( $total / $limit );
@@ -274,7 +274,7 @@ if (isset($_POST['add'])) {
                                 $Previous = $page - 1;
                                 $Next = $page + 1;
 
-                                $result = mysqli_query($con2, $sql);
+                                $result = mysqli_query($con, $sql);
 
                                 if (mysqli_num_rows($result) > 0) {
                                     echo "";
@@ -292,16 +292,16 @@ if (isset($_POST['add'])) {
                                         </thead>
                                         <tbody>
                                             <?php
-                                            foreach($superadmins as $superadmin) :
+                                            foreach($userLogin as $userLogin) :
                                                 $count = $count + 1;
 
                                             ?>
 
                                                 <tr>
-                                                    <td><?php echo $superadmin['ID']; ?></td>
-                                                    <td><?php echo $superadmin['userName'] ?></td>
-                                                    <td><?php echo $superadmin['email']; ?></td>
-                                                    <td><?php echo $superadmin['status']; ?></td>
+                                                    <td><?php echo $userLogin['ID']; ?></td>
+                                                    <td><?php echo $userLogin['userName'] ?></td>
+                                                    <td><?php echo $userLogin['email']; ?></td>
+                                                    <td><?php echo $userLogin['status']; ?></td>
 
                                                 </tr>
                                         <?php endforeach;

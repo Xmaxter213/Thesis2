@@ -1,5 +1,5 @@
 <?php
-require_once('../../dbConnection/connection2.php');
+require_once('../../dbConnection/connection.php');
 
 //The functions for the encryption
 ?>

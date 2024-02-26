@@ -3,7 +3,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 require '../vendor/autoload.php';
-require_once('../dbConnection/connection2.php');
+require_once('../dbConnection/connection.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hospitalID = $_POST['hospital_ID'];
@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Get the current expiration date from the database using prepared statement
     $currentExpirationQuery = "SELECT Expiration, hospitalName FROM Hospital_Table WHERE hospital_ID = ?";
-    $stmt = mysqli_prepare($con2, $currentExpirationQuery);
+    $stmt = mysqli_prepare($con, $currentExpirationQuery);
     mysqli_stmt_bind_param($stmt, 's', $hospitalID);
     mysqli_stmt_execute($stmt);
     mysqli_stmt_store_result($stmt);
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $updateQuery = "UPDATE Hospital_Table SET Expiration = ?, hospitalStatus = ? WHERE hospital_ID = ?";
         $status = $newExpirationDateTime < new DateTime() ? 'Expired' : 'Active';
-        $stmt = mysqli_prepare($con2, $updateQuery);
+        $stmt = mysqli_prepare($con, $updateQuery);
         mysqli_stmt_bind_param($stmt, 'sss', $newExpirationDateTime->format('Y-m-d'), $status, $hospitalID);
         mysqli_stmt_execute($stmt);
 
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
 
-        mysqli_close($con2);
+        mysqli_close($con);
         header('Location: index.php');
         exit;
     } else {

@@ -1,11 +1,11 @@
 <?php
-require_once('../dbConnection/connection2.php');
+require_once('../dbConnection/connection.php');
 
 $email = $_POST['email'];
 $password = $_POST['password'];
 
-$sql = "SELECT * FROM superAdminAccounts WHERE email = ? AND password = ? LIMIT 1";
-$stmtselect = $con2->prepare($sql);
+$sql = "SELECT * FROM userLogin WHERE email = ? AND password = ? status = 'Super Admin' LIMIT 1";
+$stmtselect = $con->prepare($sql);
 $stmtselect->bind_param("ss", $email, $password);
 $result = $stmtselect->execute();
 $stmtselect->store_result();
@@ -14,8 +14,8 @@ if ($result)
 {
     if ($stmtselect->num_rows > 0) 
     {
-        $sqlgetuserID = "SELECT userName FROM superAdminAccounts WHERE email = ? AND password = ? LIMIT 1";
-        $getuserID = $con2->prepare($sqlgetuserID);
+        $sqlgetuserID = "SELECT userName FROM userLogin WHERE email = ? AND password = ? status = 'Super Admin' LIMIT 1";
+        $getuserID = $con->prepare($sqlgetuserID);
         $getuserID->bind_param("ss", $email, $password);
         $database = $getuserID->execute();
         $getuserID->store_result();
@@ -33,12 +33,12 @@ if ($result)
 
             // Insert into superAdminLogs
             $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$userName', 'Login', '$currentDateTime')";
-            $query_run_logs = mysqli_query($con2, $sqlAddLogs);
+            $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
             if ($query_run_logs) {
                 echo 'Successfully';
             } else {
-                echo 'Error inserting logs: ' . mysqli_error($con2);
+                echo 'Error inserting logs: ' . mysqli_error($con);
             }
         } 
         else 
@@ -62,7 +62,7 @@ $stmtselect->close();
 
 
 
-mysqli_close($con2);
+mysqli_close($con);
 		
 
 		

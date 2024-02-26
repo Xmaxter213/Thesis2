@@ -1,5 +1,5 @@
 <?php
-    require_once('../../dbConnection/connection2.php');
+    require_once('../../dbConnection/connection.php');
 
 
     if (isset($_GET['logout'])) {
@@ -11,7 +11,7 @@
 
         // Insert into superAdminLogs
         $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$userName', 'Logout', '$currentDateTime')";
-        $query_run_logs = mysqli_query($con2, $sqlAddLogs);
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
         if ($query_run_logs) 
         {
@@ -21,7 +21,7 @@
         } 
         else 
         {
-            echo 'Error inserting logs: ' . mysqli_error($con2);
+            echo 'Error inserting logs: ' . mysqli_error($con);
         }
 
     }
@@ -232,7 +232,7 @@
 
                                         $count = 0;
                                         $sql = "SELECT * FROM superAdminLogs";
-                                        $result = mysqli_query($con2, $sql);
+                                        $result = mysqli_query($con, $sql);
 
                                         $results_per_page = 10;
                                         $number_of_results = mysqli_num_rows($result);
@@ -248,7 +248,7 @@
 
                                         // retrieve selected results from database and display them on page
                                         $sql = 'SELECT * FROM superAdminLogs LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
-                                        $result = mysqli_query($con2, $sql);
+                                        $result = mysqli_query($con, $sql);
 
 
 					                    $count = 0; // Initialize the count variable

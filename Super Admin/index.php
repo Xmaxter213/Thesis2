@@ -1,5 +1,5 @@
 <?php
-    require_once('../dbConnection/connection2.php');
+    require_once('../dbConnection/connection.php');
 
     include('process_extension.php');
 
@@ -12,7 +12,7 @@
 
         // Insert into superAdminLogs
         $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$userName', 'Logout', '$currentDateTime')";
-        $query_run_logs = mysqli_query($con2, $sqlAddLogs);
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
         if ($query_run_logs) 
         {
@@ -22,7 +22,7 @@
         } 
         else 
         {
-            echo 'Error inserting logs: ' . mysqli_error($con2);
+            echo 'Error inserting logs: ' . mysqli_error($con);
         }
 
     }
@@ -223,16 +223,16 @@
 
                                 $count = 0;
                                 $sql = "SELECT * FROM Hospital_Table";
-                                $result = mysqli_query($con2, $sql);
+                                $result = mysqli_query($con, $sql);
 
                                 //This is for pagination
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con2->query("SELECT * FROM Hospital_Table LIMIT $start, $limit");
+                                $result = $con->query("SELECT * FROM Hospital_Table LIMIT $start, $limit");
                                 $hospitals = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con2->query("SELECT count(hospital_ID) AS hospital_ID FROM Hospital_Table");
+                                $result1 = $con->query("SELECT count(hospital_ID) AS hospital_ID FROM Hospital_Table");
                                 $count2 = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $count2[0]['hospital_ID'];
                                 $pages = ceil( $total / $limit );
@@ -240,7 +240,7 @@
                                 $Previous = $page - 1;
                                 $Next = $page + 1;
 
-                                $result = mysqli_query($con2, $sql);
+                                $result = mysqli_query($con, $sql);
 
                                 if (mysqli_num_rows($result) > 0) {
                                     echo "";
@@ -250,6 +250,7 @@
                                             <tr>
                                                 <th>Hospital ID<input type="text" class="search-input" placeholder="Hospital ID"></th>
                                                 <th>Hospital Name<input type="text" class="search-input" placeholder="Hospital Name"></th>
+                                                <th>Hospital Email<input type="text" class="search-input" placeholder="Hospital Email"></th>
                                                 <th>Hospital Status <input type="text" class="search-input" placeholder="Hospital Status"></th>
                                                 <th>Duration <input type="text" class="search-input" placeholder="Duration"></th>
                                                 <th>Creation Date <input type="text" class="search-input" placeholder="Creation Date"></th>
@@ -270,12 +271,12 @@
                                                     // Update the hospital status to 'Expired' in the database
                                                     $hospitalID = $hospital['hospital_ID'];
                                                     $updateQuery = "UPDATE Hospital_Table SET hospitalStatus = 'Expired' WHERE hospital_ID = '$hospitalID'";
-                                                    mysqli_query($con2, $updateQuery);
+                                                    mysqli_query($con, $updateQuery);
                                                 } else {
                                                     // Set the status to 'Active' if the duration is greater than or equal to 0 days
                                                     $hospitalID = $hospital['hospital_ID'];
                                                     $updateQuery = "UPDATE Hospital_Table SET hospitalStatus = 'Active' WHERE hospital_ID = '$hospitalID'";
-                                                    mysqli_query($con2, $updateQuery);
+                                                    mysqli_query($con, $updateQuery);
                                                 }
                                                 ?>
                                                 <!-- Extension Modal -->
@@ -310,6 +311,7 @@
                                                 <tr>
                                                     <td><?php echo $hospital['hospital_ID'] ?></td>
                                                     <td><?php echo $hospital['hospitalName'] ?></td>
+                                                    <td><?php echo $hospital['email'] ?></td>
                                                     <td><?php echo $hospital['hospitalStatus'] ?></td>
                                                     <td>
                                                         <?php

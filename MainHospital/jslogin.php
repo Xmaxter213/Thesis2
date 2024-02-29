@@ -1,12 +1,14 @@
 <?php
 require_once('../dbConnection/connection.php');
 
+$hospital_ID = $_SESSION['selectedHospitalID'];
+
 $email = $_POST['email'];
 $password = $_POST['password'];
 
-$sql = "SELECT * FROM userLogin WHERE email = ? AND password = ? LIMIT 1";
+$sql = "SELECT * FROM userLogin WHERE email = ? AND password = ? AND hospital_ID = ? LIMIT 1";
 $stmtselect = $con->prepare($sql);
-$stmtselect->bind_param("ss", $email, $password);
+$stmtselect->bind_param("sss", $email, $password, $hospital_ID);
 $result = $stmtselect->execute();
 $stmtselect->store_result();
 
@@ -28,41 +30,25 @@ else
 
 $stmtselect->close();
 
-$sqlgetuserID = "SELECT userName, ID, verifyPassword FROM userLogin WHERE email = ? AND password = ? LIMIT 1";
+$sqlgetuserID = "SELECT userName, ID, verifyPassword, status FROM userLogin WHERE email = ? AND password = ? AND hospital_ID = ? LIMIT 1";
 $getuserID = $con->prepare($sqlgetuserID);
-$getuserID->bind_param("ss", $email, $password);
+$getuserID->bind_param("sss", $email, $password, $hospital_ID);
 $database = $getuserID->execute();
 $getuserID->store_result();
 
 if ($database && $getuserID->num_rows > 0) {
-    $getuserID->bind_result($userName, $ID, $verifyPassword);
+    $getuserID->bind_result($userName, $ID, $verifyPassword, $userStatus);
     $getuserID->fetch();
 
     $_SESSION['userID'] = $userName;  // Assuming userName is the correct field you want to store
     $_SESSION['idNUM'] = $ID;
     $_SESSION['verifyPass'] =$verifyPassword;
+    $_SESSION['userStatus'] = $userStatus;
 } else {
     echo 'Error getting userID';
 }
 
 $getuserID->close();
-
-$sqlgetuserStatus = "SELECT status FROM userLogin WHERE email = ? AND password = ? LIMIT 1";
-$getuserStatus = $con->prepare($sqlgetuserStatus);
-$getuserStatus->bind_param("ss", $email, $password);
-$database = $getuserStatus->execute();
-$getuserStatus->store_result();
-
-if ($database && $getuserStatus->num_rows > 0) {
-    $getuserStatus->bind_result($userStatus);
-    $getuserStatus->fetch();
-
-    $_SESSION['userStatus'] = $userStatus;  // Assuming userName is the correct field you want to store
-} else {
-    echo 'Error getting userStatus';
-}
-
-$getuserStatus->close();
 mysqli_close($con);
 		
 

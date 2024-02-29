@@ -54,16 +54,19 @@
         $sqladdHospital = "INSERT INTO Hospital_Table (Subscriber_Name, hospitalName, hospitalStatus, email, creation_Date, Expiration) VALUES ('$Subscriber_Name', '$Hospital_Name', '$Hospital_Status', '$Subscriber_Email', '$Creation_Date', '$Expiration_Date')";
         $query_run_addHospital = mysqli_query($con, $sqladdHospital);
 
-        $query = "INSERT INTO userLogin ( email, password, userName, status, verifyPassword) 
-        VALUES ('$Subscriber_Email','$Subscriber_Name', '$Subscriber_Name', 'Admin', '0')";
-        $query_run = mysqli_query($con, $query);
-
         if($query_run_addHospital)
         {
+            $hospital_ID = mysqli_insert_id($con);
+            $query = "INSERT INTO userLogin ( email, password, userName, status, verifyPassword, hospital_ID) 
+            VALUES ('$Subscriber_Email','$Subscriber_Name', '$Subscriber_Name', 'Admin', '0', '$hospital_ID')";
+            $query_run = mysqli_query($con, $query);
+
+
             $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
             date_default_timezone_set('Asia/Manila');
             $currentDateTime = date("Y-m-d H:i:s");
             // Insert into superAdminLogs
+            
             $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$userName', 'Added Hospital_Name : $Hospital_Name', '$currentDateTime')";
             $query_run_logs = mysqli_query($con, $sqlAddLogs);
 

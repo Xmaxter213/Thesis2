@@ -74,40 +74,114 @@ if ($result->num_rows > 0) {
 }
 
 $timeArray = array();
+$timeArray2 = array();
 
 // Query for dummy data of overall response rates
-$sqlQuery2 = "SELECT assistance_Type, SEC_TO_TIME(SUM(TIME_TO_SEC(response_Time)))
-AS total_time FROM arduino_Reports GROUP BY assistance_Type";
+$sqlQuery2 = "SELECT 
+adl_data.patient_ID,
+adl_data.patient_Name,
+adl_data.admission_Status,
+adl_data.assistance_Status,
+adl_data.patient_gloves_ID,
+adl_data.activated,
+adl_data.delete_at,
+adl_data.patient_device_ID,
+adl_data.total_ADL_Time,
+immediate_data.total_Immediate_Time,
+CASE 
+    WHEN adl_data.total_ADL_Time IS NOT NULL THEN 'ADL'
+    ELSE NULL
+END AS adl_assistance_type,
+CASE 
+    WHEN immediate_data.total_Immediate_Time IS NOT NULL THEN 'IMMEDIATE'
+    ELSE NULL
+END AS immediate_assistance_type
+FROM 
+(SELECT 
+    patient_List.patient_ID, 
+    patient_List.patient_Name, 
+    patient_List.admission_Status, 
+    patient_List.assistance_Status, 
+    patient_List.gloves_ID AS patient_gloves_ID, 
+    patient_List.activated, 
+    patient_List.delete_at, 
+    arduino_Reports.device_ID AS patient_device_ID,
+    SUM(arduino_Reports.response_Time) AS total_ADL_Time
+FROM 
+    patient_List 
+INNER JOIN 
+    arduino_Reports 
+ON 
+    patient_List.patient_ID = arduino_Reports.patient_ID 
+WHERE 
+    patient_List.admission_Status = 'Admitted' AND 
+    arduino_Reports.assistance_Type = 'ADL'
+GROUP BY 
+    patient_List.patient_ID, arduino_Reports.device_ID) AS adl_data
+LEFT JOIN 
+(SELECT 
+    patient_List.patient_ID AS patient_ID_immediate, 
+    SUM(arduino_Reports.response_Time) AS total_Immediate_Time
+FROM 
+    patient_List 
+INNER JOIN 
+    arduino_Reports 
+ON 
+    arduino_Reports.patient_ID = patient_List.patient_ID 
+WHERE 
+    patient_List.admission_Status = 'Admitted' AND 
+    arduino_Reports.assistance_Type = 'IMMEDIATE'
+GROUP BY 
+    patient_List.patient_ID) AS immediate_data
+ON 
+adl_data.patient_ID = immediate_data.patient_ID_immediate
+";
 
 $result2 = mysqli_query($con, $sqlQuery2);
 if ($result2->num_rows > 0) {
     while ($row2 = $result2->fetch_assoc()) {
+
+        $patientName = decryptthis($row2['patient_Name'], $key);
         // Getting the time in seconds
-        $timeFromDatabase = $row2['total_time'];
-        if($timeFromDatabase !== null){
-            $timeParts = explode(":", $timeFromDatabase);
-            $totalSeconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60) + $timeParts[2];
-        } else {
-            $totalSeconds = 0;
-        }
+        // $timeFromDatabase = $row2['total_ADL_Time'];
+        // if ($timeFromDatabase !== null) {
+        //     $timeParts = explode(":", $timeFromDatabase);
+        //     $totalSeconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60) + $timeParts[2];
+        // } else {
+        //     $totalSeconds = 0;
+        // }
 
-        // Getting the percentage value for response rates
-        $referenceValue = 24 * 3600;
-        if($referenceValue != 0){
-            $percentage = ($totalSeconds / $referenceValue) * 100;
-        } else {
-            $percentage = 0;
-        }
-        
-        $percentage = number_format($percentage, 2);
+        // $referenceValue = 24 * 3600;
+        // if ($referenceValue != 0) {
+        //     $percentage = ($totalSeconds / $referenceValue) * 100;
+        // } else {
+        //     $percentage = 0;
+        // }
+        $label = $row2['adl_assistance_type'] == 'ADL' ? 'ADL Total Response Time' : 'Immediate Total Response Time';
 
-        // Modify label based on assistance_Type value
-        $label = $row2['assistance_Type'] == 'ADL' ? 'ADL Total Response Rate' : 'Immediate Total Response Rate';
+        array_push($timeArray, array("y" => $row2['total_ADL_Time'], "label" => $patientName));
 
-        array_push($timeArray, array("y" => $percentage, "label" => $label));
+        // $timeFromDatabase2 = $row2['total_Immediate_Time'];
+        // if ($timeFromDatabase2 !== null) {
+        //     $timeParts2 = explode(":", $timeFromDatabase2);
+        //     $totalSeconds2 = ($timeParts2[0] * 3600) + ($timeParts2[1] * 60) + $timeParts2[2];
+        // } else {
+        //     $totalSeconds2 = 0;
+        // }
+
+        // $referenceValue2 = 24 * 3600;
+        // if ($referenceValue2 != 0) {
+        //     $percentage2 = ($totalSeconds2 / $referenceValue2) * 100;
+        // } else {
+        //     $percentage2 = 0;
+        // }
+        $label2 = $row2['immediate_assistance_type'] == 'IMMEDIATE' ? 'Immediate Total Response Time' : 'ADL Total Response Time';
+
+        array_push($timeArray2, array("y" => $row2['total_Immediate_Time'], "label" => $patientName));
     }
 }
 
+echo '<script>setTimeout(function(){location.reload()}, 10000);</script>';
 ?>
 
 <!DOCTYPE html>
@@ -157,21 +231,7 @@ if ($result2->num_rows > 0) {
 
     <!-- for div refresh -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-    <script>
-        // $('#nav-tab a[href="#nav-overall-reports"]').tab('show')
 
-        // $("#nav-tab a").on("click", function(e) {
-        //     e.preventDefault();
-        //     $(this).tab('show');
-        // });
-        // console.log($('a[data-toggle="tab"]'), "report.php");
-        // $(document).ready(function () {
-        //     setInterval(function () {
-        //         $("#refresh").load(".card-body");
-        //         refresh();
-        //     }, 1000);
-        // });
-    </script>
     <script>
         window.onload = function () {
 
@@ -198,26 +258,38 @@ if ($result2->num_rows > 0) {
                     ]
                 }]
             });
+            overallCommand.render();
 
             var overallRates = new CanvasJS.Chart("containerRate", {
                 theme: "light2",
                 exportEnabled: true,
                 animationEnabled: true,
                 title: {
-                    text: "Overall Response Rates"
+                    text: "Overall Response Time"
                 },
-                data: [{
-                    type: "pie",
-                    startAngle: 25,
-                    toolTipContent: "<b>{label}</b>: {y}%",
-                    showInLegend: "true",
-                    legendText: "{label}",
-                    indexLabelFontSize: 16,
-                    indexLabel: "{label} - {y}%",
-                    dataPoints: <?php echo json_encode($timeArray, JSON_NUMERIC_CHECK); ?>
-                }]
+                data: [
+                    {
+                        type: "line",
+                        startAngle: 25,
+                        toolTipContent: "<b>{label}</b>: {y}s",
+                        showInLegend: "true",
+                        legendText: "ADL Total Response Time",
+                        indexLabelFontSize: 16,
+                        indexLabel: "{label} - {y}s",
+                        dataPoints: <?php echo json_encode($timeArray, JSON_NUMERIC_CHECK); ?>
+                    },
+                    {
+                        type: "line",
+                        startAngle: 25,
+                        toolTipContent: "<b>{label}</b>: {y}s",
+                        showInLegend: "true",
+                        legendText: "Immediate Total Response Time",
+                        indexLabelFontSize: 16,
+                        indexLabel: "{label} - {y}s",
+                        color: "rgb(195,89,87)",
+                        dataPoints: <?php echo json_encode($timeArray2, JSON_NUMERIC_CHECK); ?>
+                    }]
             });
-            overallCommand.render();
             overallRates.render();
 
             function explodePie(e) {
@@ -398,12 +470,17 @@ if ($result2->num_rows > 0) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Reports</h1>
-                    <a href="./overallTest.php"><button type="button" class="btn btn-primary">Overall
-                            Reports</button></a>
-                    <a href="./individualTest.php"><button type="button" class="btn btn-primary">Individual
-                            Reports</button></a>
-                    <a href="./periodicalChart.php"><button type="button" class="btn btn-primary">Periodical
-                            Reports</button></a>
+                    <div class="row align-items-center mb-3">
+                        <div class="col-auto">
+                            <a href="./overallTest.php" class="btn btn-primary active">Overall Reports</a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="./individualTest.php" class="btn btn-primary">Individual Reports</a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="./criticalChart.php" class="btn btn-primary">Critical Pulse Rate Reports</a>
+                        </div>
+                    </div>
                     <div class="card shadow mb-3">
                         <div class="card-body">
                             <div id="containerCommands" style="height: 400px; width: 100%;"></div>
@@ -543,6 +620,14 @@ if ($result2->num_rows > 0) {
                 });
             });
         });
+    </script>
+    <script>
+        // For div refresh of the 2 charts
+
+        // setInterval(function () {
+        //     $('#containerCommands').load(location.href + ' #containerCommands');
+        //     $('#containerRate').load(location.href + ' #containerRate');
+        // }, 3000);
     </script>
 
     <!-- For charts -->

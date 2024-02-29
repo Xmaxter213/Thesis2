@@ -273,6 +273,7 @@ require_once('../../dbConnection/connection2.php');
                 <!-- Begin Page Content -->
                 <div class="px-4" style="color: black;">
                     <h1 class="font-weight-bold">Immediate Assistance</h1>
+                    <br>
                     <div id="refresh" class="d-flex flex-wrap">
                         <?php
                         require_once("assistanceCards.php")
@@ -280,8 +281,14 @@ require_once('../../dbConnection/connection2.php');
                     </div>
                     <br>
                     <h1 class="font-weight-bold">ADL Assistance</h1>
+                    <br>
+                    <!-- TODO -->
+                    <!-- Create a condition here to look for the ADL cards -->
+                    <h1 class="font-weight-bold">Completed</h1>
+                    <br>
+                    <!-- TODO -->
+                    <!-- Create a condition here to look for the Completed cards -->
                 </div>
-
             </div>
             <!-- End of Main Content -->
 

@@ -66,13 +66,13 @@ ON
 patient_List.nurse_ID = staff_List.nurse_ID 
 WHERE 
 patient_List.admission_Status = 'Admitted' 
-AND (patient_List.assistance_Status = 'On the way' OR assistance_Status = 'Unassigned')";
+AND (patient_List.assistance_Status = 'On the way' OR assistance_Status = 'Unassigned' OR assistance_Status = 'Completed')";
 
 
 
 $result = $con->query($sql);
 if ($result->num_rows > 0) {
-    echo ""; 
+    echo "";
     // output data of each row
     while ($row = $result->fetch_assoc()) {
         //decrypt data from form
@@ -93,7 +93,7 @@ if ($result->num_rows > 0) {
             $patient_Age = 0;
         }
 
-        if ($row['assistance_Status'] == "Unassigned" && $smsSetting == 'on') { 
+        if ($row['assistance_Status'] == "Unassigned" && $smsSetting == 'on') {
             try {
                 $message = "Patient: " . $dec_patient_Name . " needs help at room: " . $row['room_Number'];
                 $phoneNumber = $nurse_contact;
@@ -119,10 +119,30 @@ if ($result->num_rows > 0) {
 
         // Check if pulse_Rate is 100 or more
         $pulseRate = $row['pulse_Rate'];
-        $pulse_Rate_Status = ($pulseRate >= 100) ? "Pulse Rate Critical at $dateStr":"Normal Pulse";
+        $pulse_Rate_Status = ($pulseRate >= 100) ? "Pulse Rate Critical at $dateStr" : "Normal Pulse";
 
-        assistanceCard($row['patient_ID'], $dec_patient_Name, $row['room_Number'], $patient_Age, $admissionReason, $row['admission_Status'], $row['nurse_ID'], $row['assistance_Status'], $gloves_ID,
-        $device_ID, $row['ADL_Count'], $totalSeconds, $row['immediate_Count'], $totalSeconds2, $row['assistance_Given'], $row['nurses_In_Charge'], $row['pulse_Rate'], $row['date_called'], $pulse_Rate_Status, $nurse_contact);
+        assistanceCard(
+            $row['patient_ID'],
+            $dec_patient_Name,
+            $row['room_Number'],
+            $patient_Age,
+            $admissionReason,
+            $row['admission_Status'],
+            $row['nurse_ID'],
+            $row['assistance_Status'],
+            $gloves_ID,
+            $device_ID,
+            $row['ADL_Count'],
+            $totalSeconds,
+            $row['immediate_Count'],
+            $totalSeconds2,
+            $row['assistance_Given'],
+            $row['nurses_In_Charge'],
+            $row['pulse_Rate'],
+            $row['date_called'],
+            $pulse_Rate_Status,
+            $nurse_contact
+        );
     }
 } else {
     echo "0";

@@ -41,12 +41,35 @@ if (!isset($_SESSION['userID'])) {
 
 $dataNames = array();
 
-$sql = "SELECT patient_List.patient_ID, patient_List.patient_Name, patient_List.room_Number, patient_List.birth_Date, patient_List.reason_Admission, 
-patient_List.admission_Status, patient_List.nurse_ID, patient_List.assistance_Status, patient_List.gloves_ID
-AS patient_gloves_ID, patient_List.activated, patient_List.delete_at, arduino_Device_List.device_ID AS patient_device_ID,
-arduino_Device_List.ADL_Count, arduino_Device_List.ADL_Avg_Response, arduino_Device_List.immediate_Count, arduino_Device_List.immediate_Avg_Response,
-arduino_Device_List.assistance_Given, arduino_Device_List.nurses_In_Charge, arduino_Device_List.pulse_Rate, arduino_Device_List.battery_percent, 
-arduino_Device_List.date_called FROM patient_List INNER JOIN arduino_Device_List ON patient_List.gloves_ID = arduino_Device_List.device_ID WHERE 
+$sql = "SELECT 
+patient_List.patient_ID, 
+patient_List.patient_Name, 
+patient_List.room_Number, 
+patient_List.birth_Date, 
+patient_List.reason_Admission, 
+patient_List.admission_Status, 
+patient_List.nurse_ID, 
+patient_List.assistance_Status, 
+patient_List.gloves_ID AS patient_gloves_ID, 
+patient_List.activated, 
+patient_List.delete_at, 
+arduino_Device_List.device_ID AS patient_device_ID,
+arduino_Device_List.ADL_Count, 
+arduino_Device_List.ADL_Avg_Response, 
+arduino_Device_List.immediate_Count, 
+arduino_Device_List.immediate_Avg_Response,
+arduino_Device_List.assistance_Given, 
+arduino_Device_List.nurses_In_Charge, 
+arduino_Device_List.pulse_Rate, 
+arduino_Device_List.battery_percent, 
+arduino_Device_List.date_called 
+FROM 
+patient_List 
+INNER JOIN 
+arduino_Device_List 
+ON 
+patient_List.gloves_ID = arduino_Device_List.device_ID 
+WHERE 
 patient_List.admission_Status = 'Admitted'";
 
 $result = mysqli_query($con, $sql);
@@ -162,153 +185,52 @@ if ($totalSeconds < 60) {
     <script>
         window.onload = function () {
 
-            var dailyChart = new CanvasJS.Chart("containerDaily", {
-                animationEnabled: true,
+            var chart = new CanvasJS.Chart("chartContainer", {
                 theme: "light2",
+                animationEnabled: true,
+                exportEnabled: true,
+                theme: "light1",
                 title: {
-                    text: "Daily Response Time"
+                    text: "Simple Column Chart with Index Labels"
                 },
-                subtitles: [{
-                    text: "Total of how long it took for the patient to receive assistance in a day"
-                }],
                 axisY: {
-                    title: "Response Time (seconds)"
+                    includeZero: true
                 },
                 data: [{
-                    type: "line",
-                    indexLabel: "{y} 'seconds'",
+                    type: "column",
+                    indexLabelFontColor: "#5A5757",
                     indexLabelFontSize: 16,
-                    dataPoints: [{
-                        y: 7.45,
-                        label: "Tony, Stark"
-                    }, // Representing 0.45 seconds
-                    {
-                        y: 4.41,
-                        label: "Tobey, Maguire"
-                    }, // Representing 0.414 seconds
-                    {
-                        y: 8.52,
-                        label: "Tom, Holland"
-                    }, // Representing 0.52 seconds
-                    {
-                        y: 5.46,
-                        label: "Jonas, Bohol"
-                    }, // Representing 0.46 seconds
+                    indexLabelPlacement: "outside",
+                    dataPoints: [
+                        { x: 10, y: 71, additionalData: "Additional Info 1" },
+                        { x: 20, y: 55, additionalData: "Additional Info 2" },
+                        { x: 30, y: 50, additionalData: "Additional Info 3" },
+                        { x: 40, y: 65, additionalData: "Additional Info 4" },
+                        { x: 50, y: 92, indexLabel: "\u2605 Highest", additionalData: "Additional Info 5" },
+                        { x: 60, y: 68, additionalData: "Additional Info 6" },
+                        { x: 70, y: 38, additionalData: "Additional Info 7" },
+                        { x: 80, y: 71, additionalData: "Additional Info 8" },
+                        { x: 90, y: 54, additionalData: "Additional Info 9" },
+                        { x: 100, y: 60, additionalData: "Additional Info 10" },
+                        { x: 110, y: 36, additionalData: "Additional Info 11" },
+                        { x: 120, y: 49, additionalData: "Additional Info 12" },
+                        { x: 130, y: 21, indexLabel: "\u2691 Lowest", additionalData: "Additional Info 13" }
                     ]
-                }]
-            });
-
-            var weeklyChart = new CanvasJS.Chart("containerWeekly", {
-                animationEnabled: true,
-                theme: "light2",
-                title: {
-                    text: "Weekly Response Time"
-                },
-                subtitles: [{
-                    text: "Total of how long it took for the patient to receive assistance in a week"
                 }],
-                axisY: {
-                    title: "Response Time (seconds)"
-                },
-                data: [{
-                    type: "line",
-                    indexLabel: "{y} 'seconds'",
-                    dataPoints: [{
-                        y: 23.45,
-                        label: "Tony, Stark"
-                    }, // Representing 0.45 seconds
-                    {
-                        y: 45.41,
-                        label: "Tobey, Maguire"
-                    }, // Representing 0.414 seconds
-                    {
-                        y: 87.52,
-                        label: "Tom, Holland"
-                    }, // Representing 0.52 seconds
-                    {
-                        y: 39.46,
-                        label: "Jonas, Bohol"
-                    }, // Representing 0.46 seconds
-                    ]
-                }]
+                toolTip: {
+                    contentFormatter: function (e) {
+                        var content = "X: " + e.entries[0].dataPoint.x + "<br/>Y: " + e.entries[0].dataPoint.y;
+                        if (e.entries[0].dataPoint.additionalData) {
+                            content += "<br/>Additional Data: " + e.entries[0].dataPoint.additionalData;
+                        }
+                        return content;
+                    }
+                }
             });
 
-            var monthlyChart = new CanvasJS.Chart("containerMonthly", {
-                animationEnabled: true,
-                theme: "light2",
-                title: {
-                    text: "Monthly Response Time"
-                },
-                subtitles: [{
-                    text: "Total of how long it took for the patient to receive assistance for a month"
-                }],
-                axisY: {
-                    title: "Response Time (seconds)"
-                },
-                data: [{
-                    type: "line",
-                    indexLabel: "{y} 'seconds'",
-                    dataPoints: [{
-                        y: 250.45,
-                        label: "Tony, Stark"
-                    }, // Representing 0.45 seconds
-                    {
-                        y: 189.41,
-                        label: "Tobey, Maguire"
-                    }, // Representing 0.414 seconds
-                    {
-                        y: 210.52,
-                        label: "Tom, Holland"
-                    }, // Representing 0.52 seconds
-                    {
-                        y: 198.46,
-                        label: "Jonas, Bohol"
-                    }, // Representing 0.46 seconds
-                    ]
-                }]
-            });
-
-            var annuallyChart = new CanvasJS.Chart("containerAnnually", {
-                animationEnabled: true,
-                theme: "light2",
-                title: {
-                    text: "Annually Response Time"
-                },
-                subtitles: [{
-                    text: "Total of how long it took for the patient to receive assistance for a year"
-                }],
-                axisY: {
-                    title: "Response Time (seconds)"
-                },
-                data: [{
-                    type: "line",
-                    indexLabel: "{y} 'seconds'",
-                    dataPoints: [{
-                        y: 4420.81,
-                        label: "Tony, Stark"
-                    }, // Representing aggregated response time for John over the year
-                    {
-                        y: 9065.304,
-                        label: "Tobey, Maguire"
-                    }, // Representing aggregated response time for Alice over the year
-                    {
-                        y: 3946.4,
-                        label: "Tom, Holland"
-                    }, // Representing aggregated response time for Bob over the year
-                    {
-                        y: 6418.56,
-                        label: "Jonas, Bohol"
-                    }, // Representing aggregated response time for Emily over the year
-                    ]
-                }]
-            });
-
-            dailyChart.render();
-            weeklyChart.render();
-            monthlyChart.render();
-            annuallyChart.render();
-
+            chart.render();
         }
+
     </script>
 
 </head>
@@ -476,72 +398,26 @@ if ($totalSeconds < 60) {
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
-                <div class="container-fluid">
+                <div class="container-fluid ">
                     <br>
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Reports</h1>
-                    <a href="./overallTest.php"><button type="button" class="btn btn-primary">Overall
-                            Reports</button></a>
-                    <a href="./individualTest.php"><button type="button" class="btn btn-primary">Individual
-                            Reports</button></a>
-                    <a href="./periodicalChart.php"><button type="button" class="btn btn-primary">Periodical
-                            Reports</button></a>
+                    <div class="row align-items-center mb-3">
+                        <div class="col-auto">
+                            <a href="./overallTest.php" class="btn btn-primary">Overall Reports</a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="./individualTest.php" class="btn btn-primary">Individual Reports</a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="./criticalChart.php" class="btn btn-primary active">Critical Pulse Rate
+                                Reports</a>
+                        </div>
+                    </div>
+
                     <div class="card shadow mb-3">
                         <div class="card-body">
-                            <nav>
-                                <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                                    <a class="nav-item nav-link active" id="nav-daily-tab" data-toggle="tab"
-                                        href="#nav-daily" role="tab" aria-controls="nav-daily"
-                                        aria-selected="true">Daily</a>
-                                    <a class="nav-item nav-link" id="nav-weekly-tab" data-toggle="tab"
-                                        href="#nav-weekly" role="tab" aria-controls="nav-weekly"
-                                        aria-selected="false">Weekly</a>
-                                    <a class="nav-item nav-link" id="nav-monthly-tab" data-toggle="tab"
-                                        href="#nav-monthly" role="tab" aria-controls="nav-monthly"
-                                        aria-selected="false">Monthly</a>
-                                    <a class="nav-item nav-link" id="nav-annually-tab" data-toggle="tab"
-                                        href="#nav-annually" role="tab" aria-controls="nav-annually"
-                                        aria-selected="false">Annually</a>
-                                </div>
-                            </nav>
-                            <div class="tab-content" id="nav-tabContent">
-                                <div class="tab-pane fade show active" id="nav-daily" role="tabpanel"
-                                    aria-labelledby="nav-daily-tab">
-                                    <!-- Tab Content -->
-                                    <div class="tab-content">
-                                        <div class="tab-pane fade show active" id="nav-overall-reports" role="tabpanel">
-                                            <div id="containerDaily" style="height: 400px; width: 100%;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="nav-weekly" role="tabpanel"
-                                    aria-labelledby="nav-weekly-tab">
-                                    <!-- Tab Content -->
-                                    <div class="tab-content">
-                                        <div class="tab-pane fade show active" id="nav-overall-reports" role="tabpanel">
-                                            <div id="containerWeekly" style="height: 400px; width: 100%;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="nav-monthly" role="tabpanel"
-                                    aria-labelledby="nav-monthly-tab">
-                                    <!-- Tab Content -->
-                                    <div class="tab-content">
-                                        <div class="tab-pane fade show active" id="nav-overall-reports" role="tabpanel">
-                                            <div id="containerMonthly" style="height: 400px; width: 100%;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="nav-annually" role="tabpanel"
-                                    aria-labelledby="nav-annually-tab">
-                                    <!-- Tab Content -->
-                                    <div class="tab-content">
-                                        <div class="tab-pane fade show active" id="nav-overall-reports" role="tabpanel">
-                                            <div id="containerAnnually" style="height: 400px; width: 100%;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <div id="chartContainer" style="height: 400px; width: 100%;"></div>
                         </div>
                     </div>
                 </div>

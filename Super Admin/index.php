@@ -1,7 +1,10 @@
 <?php
+    use PHPMailer\PHPMailer\PHPMailer;
+    use PHPMailer\PHPMailer\Exception;
+
+    require '../vendor/autoload.php';
     require_once('../dbConnection/connection.php');
 
-    include('process_extension.php');
 
     if (isset($_GET['logout'])) {
         $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
@@ -30,6 +33,91 @@
     if (!isset($_SESSION['userID'])) {
         header("location: login_new.php");
     }
+
+    if(isset($_POST['add']))
+    {
+        $Subscriber_FirstName = $_POST['Subscriber_first_Name'];
+        $Subscriber_LastName = $_POST['Subscriber_last_Name'];
+
+        $Subscriber_Name = $Subscriber_FirstName . $Subscriber_LastName;
+
+        $Hospital_Name = $_POST['Hospital_Name'];
+        $Subscriber_Email = $_POST['Subscriber_email'];
+        $Hospital_Status = "Active";
+        $Subscription = $_POST['Subscription_Duration'];  // Missing semicolon here
+
+        date_default_timezone_set('Asia/Manila');
+        $Creation_Date = date("Y-m-d H:i:s");
+
+        $Expiration_Date = date("Y-m-d H:i:s", strtotime("+" . $Subscription . " months", strtotime($Creation_Date)));
+
+        $sqladdHospital = "INSERT INTO Hospital_Table (Subscriber_Name, hospitalName, hospitalStatus, email, creation_Date, Expiration) VALUES ('$Subscriber_Name', '$Hospital_Name', '$Hospital_Status', '$Subscriber_Email', '$Creation_Date', '$Expiration_Date')";
+        $query_run_addHospital = mysqli_query($con, $sqladdHospital);
+
+        $query = "INSERT INTO userLogin ( email, password, userName, status, verifyPassword) 
+        VALUES ('$Subscriber_Email','$Subscriber_Name', '$Subscriber_Name', 'Admin', '0')";
+        $query_run = mysqli_query($con, $query);
+
+        if($query_run_addHospital)
+        {
+            $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
+            date_default_timezone_set('Asia/Manila');
+            $currentDateTime = date("Y-m-d H:i:s");
+            // Insert into superAdminLogs
+            $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$userName', 'Added Hospital_Name : $Hospital_Name', '$currentDateTime')";
+            $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+            if(!$query_run_logs)
+            {
+                echo 'Error inserting logs: ' . mysqli_error($con);
+            }
+        }
+        else
+        {
+            echo 'Error inserting hospital: ' . mysqli_error($con);
+        }
+    }
+
+    if(isset($_POST['extend']))
+    {
+        $hospital_ID = $_POST['hospital_ID'];
+        $extension = $_POST['Subscription_Duration'];
+
+        $sql = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
+        $query_run = mysqli_query($con, $sql);
+        if ($query_run) {
+            if (mysqli_num_rows($query_run) > 0) {
+                $query_result = mysqli_fetch_assoc($query_run);
+                $currentExpiration = $query_result['Expiration'];
+
+                // Convert current expiration to DateTime object
+                $currentExpirationDateTime = new DateTime($currentExpiration);
+
+                // Calculate new expiration by adding extension duration
+                $newExpirationDateTime = clone $currentExpirationDateTime;
+                $newExpirationDateTime->add(new DateInterval("P{$extension}M"));
+
+                // Now $newExpirationDateTime contains the new expiration date
+                $new_expiration = $newExpirationDateTime->format('Y-m-d');
+
+                $sqlupdate = "UPDATE Hospital_Table SET Expiration = '$new_expiration' WHERE hospital_ID = $hospital_ID";
+
+                $query_update = mysqli_query($con, $sqlupdate);
+
+                if ($query_update) {
+
+                } else {
+                    echo "Update failed: " . mysqli_error($con);
+                }
+
+            } else {
+                echo "No results found";
+            }
+        } else {
+            echo "Query failed: " . mysqli_error($con);
+        }
+    }
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -217,6 +305,8 @@
                             
                         </div>
 
+
+<!--MODAL HERE -->
                             <!-- Add hospital modal -->
                             <div class="modal fade" id="addHospital" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -231,19 +321,19 @@
                                             <form action="" method="POST">
                                                 <div>
                                                     <label>Subscriber's First Name</label>
-                                                    <input type="text" name="nurse_first_Name" id="Subscriber_first_Name" required pattern="\S(.*\S)?[A-Za-z]+" class="form-control" placeholder="Enter Subscriber's First Name" required title="Must only contain letters">
+                                                    <input type="text" name="Subscriber_first_Name" id="Subscriber_first_Name" required pattern="\S(.*\S)?[A-Za-z]+" class="form-control" placeholder="Enter Subscriber's First Name" required title="Must only contain letters">
                                                 </div>
                                                 <br>
 
                                                 <div>
                                                     <label>Subscriber's Last Name</label>
-                                                    <input type="text" name="nurse_last_Name" id="Subscriber_last_Name" required pattern="\S(.*\S)?[A-Za-z]+" class="form-control" placeholder="Enter Subscriber's Last Name" required title="Must only contain letters" >
+                                                    <input type="text" name="Subscriber_last_Name" id="Subscriber_last_Name" required pattern="\S(.*\S)?[A-Za-z]+" class="form-control" placeholder="Enter Subscriber's Last Name" required title="Must only contain letters" >
                                                 </div>
                                                 <br>
                                                 
                                                 <div>
                                                     <label>Subscriber's Email</label>
-                                                    <input type="text" name="nurse_Contact_No" id="Subscriber_Contact_No" class="form-control" placeholder="Enter Subscriber's Email">
+                                                    <input type="text" name="Subscriber_email" id="Subscriber_email" class="form-control" placeholder="Enter Subscriber's Email">
                                                 </div>
                                                 <br>
 
@@ -253,20 +343,32 @@
                                                 </div>
                                                 <br>
 
-                                            
+                                               <div>
+                                                    <?php 
+                                                        // retrieve selected results from the database and display them on the page
+                                                        $sqlDuration = 'SELECT * FROM Subscription_Duration';
+                                                        $resultDuration = mysqli_query($con, $sqlDuration);
+
+                                                        if (mysqli_num_rows($resultDuration) > 0) {
+                                                    ?>
+                                                        <label>Subscription Duration</label>
+                                                        <select id="Subscription_Duration" name="Subscription_Duration">
+                                                            <?php
+                                                                while ($row = mysqli_fetch_array($resultDuration)) {
+                                                            ?>
+                                                                <option value="<?php echo $row["Duration_Month"]; ?>">
+                                                                    <?php echo $row["Duration_Month"] . " Months"; ?>
+                                                                </option>
+                                                            <?php
+                                                                }
+                                                            ?>
+                                                        </select>
+                                                    <?php
+                                                        }
+                                                    ?>
+                                                </div>
 
 
-
-                                            <!-- SPACE FOR SUBSCRIPTION DURATION
-
-                                             <div>
-                                                <br>
-                                                <label>Account Status</label>
-                                                <select id="Account_Status" name="Account_Status">
-                                                    <option value="Nurse">Nurse</option>
-                                                    <option value="Admin">Admin</option>
-                                                </select>
-                                            </div> -->
 
                                             <br>
                                              
@@ -314,6 +416,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Hospital ID<input type="text" class="search-input" placeholder="Hospital ID"></th>
+                                                <th>Subscriber Name<input type="text" class="search-input" placeholder="Subscriber's Name"></th>
                                                 <th>Hospital Name<input type="text" class="search-input" placeholder="Hospital Name"></th>
                                                 <th>Hospital Email<input type="text" class="search-input" placeholder="Hospital Email"></th>
                                                 <th>Hospital Status <input type="text" class="search-input" placeholder="Hospital Status"></th>
@@ -344,37 +447,11 @@
                                                     mysqli_query($con, $updateQuery);
                                                 }
                                                 ?>
-                                                <!-- Extension Modal -->
-                                                <div class="modal fade" id="extendModal<?php echo $hospital['hospital_ID']; ?>" tabindex="-1" role="dialog" aria-labelledby="extendModalLabel" aria-hidden="true">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="extendModalLabel">Extend Subscription</h5>
-                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <form method="post" action="process_extension.php">
-                                                                    <input type="hidden" name="hospital_ID" value="<?php echo $hospital['hospital_ID']; ?>">
-                                                                    <div class="form-group">
-                                                                        <label for="extensionDropdown">Select Duration:</label>
-                                                                        <select class="form-control" id="extensionDropdown" name="extension_duration">
-                                                                            <option value="1">1 month</option>
-                                                                            <option value="3">3 months</option>
-                                                                            <option value="5">5 months</option>
-                                                                            <option value="12">1 year</option>
-                                                                        </select>
-                                                                    </div>
-                                                                    <button type="submit" class="btn btn-primary">Extend</button>
-                                                                </form>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
+
 
                                                 <tr>
                                                     <td><?php echo $hospital['hospital_ID'] ?></td>
+                                                    <td><?php echo $hospital['Subscriber_Name'] ?></td>
                                                     <td><?php echo $hospital['hospitalName'] ?></td>
                                                     <td><?php echo $hospital['email'] ?></td>
                                                     <td><?php echo $hospital['hospitalStatus'] ?></td>
@@ -411,6 +488,51 @@
                                                             Extend Subscription
                                                         </button>
                                                     </td>
+<!--MODAL HERE -->
+                                                        <!-- Extension Modal -->
+                                                        <div class="modal fade" id="extendModal<?php echo $hospital['hospital_ID']; ?>" tabindex="-1" role="dialog" aria-labelledby="extendModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="extendModalLabel">Extend Subscription</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form method="post" action="">
+                                                                            <input type="hidden" name="hospital_ID" value="<?php echo $hospital['hospital_ID']; ?>">
+                                                                            <div class="form-group">
+                                                                                <?php 
+                                                                                    // retrieve selected results from the database and display them on the page
+                                                                                    $sqlDuration = 'SELECT * FROM Subscription_Duration';
+                                                                                    $resultDuration = mysqli_query($con, $sqlDuration);
+
+                                                                                    if (mysqli_num_rows($resultDuration) > 0) {
+                                                                                ?>
+                                                                                    <label>Subscription Duration</label>
+                                                                                    <select id="Subscription_Duration" name="Subscription_Duration">
+                                                                                        <?php
+                                                                                            while ($row = mysqli_fetch_array($resultDuration)) {
+                                                                                        ?>
+                                                                                            <option value="<?php echo $row["Duration_Month"]; ?>">
+                                                                                                <?php echo $row["Duration_Month"] . " Months"; ?>
+                                                                                            </option>
+                                                                                        <?php
+                                                                                            }
+                                                                                        ?>
+                                                                                    </select>
+                                                                                <?php
+                                                                                    }
+                                                                                ?>
+                                                                            </div>
+                                                                            <button type = "submit" class = "btn btn-primary" name = "extend" >extend</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
                                                 </tr>
                                             <?php endforeach;
                                             } ?>

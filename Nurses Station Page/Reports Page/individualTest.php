@@ -37,59 +37,187 @@ if (!isset($_SESSION['userID'])) {
     }
 }
 
-$individualPatients = array();
-$adlCount = array();
-$pulse_Rate = array();
-$battery_Percent = array();
+if (isset($_POST['search'])) {
 
-$time_Response_Adl = array();
-$time_Response_Immediate = array();
+    $individualPatients = array();
+    $adlCount = array();
+    $pulse_Rate = array();
+    $battery_Percent = array();
 
-$sql = "SELECT patient_List.patient_ID, patient_List.patient_Name, patient_List.room_Number, patient_List.birth_Date, patient_List.reason_Admission, 
-patient_List.admission_Status, patient_List.nurse_ID, patient_List.assistance_Status, patient_List.gloves_ID
-AS patient_gloves_ID, patient_List.activated, patient_List.delete_at, arduino_Device_List.device_ID AS patient_device_ID,
-arduino_Device_List.ADL_Count, arduino_Device_List.ADL_Avg_Response, arduino_Device_List.immediate_Count, arduino_Device_List.immediate_Avg_Response,
-arduino_Device_List.assistance_Given, arduino_Device_List.nurses_In_Charge, arduino_Device_List.pulse_Rate, arduino_Device_List.battery_percent, 
-arduino_Device_List.date_called FROM patient_List INNER JOIN arduino_Device_List ON patient_List.gloves_ID = arduino_Device_List.device_ID WHERE 
-patient_List.admission_Status = 'Admitted'";
-$result = mysqli_query($con, $sql);
+    // For Response time
+    $time_Response_Adl = array();
+    $time_Response_Immediate = array();
+
+    // For Resolve time
+    $time_Resolved_Adl = array();
+    $time_Resolved_Immediate = array();
+
+    $selected_patient_ID = $_POST['selected_patient_ID'];
+
+    $encryptedPatientNames = array();
+    $decryptedPatientNames = array();
+
+    $encryptedPatientNames[] = $row["patient_Name"];
+
+    foreach ($encryptedPatientNames as $encryptedName) {
+        $decryptedName = decryptthis($encryptedName, $key);
+        $decryptedPatientNames[] = $decryptedName;
+    }
+
+    $sql = "WITH PatientArduinoData AS (
+        SELECT 
+            patient_List.patient_ID, 
+            MAX(patient_List.patient_Name) AS patient_Name, 
+            MAX(patient_List.room_Number) AS room_Number, 
+            MAX(patient_List.birth_Date) AS birth_Date, 
+            MAX(patient_List.reason_Admission) AS reason_Admission, 
+            MAX(patient_List.admission_Status) AS admission_Status, 
+            MAX(patient_List.nurse_ID) AS nurse_ID, 
+            MAX(patient_List.assistance_Status) AS assistance_Status, 
+            MAX(patient_List.gloves_ID) AS patient_gloves_ID, 
+            MAX(patient_List.activated) AS activated, 
+            MAX(patient_List.delete_at) AS delete_at, 
+            MAX(arduino_Device_List.device_ID) AS patient_device_ID,
+            MAX(arduino_Device_List.ADL_Count) AS ADL_Count, 
+            MAX(arduino_Device_List.ADL_Avg_Response) AS ADL_Avg_Response, 
+            MAX(arduino_Device_List.immediate_Count) AS immediate_Count, 
+            MAX(arduino_Device_List.immediate_Avg_Response) AS immediate_Avg_Response,
+            MAX(arduino_Device_List.assistance_Given) AS assistance_Given, 
+            MAX(arduino_Device_List.nurses_In_Charge) AS nurses_In_Charge, 
+            MAX(arduino_Device_List.pulse_Rate) AS pulse_Rate, 
+            MAX(arduino_Device_List.battery_percent) AS battery_percent, 
+            MAX(arduino_Device_List.date_called) AS date_called 
+        FROM 
+            patient_List 
+        INNER JOIN 
+            arduino_Device_List 
+        ON 
+            patient_List.gloves_ID = arduino_Device_List.device_ID 
+        WHERE 
+            patient_List.admission_Status = 'Admitted' AND patient_List.patient_Name LIKE '%$selected_patient_ID%'
+
+  GROUP BY
+            patient_List.patient_ID
+    ),
+    ArduinoReportsData AS (
+        SELECT 
+            `patient_ID`, 
+            COUNT(*) AS `total_calls`,
+            SUM(CASE WHEN `assistance_Type` = 'ADL' THEN 1 ELSE 0 END) AS `ADL_calls`,
+            SUM(CASE WHEN `assistance_Type` = 'IMMEDIATE' THEN 1 ELSE 0 END) AS `IMMEDIATE_calls`
+        FROM 
+            `arduino_Reports`
+        WHERE
+            `assistance_Type` IN ('ADL', 'IMMEDIATE')
+        GROUP BY 
+            `patient_ID`
+    ),
+    ReportsWithData AS (
+        SELECT 
+            `ID`, 
+            `device_ID`, 
+            `assistance_Type`, 
+            `assistance_Given`, 
+            `date_Called`, 
+            TIMESTAMPDIFF(SECOND, `date_Called`, `Assitance_Finished`) AS `resolve_Time`, 
+            `Nurse_Assigned_Status`, 
+            TIMESTAMPDIFF(SECOND, `date_Called`, `Nurse_Assigned_Status`) AS `response_Time`, 
+            `Assitance_Finished`, 
+            `Nurse_Remarks`, 
+            `nurse_ID`, 
+            `patient_ID` 
+        FROM 
+            `arduino_Reports`
+    )
+    SELECT 
+        PAD.patient_ID,
+        PAD.patient_Name,
+        PAD.room_Number,
+        PAD.birth_Date,
+        PAD.reason_Admission,
+        PAD.admission_Status,
+        PAD.nurse_ID,
+        PAD.assistance_Status,
+        PAD.patient_gloves_ID,
+        PAD.activated,
+        PAD.delete_at,
+        PAD.patient_device_ID,
+        PAD.ADL_Count,
+        PAD.ADL_Avg_Response,
+        PAD.immediate_Count,
+        PAD.immediate_Avg_Response,
+        PAD.assistance_Given,
+        PAD.nurses_In_Charge,
+        PAD.pulse_Rate,
+        PAD.battery_percent,
+        PAD.date_called,
+        MAX(ARD.total_calls) AS total_calls,
+        MAX(ARD.ADL_calls) AS ADL_calls,
+        MAX(ARD.IMMEDIATE_calls) AS IMMEDIATE_calls,
+        MAX(CASE WHEN RWDA.assistance_Type = 'ADL' THEN RWDA.response_Time END) AS max_ADL_response_Time,
+        MAX(CASE WHEN RWDA.assistance_Type = 'ADL' THEN RWDA.resolve_Time END) AS max_ADL_resolve_Time,
+        MAX(CASE WHEN RWDB.assistance_Type = 'IMMEDIATE' THEN RWDB.response_Time END) AS max_IMMEDIATE_response_Time,
+        MAX(CASE WHEN RWDB.assistance_Type = 'IMMEDIATE' THEN RWDB.resolve_Time END) AS max_IMMEDIATE_resolve_Time
+    FROM 
+        PatientArduinoData PAD
+    LEFT JOIN 
+        ArduinoReportsData ARD
+    ON 
+        PAD.patient_ID = ARD.patient_ID
+    LEFT JOIN
+        ReportsWithData RWDA
+    ON
+        PAD.patient_device_ID = RWDA.device_ID AND RWDA.assistance_Type = 'ADL'
+    LEFT JOIN
+        ReportsWithData RWDB
+    ON
+        PAD.patient_device_ID = RWDB.device_ID AND RWDB.assistance_Type = 'IMMEDIATE'
+    GROUP BY
+        PAD.patient_ID,
+        PAD.patient_Name,
+        PAD.room_Number,
+        PAD.birth_Date,
+        PAD.reason_Admission,
+        PAD.admission_Status,
+        PAD.nurse_ID,
+        PAD.assistance_Status,
+        PAD.patient_gloves_ID,
+        PAD.activated,
+        PAD.delete_at,
+        PAD.patient_device_ID,
+        PAD.ADL_Count,
+        PAD.ADL_Avg_Response,
+        PAD.immediate_Count,
+        PAD.immediate_Avg_Response,
+        PAD.assistance_Given,
+        PAD.nurses_In_Charge,
+        PAD.pulse_Rate,
+        PAD.battery_percent,
+        PAD.date_called
+    ";
+
+    $result = mysqli_query($con, $sql);
 
 
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $patientName = decryptthis($row["patient_Name"], $key);
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
 
-        // Data Retrieval of Individual Reports Chart
-        array_push($individualPatients, array("label" => $patientName, "y" => $row['immediate_Count']));
-        array_push($adlCount, array("label" => $patientName, "y" => $row['ADL_Count']));
-        array_push($battery_Percent, array("label" => $patientName, "y" => $row['battery_percent']));
-        array_push($pulse_Rate, array("label" => $patientName, "y" => $row['pulse_Rate']));
+            $patientName = decryptthis($row["patient_Name"], $key);
 
-        // Getting the time in seconds for ADL
-        $timeFromDatabase = $row['ADL_Avg_Response'];
-        $timeParts = explode(":", $timeFromDatabase);
-        $totalSeconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60) + $timeParts[2];
-
-        // Getting the percentage value for ADL
-        // $referenceValue = 24 * 3600;
-        // $percentage = ($totalSeconds / $referenceValue) * 100;
-        // $percentage = number_format($percentage, 2);
-
-        // Getting the time in seconds for Immediate
-        $timeFromDatabase2 = $row['immediate_Avg_Response'];
-        $timeParts2 = explode(":", $timeFromDatabase2);
-        $totalSeconds2 = ($timeParts2[0] * 3600) + ($timeParts2[1] * 60) + $timeParts2[2];
-
-        // Getting the percentage value for Immediate
-        // $referenceValue2 = 24 * 3600;
-        // $percentage2 = ($totalSeconds2 / $referenceValue2) * 100;
-        // $percentage2 = number_format($percentage2, 2);
+            // Data Retrieval of Individual Reports Chart
+            array_push($individualPatients, array("label" => $patientName, "y" => $row['IMMEDIATE_calls']));
+            array_push($adlCount, array("label" => $patientName, "y" => $row['ADL_calls']));
+            array_push($battery_Percent, array("label" => $patientName, "y" => $row['battery_percent']));
+            array_push($pulse_Rate, array("label" => $patientName, "y" => $row['pulse_Rate']));
 
 
-        // Data Retrieval of Response Time Chart
-        array_push($time_Response_Adl, array("label" => $patientName, "y" => $totalSeconds));
-        array_push($time_Response_Immediate, array("label" => $patientName, "y" => $totalSeconds2));
+            // Data Retrieval of Response Time Chart
+            array_push($time_Response_Adl, array("label" => $patientName, "y" => $row['max_ADL_response_Time']));
+            array_push($time_Response_Immediate, array("label" => $patientName, "y" => $row['max_IMMEDIATE_response_Time']));
 
+            array_push($time_Resolved_Adl, array("label" => $patientName, "y" => $row['max_ADL_resolve_Time']));
+            array_push($time_Resolved_Immediate, array("label" => $patientName, "y" => $row['max_IMMEDIATE_resolve_Time']));
+        }
     }
 }
 
@@ -126,7 +254,7 @@ if ($totalSeconds < 60) {
     }
 }
 
-
+// echo '<script>setTimeout(function(){location.reload()}, 10000);</script>';
 ?>
 
 <!DOCTYPE html>
@@ -173,31 +301,19 @@ if ($totalSeconds < 60) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css"
         integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 
-
     <!-- for div refresh -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <script>
-        // $('#nav-tab a[href="#nav-overall-reports"]').tab('show')
-
-        // $("#nav-tab a").on("click", function(e) {
-        //     e.preventDefault();
-        //     $(this).tab('show');
-        // });
-        // console.log($('a[data-toggle="tab"]'), "report.php");
         // $(document).ready(function () {
         //     setInterval(function () {
-        //         $("#refresh").load(".card-body");
-        //         refresh();
-        //     }, 1000);
+        //         $("body").load("./individualTest.php");
+        //         body();
+        //     }, 4000);
         // });
     </script>
 
     <script>
-        // $('#nav-tab a[#nav-individual-reports]').on("show.bs.tab", function(e) {
-        //     console.log(e);
-        // })
         window.onload = function () {
-            // console.log("This fired!");
             var chart1 = new CanvasJS.Chart("immediateChart", {
                 theme: "light2",
                 exportEnabled: true,
@@ -266,6 +382,7 @@ if ($totalSeconds < 60) {
                 },
                 ]
             });
+            chart1.render();
 
             var chart2 = new CanvasJS.Chart("responseRate", {
                 theme: "light2",
@@ -312,6 +429,56 @@ if ($totalSeconds < 60) {
                 ]
 
             });
+            chart2.render();
+
+            var chart3 = new CanvasJS.Chart("resolveTime", {
+                theme: "light2",
+                exportEnabled: true,
+                animationEnabled: true,
+                title: {
+                    text: "Resolve Time"
+                },
+                axisY: {
+                    title: "ADL Resolved (seconds)"
+                },
+                axisY2: {
+                    title: "Immediate Resolved (seconds)"
+                },
+                subtitles: [{
+                    text: "How long it took for ADL & Immediate request to be resolved in seconds"
+                }],
+
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    itemclick: toggleDataSeries3
+                },
+
+                data: [{
+                    type: "column",
+                    indexLabel: "{y} 'seconds'",
+                    name: "ADL Resolved Time",
+                    legendText: "ADL Resolved Time",
+                    showInLegend: true,
+                    color: "rgb(76,156,160)",
+                    dataPoints: <?php echo json_encode($time_Resolved_Adl, JSON_NUMERIC_CHECK); ?> // TODO: Change into resolved time data
+                },
+                {
+                    type: "column",
+                    indexLabel: "{y} 'seconds'",
+                    name: "Immediate Resolved Time",
+                    legendText: "Immediate Resolved Time",
+                    axisYType: "secondary",
+                    showInLegend: true,
+                    color: "rgb(223,121,112)",
+                    dataPoints: <?php echo json_encode($time_Resolved_Immediate, JSON_NUMERIC_CHECK); ?> // TODO: Change into resolved time data
+                }
+                ]
+
+            });
+            chart3.render();
 
             function toolTipFormatter(e) {
                 var str = "";
@@ -330,7 +497,7 @@ if ($totalSeconds < 60) {
                 } else {
                     e.dataSeries.visible = true;
                 }
-                chart.render();
+                chart1.render();
             }
 
             function toggleDataSeries2(e) {
@@ -339,13 +506,19 @@ if ($totalSeconds < 60) {
                 } else {
                     e.dataSeries.visible = true;
                 }
-                chart.render();
+                chart2.render();
+            }
+
+            function toggleDataSeries3(e) {
+                if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+                    e.dataSeries.visible = false;
+                } else {
+                    e.dataSeries.visible = true;
+                }
+                chart3.render();
             }
 
         }
-
-        chart1.render();
-        chart2.render();
     </script>
 </head>
 
@@ -516,13 +689,37 @@ if ($totalSeconds < 60) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Reports</h1>
-                    <a href="./overallTest.php"><button type="button" class="btn btn-primary">Overall
-                            Reports</button></a>
-                    <a href="./individualTest.php"><button type="button" class="btn btn-primary">Individual
-                            Reports</button></a>
-                    <a href="./periodicalChart.php"><button type="button" class="btn btn-primary">Periodical
-                            Reports</button></a>
+                    <div class="row align-items-center mb-3">
+                        <div class="col-auto">
+                            <a href="./overallTest.php" class="btn btn-primary">Overall Reports</a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="./individualTest.php" class="btn btn-primary active">Individual Reports</a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="./criticalChart.php" class="btn btn-primary">Critical Pulse Rate Reports</a>
+                        </div>
+                        <div class="col-auto">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle" type="button"
+                                    id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                    aria-expanded="false">
+                                    Search for Specific Patient
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <form class="px-4 py-3" method="POST" action="">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" name="selected_patient_ID"
+                                                placeholder="Enter Name" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-outline-primary"
+                                            name="search">Search</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
 
+                    </div>
                     <div class="card shadow mb-3">
                         <div class="card-body">
                             <div id="immediateChart" style="height: 400px; width: 100%;"></div>
@@ -531,6 +728,11 @@ if ($totalSeconds < 60) {
                     <div class="card shadow mb-3">
                         <div class="card-body">
                             <div id="responseRate" style="height: 400px; width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="card shadow mb-3">
+                        <div class="card-body">
+                            <div id="resolveTime" style="height: 400px; width: 100%;"></div>
                         </div>
                     </div>
                     <!-- <p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.

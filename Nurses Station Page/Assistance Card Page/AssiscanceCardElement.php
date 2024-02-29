@@ -2,9 +2,13 @@
 #bg-primary blue, bg-warning yellow, bg-success green, bg-danger red
 function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $reason_Admission, $admission_Status, $nurse_ID, $assistance_Status, $gloves_ID, $device_ID, $ADL_Count, $ADL_Avg_Response, $immediate_Count, $immediate_Avg_Response, $assistance_Given, $nurses_In_Charge, $pulse_Rate, $date_called, $pulse_Rate_Status, $nurse_contact)
 {
-    $cardClasses = $assistance_Status == "Unassigned" ? "rgba(220,53,69, 0.25)" : "rgba(14,202,240, 0.25)";
-    $bgClasses = $assistance_Status == "Unassigned" ? "bg-danger" : "bg-primary";
-    $btnClasses = $assistance_Status == "Unassigned" ? "btn-danger" : "btn-primary";
+    // $cardClasses = $assistance_Status == "Unassigned" ? "rgba(220,53,69, 0.25)" : "rgba(14,202,240, 0.25)";
+    // $bgClasses = $assistance_Status == "Unassigned" ? "bg-danger" : "bg-primary";
+    // $btnClasses = $assistance_Status == "Unassigned" ? "btn-danger" : "btn-primary";
+
+    $cardClasses = $assistance_Status == "Unassigned" ? "rgba(220,53,69, 0.25)" : ($assistance_Status == "Completed" ? "rgb(191, 249, 190)" : "rgba(14,202,240, 0.25)");
+    $bgClasses = $assistance_Status == "Unassigned" ? "bg-danger" : ($assistance_Status == "Completed" ? "bg-success" : "bg-primary");
+    $btnClasses = $assistance_Status == "Unassigned" ? "btn-danger" : ($assistance_Status == "Completed" ? "btn-success" : "btn-primary");
 
     $element = "
     <div class=\"col-lg-4\" style=\" max-width: 25rem \">

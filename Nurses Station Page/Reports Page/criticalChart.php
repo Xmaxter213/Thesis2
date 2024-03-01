@@ -42,79 +42,85 @@ if (!isset($_SESSION['userID'])) {
 $dataNames = array();
 
 $sql = "SELECT 
-patient_List.patient_ID, 
-patient_List.patient_Name, 
-patient_List.room_Number, 
-patient_List.birth_Date, 
-patient_List.reason_Admission, 
-patient_List.admission_Status, 
-patient_List.nurse_ID, 
-patient_List.assistance_Status, 
-patient_List.gloves_ID AS patient_gloves_ID, 
-patient_List.activated, 
-patient_List.delete_at, 
-arduino_Device_List.device_ID AS patient_device_ID,
-arduino_Device_List.ADL_Count, 
-arduino_Device_List.ADL_Avg_Response, 
-arduino_Device_List.immediate_Count, 
-arduino_Device_List.immediate_Avg_Response,
-arduino_Device_List.assistance_Given, 
-arduino_Device_List.nurses_In_Charge, 
-arduino_Device_List.pulse_Rate, 
-arduino_Device_List.battery_percent, 
-arduino_Device_List.date_called 
+arduino_device_ID,
+MAX(arduino_date_Called) AS arduino_date_Called,
+MAX(nurse_ID) AS nurse_ID,
+MAX(patient_ID) AS patient_ID,
+MAX(patient_Name) AS patient_Name,
+MAX(admission_Status) AS admission_Status,
+MAX(patient_gloves_ID) AS patient_gloves_ID,
+MAX(activated) AS activated,
+MAX(delete_at) AS delete_at,
+patient_device_ID,
+MAX(pulse_Rate) AS pulse_Rate,
+SUM(CASE WHEN pulse_Rate_Status = 'High Pulse Rate' AND patient_device_ID = 'patient_device_ID_1' THEN 1 ELSE 0 END) AS high_pulse_rate_count_patient_device_ID_1,
+SUM(CASE WHEN pulse_Rate_Status = 'High Pulse Rate' AND patient_device_ID = 'patient_device_ID_2' THEN 1 ELSE 0 END) AS high_pulse_rate_count_patient_device_ID_2,
+SUM(CASE WHEN pulse_Rate >= 100 THEN 1 ELSE 0 END) AS total_high_pulse_rate_count
 FROM 
-patient_List 
+(
+SELECT 
+    arduino_Reports.device_ID AS arduino_device_ID, 
+    arduino_Reports.date_Called AS arduino_date_Called, 
+    arduino_Reports.nurse_ID, 
+    MAX(arduino_Reports.patient_ID) AS patient_ID,
+    patient_List.patient_Name,  
+    patient_List.admission_Status, 
+    patient_List.gloves_ID AS patient_gloves_ID, 
+    patient_List.activated, 
+    patient_List.delete_at, 
+    arduino_Device_List.device_ID AS patient_device_ID,
+    arduino_Device_List.pulse_Rate,
+    CASE 
+        WHEN arduino_Device_List.pulse_Rate >= 100 THEN 'High Pulse Rate'
+        ELSE 'Normal Pulse Rate'
+    END AS pulse_Rate_Status
+FROM 
+    arduino_Reports 
 INNER JOIN 
-arduino_Device_List 
+    patient_List 
 ON 
-patient_List.gloves_ID = arduino_Device_List.device_ID 
+    arduino_Reports.patient_ID = patient_List.patient_ID 
+INNER JOIN 
+    arduino_Device_List 
+ON 
+    patient_List.gloves_ID = arduino_Device_List.device_ID 
 WHERE 
-patient_List.admission_Status = 'Admitted'";
+    patient_List.admission_Status = 'Admitted'
+GROUP BY 
+    arduino_Reports.ID, 
+    arduino_Reports.device_ID, 
+    arduino_Reports.date_Called, 
+    arduino_Reports.nurse_ID, 
+    patient_List.patient_Name,  
+    patient_List.admission_Status, 
+    patient_List.gloves_ID, 
+    patient_List.activated, 
+    patient_List.delete_at, 
+    arduino_Device_List.device_ID, 
+    arduino_Device_List.pulse_Rate
+) AS subquery
+GROUP BY 
+arduino_device_ID, 
+patient_device_ID";
 
 $result = mysqli_query($con, $sql);
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $patientName = decryptthis($row["patient_Name"], $key);
 
-        // Getting the time in seconds
-        $timeFromDatabase = "01:40:56";
-        $timeParts = explode(":", $timeFromDatabase);
-        $totalSeconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60) + $timeParts[2];
-
-        array_push($dataNames, $patientName);
+        array_push(
+            $dataNames,
+            array(
+                "label" => $patientName,
+                "y" => $row['total_high_pulse_rate_count'],
+                "additionalData" => $row['arduino_date_Called'],
+                "additionalData2" => $row['pulse_Rate']
+            )
+        );
 
     }
 }
-
-// Check if the duration is less than a minute (60 seconds)
-if ($totalSeconds < 60) {
-    $timeOutput = "$totalSeconds seconds";
-} else {
-    // Calculate total minutes
-    $totalMinutes = (int) ($totalSeconds / 60); // Explicitly cast to int
-
-    // Getting the percentage value for response rates
-    $referenceValue = 24 * 60; // Reference value in minutes
-    $percentage = ($totalMinutes / $referenceValue) * 100;
-    $percentage = number_format($percentage, 2);
-
-    // Check if the duration is more than an hour
-    if ($totalMinutes >= 60) {
-        // Convert to hours and minutes
-        $hours = floor($totalMinutes / 60);
-        $minutes = $totalMinutes % 60;
-        // Check if there are more than 1 hour
-        if ($hours == 1) {
-            $timeOutput = "$hours hour $minutes minutes";
-        } else {
-            $timeOutput = "$hours hours $minutes minutes";
-        }
-    } else {
-        $timeOutput = "$totalMinutes minutes";
-    }
-}
-
+// echo '<script>setTimeout(function(){location.reload()}, 10000);</script>';
 ?>
 
 <!DOCTYPE html>
@@ -189,10 +195,12 @@ if ($totalSeconds < 60) {
                 theme: "light2",
                 animationEnabled: true,
                 exportEnabled: true,
-                theme: "light1",
                 title: {
-                    text: "Simple Column Chart with Index Labels"
+                    text: "Critical Counts"
                 },
+                subtitles: [{
+                    text: "How many times pulse rate were critical including date and time"
+                }],
                 axisY: {
                     includeZero: true
                 },
@@ -201,27 +209,17 @@ if ($totalSeconds < 60) {
                     indexLabelFontColor: "#5A5757",
                     indexLabelFontSize: 16,
                     indexLabelPlacement: "outside",
-                    dataPoints: [
-                        { x: 10, y: 71, additionalData: "Additional Info 1" },
-                        { x: 20, y: 55, additionalData: "Additional Info 2" },
-                        { x: 30, y: 50, additionalData: "Additional Info 3" },
-                        { x: 40, y: 65, additionalData: "Additional Info 4" },
-                        { x: 50, y: 92, indexLabel: "\u2605 Highest", additionalData: "Additional Info 5" },
-                        { x: 60, y: 68, additionalData: "Additional Info 6" },
-                        { x: 70, y: 38, additionalData: "Additional Info 7" },
-                        { x: 80, y: 71, additionalData: "Additional Info 8" },
-                        { x: 90, y: 54, additionalData: "Additional Info 9" },
-                        { x: 100, y: 60, additionalData: "Additional Info 10" },
-                        { x: 110, y: 36, additionalData: "Additional Info 11" },
-                        { x: 120, y: 49, additionalData: "Additional Info 12" },
-                        { x: 130, y: 21, indexLabel: "\u2691 Lowest", additionalData: "Additional Info 13" }
-                    ]
+                    dataPoints: <?php echo json_encode($dataNames, JSON_NUMERIC_CHECK); ?>
                 }],
+
                 toolTip: {
                     contentFormatter: function (e) {
-                        var content = "X: " + e.entries[0].dataPoint.x + "<br/>Y: " + e.entries[0].dataPoint.y;
+                        var content = "Critical Counts: " + e.entries[0].dataPoint.y;
                         if (e.entries[0].dataPoint.additionalData) {
-                            content += "<br/>Additional Data: " + e.entries[0].dataPoint.additionalData;
+                            content += "<br/>Date: " + e.entries[0].dataPoint.additionalData;
+                        }
+                        if (e.entries[0].dataPoint.additionalData2) {
+                            content += "<br/>Pulse Rate: " + e.entries[0].dataPoint.additionalData2;
                         }
                         return content;
                     }

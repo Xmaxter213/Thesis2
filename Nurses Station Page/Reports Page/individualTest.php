@@ -39,6 +39,8 @@ if (!isset($_SESSION['userID'])) {
 
 if (isset($_POST['search'])) {
 
+    $selected_patient_ID = $_POST['selected_patient_ID'];
+
     $individualPatients = array();
     $adlCount = array();
     $pulse_Rate = array();
@@ -48,161 +50,129 @@ if (isset($_POST['search'])) {
     $time_Response_Adl = array();
     $time_Response_Immediate = array();
 
+
     // For Resolve time
     $time_Resolved_Adl = array();
     $time_Resolved_Immediate = array();
 
-    $selected_patient_ID = $_POST['selected_patient_ID'];
 
-    $encryptedPatientNames = array();
-    $decryptedPatientNames = array();
-
-    $encryptedPatientNames[] = $row["patient_Name"];
-
-    foreach ($encryptedPatientNames as $encryptedName) {
-        $decryptedName = decryptthis($encryptedName, $key);
-        $decryptedPatientNames[] = $decryptedName;
-    }
+    // AND patient_List.patient_Name LIKE '%$selected_patient_ID%'
 
     $sql = "WITH PatientArduinoData AS (
-        SELECT 
-            patient_List.patient_ID, 
-            MAX(patient_List.patient_Name) AS patient_Name, 
-            MAX(patient_List.room_Number) AS room_Number, 
-            MAX(patient_List.birth_Date) AS birth_Date, 
-            MAX(patient_List.reason_Admission) AS reason_Admission, 
-            MAX(patient_List.admission_Status) AS admission_Status, 
-            MAX(patient_List.nurse_ID) AS nurse_ID, 
-            MAX(patient_List.assistance_Status) AS assistance_Status, 
-            MAX(patient_List.gloves_ID) AS patient_gloves_ID, 
-            MAX(patient_List.activated) AS activated, 
-            MAX(patient_List.delete_at) AS delete_at, 
-            MAX(arduino_Device_List.device_ID) AS patient_device_ID,
-            MAX(arduino_Device_List.ADL_Count) AS ADL_Count, 
-            MAX(arduino_Device_List.ADL_Avg_Response) AS ADL_Avg_Response, 
-            MAX(arduino_Device_List.immediate_Count) AS immediate_Count, 
-            MAX(arduino_Device_List.immediate_Avg_Response) AS immediate_Avg_Response,
-            MAX(arduino_Device_List.assistance_Given) AS assistance_Given, 
-            MAX(arduino_Device_List.nurses_In_Charge) AS nurses_In_Charge, 
-            MAX(arduino_Device_List.pulse_Rate) AS pulse_Rate, 
-            MAX(arduino_Device_List.battery_percent) AS battery_percent, 
-            MAX(arduino_Device_List.date_called) AS date_called 
-        FROM 
-            patient_List 
-        INNER JOIN 
-            arduino_Device_List 
-        ON 
-            patient_List.gloves_ID = arduino_Device_List.device_ID 
-        WHERE 
-            patient_List.admission_Status = 'Admitted' AND patient_List.patient_Name LIKE '%$selected_patient_ID%'
-
-  GROUP BY
-            patient_List.patient_ID
-    ),
-    ArduinoReportsData AS (
-        SELECT 
-            `patient_ID`, 
-            COUNT(*) AS `total_calls`,
-            SUM(CASE WHEN `assistance_Type` = 'ADL' THEN 1 ELSE 0 END) AS `ADL_calls`,
-            SUM(CASE WHEN `assistance_Type` = 'IMMEDIATE' THEN 1 ELSE 0 END) AS `IMMEDIATE_calls`
-        FROM 
-            `arduino_Reports`
-        WHERE
-            `assistance_Type` IN ('ADL', 'IMMEDIATE')
-        GROUP BY 
-            `patient_ID`
-    ),
-    ReportsWithData AS (
-        SELECT 
-            `ID`, 
-            `device_ID`, 
-            `assistance_Type`, 
-            `assistance_Given`, 
-            `date_Called`, 
-            TIMESTAMPDIFF(SECOND, `date_Called`, `Assitance_Finished`) AS `resolve_Time`, 
-            `Nurse_Assigned_Status`, 
-            TIMESTAMPDIFF(SECOND, `date_Called`, `Nurse_Assigned_Status`) AS `response_Time`, 
-            `Assitance_Finished`, 
-            `Nurse_Remarks`, 
-            `nurse_ID`, 
-            `patient_ID` 
-        FROM 
-            `arduino_Reports`
-    )
     SELECT 
-        PAD.patient_ID,
-        PAD.patient_Name,
-        PAD.room_Number,
-        PAD.birth_Date,
-        PAD.reason_Admission,
-        PAD.admission_Status,
-        PAD.nurse_ID,
-        PAD.assistance_Status,
-        PAD.patient_gloves_ID,
-        PAD.activated,
-        PAD.delete_at,
-        PAD.patient_device_ID,
-        PAD.ADL_Count,
-        PAD.ADL_Avg_Response,
-        PAD.immediate_Count,
-        PAD.immediate_Avg_Response,
-        PAD.assistance_Given,
-        PAD.nurses_In_Charge,
-        PAD.pulse_Rate,
-        PAD.battery_percent,
-        PAD.date_called,
-        MAX(ARD.total_calls) AS total_calls,
-        MAX(ARD.ADL_calls) AS ADL_calls,
-        MAX(ARD.IMMEDIATE_calls) AS IMMEDIATE_calls,
-        MAX(CASE WHEN RWDA.assistance_Type = 'ADL' THEN RWDA.response_Time END) AS max_ADL_response_Time,
-        MAX(CASE WHEN RWDA.assistance_Type = 'ADL' THEN RWDA.resolve_Time END) AS max_ADL_resolve_Time,
-        MAX(CASE WHEN RWDB.assistance_Type = 'IMMEDIATE' THEN RWDB.response_Time END) AS max_IMMEDIATE_response_Time,
-        MAX(CASE WHEN RWDB.assistance_Type = 'IMMEDIATE' THEN RWDB.resolve_Time END) AS max_IMMEDIATE_resolve_Time
+        patient_List.patient_ID, 
+        MAX(patient_List.patient_Name) AS patient_Name, 
+        MAX(patient_List.room_Number) AS room_Number, 
+        MAX(patient_List.birth_Date) AS birth_Date, 
+        MAX(patient_List.reason_Admission) AS reason_Admission, 
+        MAX(patient_List.admission_Status) AS admission_Status, 
+        MAX(patient_List.nurse_ID) AS nurse_ID, 
+        MAX(patient_List.assistance_Status) AS assistance_Status, 
+        MAX(patient_List.gloves_ID) AS patient_gloves_ID, 
+        MAX(patient_List.activated) AS activated, 
+        MAX(patient_List.delete_at) AS delete_at,  
+        MAX(arduino_Device_List.device_ID) AS patient_device_ID, 
+        MAX(arduino_Device_List.pulse_Rate) AS pulse_Rate, 
+        MAX(arduino_Device_List.battery_percent) AS battery_percent, 
+        MAX(arduino_Reports.date_Called) AS date_called
     FROM 
-        PatientArduinoData PAD
-    LEFT JOIN 
-        ArduinoReportsData ARD
-    ON 
-        PAD.patient_ID = ARD.patient_ID
-    LEFT JOIN
-        ReportsWithData RWDA
-    ON
-        PAD.patient_device_ID = RWDA.device_ID AND RWDA.assistance_Type = 'ADL'
-    LEFT JOIN
-        ReportsWithData RWDB
-    ON
-        PAD.patient_device_ID = RWDB.device_ID AND RWDB.assistance_Type = 'IMMEDIATE'
+        patient_List 
+    INNER JOIN 
+        arduino_Device_List ON patient_List.gloves_ID = arduino_Device_List.device_ID
+    INNER JOIN
+        arduino_Reports ON patient_List.gloves_ID = arduino_Reports.device_ID
+    WHERE 
+        patient_List.admission_Status = 'Admitted' AND patient_List.patient_ID = $selected_patient_ID
     GROUP BY
-        PAD.patient_ID,
-        PAD.patient_Name,
-        PAD.room_Number,
-        PAD.birth_Date,
-        PAD.reason_Admission,
-        PAD.admission_Status,
-        PAD.nurse_ID,
-        PAD.assistance_Status,
-        PAD.patient_gloves_ID,
-        PAD.activated,
-        PAD.delete_at,
-        PAD.patient_device_ID,
-        PAD.ADL_Count,
-        PAD.ADL_Avg_Response,
-        PAD.immediate_Count,
-        PAD.immediate_Avg_Response,
-        PAD.assistance_Given,
-        PAD.nurses_In_Charge,
-        PAD.pulse_Rate,
-        PAD.battery_percent,
-        PAD.date_called
-    ";
+        patient_List.patient_ID
+),
+ArduinoReportsData AS (
+    SELECT 
+        `patient_ID`, 
+        COUNT(*) AS `total_calls`,
+        SUM(CASE WHEN `assistance_Type` = 'ADL' THEN 1 ELSE 0 END) AS `ADL_calls`,
+        SUM(CASE WHEN `assistance_Type` = 'IMMEDIATE' THEN 1 ELSE 0 END) AS `IMMEDIATE_calls`
+    FROM 
+        `arduino_Reports`
+    WHERE
+        `assistance_Type` IN ('ADL', 'IMMEDIATE')
+    GROUP BY 
+        `patient_ID`
+),
+ReportsWithData AS (
+    SELECT 
+        `ID`, 
+        `device_ID`, 
+        `assistance_Type`, 
+        `assistance_Given`, 
+        `date_Called`, 
+        TIMESTAMPDIFF(SECOND, `date_Called`, `Assitance_Finished`) AS `resolve_Time`, 
+        `Nurse_Assigned_Status`, 
+        TIMESTAMPDIFF(SECOND, `date_Called`, `Nurse_Assigned_Status`) AS `response_Time`, 
+        `Assitance_Finished`, 
+        `Nurse_Remarks`, 
+        `nurse_ID`, 
+        `patient_ID` 
+    FROM 
+        `arduino_Reports`
+)
+SELECT 
+    PAD.patient_ID,
+    PAD.patient_Name,
+    PAD.room_Number,
+    PAD.birth_Date,
+    PAD.reason_Admission,
+    PAD.admission_Status,
+    PAD.nurse_ID,
+    PAD.assistance_Status,
+    PAD.patient_gloves_ID,
+    PAD.activated,
+    PAD.delete_at,
+    PAD.patient_device_ID,
+    PAD.pulse_Rate,
+    PAD.battery_percent,
+    PAD.date_called,
+    MAX(ARD.total_calls) AS total_calls,
+    MAX(ARD.ADL_calls) AS ADL_calls,
+    MAX(ARD.IMMEDIATE_calls) AS IMMEDIATE_calls,
+    MAX(CASE WHEN RWDA.assistance_Type = 'ADL' THEN RWDA.response_Time END) AS max_ADL_response_Time,
+    MAX(CASE WHEN RWDA.assistance_Type = 'ADL' THEN RWDA.resolve_Time END) AS max_ADL_resolve_Time,
+    MAX(CASE WHEN RWDB.assistance_Type = 'IMMEDIATE' THEN RWDB.response_Time END) AS max_IMMEDIATE_response_Time,
+    MAX(CASE WHEN RWDB.assistance_Type = 'IMMEDIATE' THEN RWDB.resolve_Time END) AS max_IMMEDIATE_resolve_Time
+FROM 
+    PatientArduinoData PAD
+LEFT JOIN 
+    ArduinoReportsData ARD ON PAD.patient_ID = ARD.patient_ID
+LEFT JOIN
+    ReportsWithData RWDA ON PAD.patient_device_ID = RWDA.device_ID AND RWDA.assistance_Type = 'ADL'
+LEFT JOIN
+    ReportsWithData RWDB ON PAD.patient_device_ID = RWDB.device_ID AND RWDB.assistance_Type = 'IMMEDIATE'
+GROUP BY
+    PAD.patient_ID,
+    PAD.patient_Name,
+    PAD.room_Number,
+    PAD.birth_Date,
+    PAD.reason_Admission,
+    PAD.admission_Status,
+    PAD.nurse_ID,
+    PAD.assistance_Status,
+    PAD.patient_gloves_ID,
+    PAD.activated,
+    PAD.delete_at,
+    PAD.patient_device_ID,
+    PAD.pulse_Rate,
+    PAD.battery_percent,
+    PAD.date_called
+";
 
     $result = mysqli_query($con, $sql);
-
 
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
 
             $patientName = decryptthis($row["patient_Name"], $key);
+            // $patientID = $row["patient_ID"];
+            // echo '<a class="dropdown-item" href="#" data-value="' . $patientID . '">' . $patientName . '</a>';
 
             // Data Retrieval of Individual Reports Chart
             array_push($individualPatients, array("label" => $patientName, "y" => $row['IMMEDIATE_calls']));
@@ -210,16 +180,29 @@ if (isset($_POST['search'])) {
             array_push($battery_Percent, array("label" => $patientName, "y" => $row['battery_percent']));
             array_push($pulse_Rate, array("label" => $patientName, "y" => $row['pulse_Rate']));
 
-
-            // Data Retrieval of Response Time Chart
+            // Data Retrieval of Response Time $ Resolve Time Chart
             array_push($time_Response_Adl, array("label" => $patientName, "y" => $row['max_ADL_response_Time']));
             array_push($time_Response_Immediate, array("label" => $patientName, "y" => $row['max_IMMEDIATE_response_Time']));
-
             array_push($time_Resolved_Adl, array("label" => $patientName, "y" => $row['max_ADL_resolve_Time']));
             array_push($time_Resolved_Immediate, array("label" => $patientName, "y" => $row['max_IMMEDIATE_resolve_Time']));
         }
     }
 }
+
+$sqlQuery2 = "WITH PatientArduinoData AS (
+    SELECT 
+        patient_List.patient_ID, 
+        MAX(patient_List.patient_Name) AS patient_Name
+    FROM 
+        patient_List 
+    WHERE 
+        patient_List.admission_Status = 'Admitted'
+    GROUP BY
+        patient_List.patient_ID
+    ) SELECT * FROM PatientArduinoData";
+
+$result2 = mysqli_query($con, $sqlQuery2);
+
 
 // Getting the time in seconds
 $timeFromDatabase = "00:00:23";
@@ -707,17 +690,30 @@ if ($totalSeconds < 60) {
                                     Search for Specific Patient
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <form class="px-4 py-3" method="POST" action="">
-                                        <div class="form-group">
-                                            <input type="text" class="form-control" name="selected_patient_ID"
-                                                placeholder="Enter Name" required>
-                                        </div>
-                                        <button type="submit" class="btn btn-outline-primary"
-                                            name="search">Search</button>
-                                    </form>
+                                    <div class="input-group">
+                                        <form method="POST" action="">
+                                            <input type="text" class="form-control search-input"
+                                                placeholder="Search Patient" name="selected_patient_ID">
+                                            <div class="input-group-append">
+                                                <button type="submit" class="btn btn-outline-primary"
+                                                    name="search">Search</button>
+                                                <?php
+                                                if ($result2->num_rows > 0) {
+                                                    while ($row2 = $result2->fetch_assoc()) {
+                                                        $patientNames = decryptthis($row2["patient_Name"], $key);
+                                                        $patientID = $row2["patient_ID"];
+                                                        echo '<a class="dropdown-item" href="#" data-value="' . $patientID . '">' . $patientNames . '</a>';
+                                                    }
+                                                }
+                                                ?>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="dropdown-divider"></div>
                                 </div>
                             </div>
                         </div>
+
 
                     </div>
                     <div class="card shadow mb-3">
@@ -870,6 +866,21 @@ if ($totalSeconds < 60) {
                         }
                     }
                 });
+            });
+        });
+    </script>
+    <script>
+        // JavaScript for searching dropdown items
+        $(document).ready(function () {
+            $(".search-input").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $(".dropdown-item").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+            $(".dropdown-item").click(function () {
+                var patientID = $(this).attr("data-value");
+                $(".search-input").val(patientID); // Set the search input value to the selected patient ID
             });
         });
     </script>

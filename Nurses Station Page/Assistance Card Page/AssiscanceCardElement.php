@@ -1,6 +1,6 @@
 <?php
 #bg-primary blue, bg-warning yellow, bg-success green, bg-danger red
-function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $reason_Admission, $admission_Status, $nurse_ID, $assistance_Status, $gloves_ID, $device_ID, $ADL_Count, $ADL_Avg_Response, $immediate_Count, $immediate_Avg_Response, $assistance_Given, $nurses_In_Charge, $pulse_Rate, $date_called, $pulse_Rate_Status, $nurse_contact)
+function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $reason_Admission, $admission_Status, $nurse_ID, $assistance_Status, $gloves_ID, $device_ID, $ADL_calls, $max_ADL_response_Time, $IMMEDIATE_calls, $max_IMMEDIATE_response_Time, $pulse_Rate, $date_called, $pulse_Rate_Status, $nurse_contact)
 {
     // $cardClasses = $assistance_Status == "Unassigned" ? "rgba(220,53,69, 0.25)" : "rgba(14,202,240, 0.25)";
     // $bgClasses = $assistance_Status == "Unassigned" ? "bg-danger" : "bg-primary";
@@ -42,12 +42,11 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
                             <h6 class=\"font-weight-bold\">Patient Name: <span class=\"font-weight-normal\">$patient_Name</span></h6>
                             <h6 class=\"font-weight-bold\">Room Number: <span class=\"font-weight-normal\">$room_Number</span></h6>
                             <h6 class=\"font-weight-bold\">Age: <span class=\"font-weight-normal\">$birth_Date</span></h6><br>
-                            <h6 class=\"font-weight-bold\">ADL Assistance Count: <span class=\"font-weight-normal\">$ADL_Count</span></h6>
-                            <h6 class=\"font-weight-bold\">ADL Average Response Time: <span class=\"font-weight-normal\">$ADL_Avg_Response seconds</span></h6><br>
-                            <h6 class=\"font-weight-bold\">Immediate Assistance Count: <span class=\"font-weight-normal\">$immediate_Count</span></h6>
-                            <h6 class=\"font-weight-bold\">Immediate Average Response Time: <span class=\"font-weight-normal\">$immediate_Avg_Response seconds</span></h6><br>
+                            <h6 class=\"font-weight-bold\">ADL Assistance Count: <span class=\"font-weight-normal\">$ADL_calls</span></h6>
+                            <h6 class=\"font-weight-bold\">ADL Average Response Time: <span class=\"font-weight-normal\">$max_ADL_response_Time seconds</span></h6><br>
+                            <h6 class=\"font-weight-bold\">Immediate Assistance Count: <span class=\"font-weight-normal\">$IMMEDIATE_calls</span></h6>
+                            <h6 class=\"font-weight-bold\">Immediate Average Response Time: <span class=\"font-weight-normal\">$max_IMMEDIATE_response_Time seconds</span></h6><br>
                             <h6 class=\"font-weight-bold\">Reason for Admission: <span class=\"font-weight-normal text-justify\">$reason_Admission</span></h6>
-                            <h6 class=\"font-weight-bold\">Nurse in charge: <span class=\"font-weight-normal\">$nurses_In_Charge</span></h6>
                             <h6 class=\"font-weight-bold\">Assistance Status: <span class=\"font-weight-normal\">$assistance_Status</span></h6>
                             <h6 class=\"font-weight-bold\">Date & Time of Critical Pulse Rate: <span class=\"font-weight-normal\">$pulse_Rate_Status</span></h6>
                             <h6 class=\"font-weight-bold\">Nurse Contact No.: <span class=\"font-weight-normal\">$nurse_contact</span></h6>

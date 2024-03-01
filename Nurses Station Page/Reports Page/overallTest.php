@@ -181,7 +181,7 @@ if ($result2->num_rows > 0) {
     }
 }
 
-echo '<script>setTimeout(function(){location.reload()}, 10000);</script>';
+// echo '<script>setTimeout(function(){location.reload()}, 10000);</script>';
 ?>
 
 <!DOCTYPE html>
@@ -240,7 +240,7 @@ echo '<script>setTimeout(function(){location.reload()}, 10000);</script>';
                 exportEnabled: true,
                 animationEnabled: true,
                 title: {
-                    text: "Overall Reports"
+                    text: "Overall Request Count of all Patients"
                 },
                 subtitles: [{
                     fontSize: 18
@@ -267,6 +267,9 @@ echo '<script>setTimeout(function(){location.reload()}, 10000);</script>';
                 title: {
                     text: "Overall Response Time"
                 },
+                subtitles: [{
+                    text: "This is the average time overall in seconds"
+                }],
                 data: [
                     {
                         type: "line",

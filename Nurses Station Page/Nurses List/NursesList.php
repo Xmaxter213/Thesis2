@@ -78,6 +78,25 @@ if (isset($_POST['add'])) {
     $userName = $nurse_first_Name . $nurse_last_Name;
     //$date_Employment = sha1($_POST['date_Employment']);
 
+    //Let's get the current website user's assigned ward
+        $staff_ID = $_SESSION['userID'];
+
+        // Prepare the SELECT query using mysqli
+        $query = "SELECT assigned_Ward FROM staff_List WHERE nurse_ID = ?";
+        $getNurseAssignedWard = $con->prepare($query);
+        $getNurseAssignedWard->bind_param("i", $staff_ID);
+
+        // Execute the SELECT query
+        $database = $getNurseAssignedWard->execute();
+
+        // Store and fetch the result
+        $getNurseAssignedWard->store_result();
+        $getNurseAssignedWard->bind_result($nurse_Assigned_Ward);
+        $getNurseAssignedWard->fetch();
+
+        // Close the statement
+        $getNurseAssignedWard->close();
+
     //Encrypt data from form
     $enc_nurse_Name = encryptthis($nurse_full_Name, $key);
     $enc_nurse_Contract_No = encryptthis($nurse_Contact_No, $key);
@@ -85,7 +104,7 @@ if (isset($_POST['add'])) {
     $enc_nurse_birth_Date = encryptthis($nurse_birth_Date, $key);
     $enc_date_Employment = encryptthis($date_Employment, $key);
 
-    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', '$enc_nurse_Contract_No', '$enc_nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$employment_Status', '$enc_date_Employment', '$activated')";
+    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', $nurse_Assigned_Ward, '$enc_nurse_Contract_No', '$enc_nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$employment_Status', '$enc_date_Employment', '$activated')";
     $query_run = mysqli_query($con, $query);
 
     $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status, verifyPassword) VALUES (NULL, '$nurse_email','$nurse_password', '$userName', '$account_status', '0')";
@@ -146,6 +165,7 @@ if (isset($_POST['edit'])) {
     $nurse_first_Name = $_POST['nurse_first_Name'];
     $nurse_last_Name = $_POST['nurse_last_Name'];
     $nurse_full_Name = $nurse_last_Name . ", " . $nurse_first_Name;
+    $assigned_Ward = $_POST['assigned_Ward'];
     $nurse_Contact_No = $_POST['nurse_Contact_No'];
     $nurse_Sex = $_POST['nurse_Sex'];
     $nurse_birth_Date = $_POST['nurse_birth_Date'];
@@ -162,7 +182,7 @@ if (isset($_POST['edit'])) {
     $enc_nurse_birth_Date = encryptthis($nurse_birth_Date, $key);
     $enc_date_Employment = encryptthis($date_Employment, $key);
 
-    $query = "UPDATE staff_List SET nurse_Name='$enc_nurse_Name', contact_No='$enc_nurse_Contact_No', nurse_Sex='$enc_nurse_Sex', nurse_birth_Date ='$enc_nurse_birth_Date', shift_Schedule='$shift_Schedule', employment_Status='$employment_Status', date_Employment='$enc_date_Employment' WHERE nurse_ID='$nurse_ID'";
+    $query = "UPDATE staff_List SET nurse_Name='$enc_nurse_Name', assigned_Ward='$assigned_Ward', contact_No='$enc_nurse_Contact_No', nurse_Sex='$enc_nurse_Sex', nurse_birth_Date ='$enc_nurse_birth_Date', shift_Schedule='$shift_Schedule', employment_Status='$employment_Status', date_Employment='$enc_date_Employment' WHERE nurse_ID='$nurse_ID'";
     $query_run = mysqli_query($con, $query);
 
 
@@ -405,7 +425,7 @@ if (isset($_POST['edit'])) {
                             <h6 class="m-0 font-weight-bold text-primary">Active Nurses Accounts List</h6>
                             <!-- <a class="btn btn-primary" data-toggle="modal" data-target="#addNurse">Add</a> -->
                             <a class="btn btn-primary" data-toggle="modal" data-target="#addNursePasswordVerificationModal">Add</a>
-
+<!-- MODAL HERE -->
                             <!-- Modal for add nurse, password verification -->
                             <div class="modal fade" id="addNursePasswordVerificationModal" tabindex="-1" role="dialog" aria-labelledby="addNursePasswordVerificationModalLabel" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -428,7 +448,7 @@ if (isset($_POST['edit'])) {
                                     </div>
                                 </div>
                             </div>
-
+<!-- MODAL HERE -->
                             <!-- Add nurse modal -->
                             <div class="modal fade" id="addNurse" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -574,8 +594,27 @@ if (isset($_POST['edit'])) {
 
                             <div class="table-responsive">
                                 <?php
-
                                 $count = 0;
+
+                                //Let's get the current website user's assigned ward
+                                    $staff_ID = $_SESSION['idNUM'];
+
+                                    // Prepare the SELECT query using mysqli
+                                    $query = "SELECT assigned_Ward FROM staff_List WHERE nurse_ID = ?";
+                                    $getNurseAssignedWard = $con->prepare($query);
+                                    $getNurseAssignedWard->bind_param("i", $staff_ID);
+                                    
+                                    // Execute the SELECT query
+                                    $database = $getNurseAssignedWard->execute();
+
+                                    // Store and fetch the result
+                                    $getNurseAssignedWard->store_result();
+                                    $getNurseAssignedWard->bind_result($nurse_Assigned_Ward);
+                                    $getNurseAssignedWard->fetch();
+
+                                    // Close the statement
+                                    $getNurseAssignedWard->close();
+
                                 $sql = "SELECT * FROM staff_List WHERE activated = 1";
                                 $result = mysqli_query($con, $sql);
 
@@ -583,10 +622,10 @@ if (isset($_POST['edit'])) {
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con->query("SELECT * FROM staff_List  WHERE activated = 1 LIMIT $start, $limit");
+                                $result = $con->query("SELECT * FROM staff_List  WHERE activated = 1 AND assigned_Ward = '$nurse_Assigned_Ward' LIMIT $start, $limit");
                                 $nurses = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con->query("SELECT count(nurse_ID) AS nurse_ID FROM staff_List WHERE activated = 1");
+                                $result1 = $con->query("SELECT count(nurse_ID) AS nurse_ID FROM staff_List WHERE activated = 1 AND assigned_Ward = '$nurse_Assigned_Ward'");
                                 $custCount = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $custCount[0]['nurse_ID'];
                                 $pages = ceil( $total / $limit );
@@ -649,7 +688,7 @@ if (isset($_POST['edit'])) {
                                                     <td><?php echo $dec_date_Employment ?></td>
                                                     <td>
                                                         <a onclick="showSnackbar('edit nurse')" class="btn btn-info" data-toggle="modal" data-target="#editNursePasswordVerificationModal<?= $nurse['nurse_ID'] ?>">Edit</a>
-
+<!-- MODAL HERE -->
                                                         <!-- Modal for edit nurse, password verification -->
                                                         <div class="modal fade" id="editNursePasswordVerificationModal<?= $nurse['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="editNursePasswordVerificationModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
@@ -673,7 +712,7 @@ if (isset($_POST['edit'])) {
                                                                 </div>
                                                             </div>
                                                         </div>
-
+<!-- MODAL HERE -->
                                                         <!-- Edit modal -->
                                                         <div class="modal fade" id="edit<?= $nurse['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
@@ -707,6 +746,23 @@ if (isset($_POST['edit'])) {
                                                                         </div>
                                                                         <br>
 
+                                                                        <!-- Assign ward here -->
+                                                                        <label for="assigned_Ward">Choose a ward to refer to:</label>
+                                                                        <select id="assigned_Ward" name="assigned_Ward">
+                                                                        <option value="Medicine Ward">Medicine Ward</option>
+                                                                        <option value="Surgery Ward">Surgery Ward</option>
+                                                                        <option value="Intensive Care Unit">Intensive Care Unit</option>
+                                                                        <option value="OB Ward">OB Ward</option>
+                                                                        <option value="Psych Ward">Psych Ward</option>
+                                                                        <option value="Emergency Room">Emergency Room</option>
+                                                                        <option value="Neonatal Intensive Care Unit">Neonatal Intensive Care Unit</option>
+                                                                        <option value="Delivery Room">Delivery Room</option>
+                                                                        <option value="Minor Surgery Unit">Minor Surgery Unit</option>
+                                                                        <option value="Pediatric Ward">Pediatric Ward</option>
+                                                                        <option value="Out-Patient Department">Out-Patient Department</option>
+                                                                        </select>
+
+                                                                        <br>
                                                                         <div>
                                                                             <label>Nurse Contact No.</label>
                                                                             <input type="text" name="nurse_Contact_No" value="<?=  $dec_nurse_Contact_No ?>" id="nurse_Contact_No" required pattern="\S(.*\S)?[0-9]+" class="form-control" placeholder="Enter Nurse's Contact No." required title="Must only contain numbers">
@@ -795,7 +851,7 @@ if (isset($_POST['edit'])) {
                                                         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteNursePasswordVerificationModal<?= $nurse['nurse_ID'] ?>">
                                                             Delete
                                                         </button>
-
+<!-- MODAL HERE -->
                                                         <!-- Modal for delete nurse, password verification -->
                                                         <div class="modal fade" id="deleteNursePasswordVerificationModal<?= $nurse['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteNursePasswordVerificationModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
@@ -819,7 +875,7 @@ if (isset($_POST['edit'])) {
                                                                 </div>
                                                             </div>
                                                         </div>
-
+<!-- MODAL HERE -->
                                                         <!-- Delete modal -->
                                                         <div class="modal fade" id="delete<?= $nurse['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">

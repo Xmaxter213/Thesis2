@@ -40,45 +40,38 @@ require_once('../../dbConnection/connection2.php');
         header("location: ../../expired.php");
     }
 
-//This code runs after the NursesList.php page i think
-if (isset($_POST['add'])) {
-    $patient_ID = NULL;
-    $patient_first_Name = $_POST['patient_first_Name'];
-    $patient_last_Name = $_POST['patient_last_Name'];
-    $patient_full_Name = $patient_first_Name . ", " . $patient_last_Name;
-    $room_Number = $_POST['room_Number'];
-    $patient_birth_Date = $_POST['patient_birth_Date'];
-    $reason_Admission = $_POST['reason_Admission'];
-    $admission_Status = $_POST['admission_Status'];
-    $nurse_ID = $_POST['nurse_ID'];
-    $assistance_Status = $_POST['assistance_Status'];
-    $device_Assigned = $_POST['device_Assigned'];
-    $activated = $_POST['activated'];
-    //$date_Employment = sha1($_POST['date_Employment']);
+if (isset($_POST['patientRefer'])) {
+    $patient_ID = $_POST['patientRefer'];
+    $new_Assigned_Ward = $_POST['assigned_Ward'];
+    $getReasonForRefer = 'reasonForRefer' . $patient_ID;
+    $reasonForRefer = $_POST[$getReasonForRefer];
 
-    //Encrypt data from form
-    $enc_patient_Name = encryptthis($patient_full_Name, $key);
-    $enc_patient_birth_Date = encryptthis($patient_birth_Date, $key);
-    $enc_reason_Admission = encryptthis($reason_Admission, $key);
-    if ($nurse_ID == NULL && $device_Assigned == NULL)
-    {
-        $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
-        VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', NULL, '$assistance_Status', NULL, $activated)";
-    } else if ($nurse_ID != NULL && $device_Assigned == NULL) {
-        $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
-        VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', $nurse_ID, '$assistance_Status', NULL, $activated)";
-    } else if ($nurse_ID == NULL && $device_Assigned != NULL) {
-        $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
-        VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', NULL, '$assistance_Status', $device_Assigned, $activated)";
-    } else if ($nurse_ID != NULL && $device_Assigned != NULL) {
-        $query = "INSERT INTO patient_List (patient_ID, patient_Name, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
-        VALUES (NULL, '$enc_patient_Name','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', '$nurse_ID', '$assistance_Status', $device_Assigned, $activated)";
-    }
+    // Get logged in user
+    $userName = $_SESSION['userID'];
+    
+    $query = "UPDATE patient_List SET assigned_Ward='$new_Assigned_Ward' WHERE patient_ID='$patient_ID'";
     
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
-        $_SESSION['message'] = "Catagory Added Successfully";
+        date_default_timezone_set('Asia/Manila');
+        $currentDateTime = date("Y-m-d H:i:s");
+
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Referred patient $patient_ID to ward: $new_Assigned_Ward. Reason: $reasonForRefer', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+
+         if ($query_run_logs) 
+        {
+            $_SESSION['message'] = "Catagory Updated Successfully";
+            header('Location: PatientsListDischarged.php');
+            exit(0);
+        } 
+        else 
+        {
+            echo 'Error inserting logs: ' . mysqli_error($con);
+        }
+
         header('Location: PatientsListDischarged.php');
         exit(0);
     } else {
@@ -370,132 +363,6 @@ if (isset($_POST['edit'])) {
                             <h6 class="m-0 font-weight-bold text-primary">Patients Table</h6>
                             <br>
                             <a class="btn btn-primary float-end" data-toggle="modal" data-target="#addPatient">Add Patient</a>
-
-                            <!-- Add patient modal -->
-                            <div class="modal fade" id="addPatient" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel">Add Patient</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                        <form action ="" method="POST" >
-                                            <div>
-                                                <label>Patient First Name</label>
-                                                <input type="text" name="patient_first_Name" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Patient's First Name" required title="Must only contain letters">
-                                            </div>
-
-                                            <div>
-                                                <label>Patient Last Name</label>
-                                                <input type="text" name="patient_last_Name" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter Patient's Last Name" required title="Must only contain letters">
-                                            </div>
-
-                                            <div>
-                                                <label>Room Number</label>
-                                                <input type="text" class="form-control" name="room_Number" placeholder="Enter Room Number" required pattern ="[0-9]+" title="Must only contain numbers"/>
-                                            </div>
-
-                                            <br>
-                                            <div>
-                                                <label>Patient Birth Date</label>
-                                                <input type="date" id="patient_birth_Date" name="patient_birth_Date" min='01/01/1899' max='13/13/2000'/>
-                                            </div>
-                                            <script>
-                                                //Make date today the max value
-                                                var today = new Date().toISOString().split('T')[0];
-                                                document.getElementById("patient_birth_Date").setAttribute("max", today);
-
-                                                //Date picker filled required
-                                                document.getElementById("patient_birth_Date").required = true;
-                                            </script>
-                                            <br>
-                                            <div>
-                                                <label>Reason for Admission</label>
-                                                <input type="text" class="form-control" name="reason_Admission" placeholder="Enter Reason for Admission" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters & numbers"/>
-                                            </div>
-                                            <br>
-                                            <div>
-                                            <label>Admission Status</label>
-                                            <select id="admission_Status" name="admission_Status">
-                                                <option value="Admitted">Admitted</option>
-                                                <option value="Discharged">Discharged</option>
-                                            </select>
-                                            </div>
-                                            <br>
-                                            <div>
-                                                <?php 
-                                                    // retrieve selected results from database and display them on page
-                                                    $sqlNursesList = 'SELECT staff_List.nurse_ID, staff_List.nurse_Name, userLogin.status FROM staff_List JOIN userLogin WHERE staff_List.nurse_ID = userLogin.ID AND staff_List.activated = "1" AND userLogin.status = "Nurse"';
-                                                    $resultShiftSched = mysqli_query($con, $sqlNursesList);
-                                                    
-                                                    
-                                                    if (mysqli_num_rows($resultShiftSched) > 0) {
-                                                ?>
-                                                <label>Assigned Nurse</label>
-                                                <select id="nurse_ID" name="nurse_ID">
-                                                            <option value="">Not Assigned a Nurse</option>
-                                                    <?php
-                                                        while ($row = mysqli_fetch_array($resultShiftSched)) {
-                                                            //Decrypt name
-                                                            $dec_nurse_Name = decryptthis($row["nurse_Name"], $key);
-
-                                                            $concatenatedRow = $row["nurse_ID"] . " - " . $dec_nurse_Name;
-                                                    ?>
-                                                            <option value="<?php echo $row["nurse_ID"];
-                                                            // The value we usually set is the primary key
-                                                            ?>">
-                                                                <?php echo $concatenatedRow;
-                                                            ?>
-                                                            </option>
-                                                            <?php
-                                                        }
-                                                    }?>
-                                                </select>
-                                            </div>
-                                            <br>
-                                            <div>
-                                                <input type="hidden" name="assistance_Status" value="NULL">
-                                            </div>
-                                            <div>
-                                                <?php 
-                                                    // retrieve selected results from database and display them on page
-                                                    $sqlNursesList = 'SELECT device_ID FROM device_List';
-                                                    $resultDeviceIDs = mysqli_query($con, $sqlNursesList);
-                                                    
-                                                    
-                                                    if (mysqli_num_rows($resultDeviceIDs) > 0) {
-                                                ?>
-                                                <label>Device ID Assigned</label>
-                                                <select id="device_Assigned" name="device_Assigned">
-                                                            <option value="">Not Assigned a Device</option>
-                                                    <?php
-                                                        while ($row = mysqli_fetch_array($resultDeviceIDs)) {
-                                                    ?>
-                                                            <option value="<?php echo $row["device_ID"];
-                                                            // The value we usually set is the primary key
-                                                            ?>">
-                                                                <?php echo $row["device_ID"];
-                                                            ?>
-                                                            </option>
-                                                            <?php
-                                                        }
-                                                    }?>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <input type="hidden" name="activated" value=1>
-                                            </div>
-                                        <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                <button onclick="showSnackbar('add')" type = "submit" class = "btn btn-success" name = "add" >Add</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                         <div class="card-body">
 
@@ -504,14 +371,33 @@ if (isset($_POST['edit'])) {
                                 <?php
                                 $count = 0;
 
+                                //Let's get the current website user's assigned ward
+                                $staff_ID = $_SESSION['idNUM'];
+
+                                // Prepare the SELECT query using mysqli
+                                $query = "SELECT assigned_Ward FROM staff_List WHERE nurse_ID = ?";
+                                $getNurseAssignedWard = $con->prepare($query);
+                                $getNurseAssignedWard->bind_param("i", $staff_ID);
+
+                                // Execute the SELECT query
+                                $database = $getNurseAssignedWard->execute();
+
+                                // Store and fetch the result
+                                $getNurseAssignedWard->store_result();
+                                $getNurseAssignedWard->bind_result($nurse_Assigned_Ward);
+                                $getNurseAssignedWard->fetch();
+
+                                // Close the statement
+                                $getNurseAssignedWard->close();
+                                                                
                                 //This is for pagination
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con->query("SELECT * FROM patient_List WHERE activated = 1 AND admission_Status = 'Discharged' LIMIT $start, $limit");
+                                $result = $con->query("SELECT * FROM patient_List WHERE activated = 1 AND admission_Status = 'Discharged' AND assigned_Ward = '$nurse_Assigned_Ward' LIMIT $start, $limit");
                                 $patients = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con->query("SELECT count(patient_ID) AS patient_ID FROM patient_List WHERE activated = 1 AND admission_Status = 'Discharged'");
+                                $result1 = $con->query("SELECT count(patient_ID) AS patient_ID FROM patient_List WHERE activated = 1 AND admission_Status = 'Discharged' AND assigned_Ward = '$nurse_Assigned_Ward'");
                                 $custCount = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $custCount[0]['patient_ID'];
                                 $pages = ceil( $total / $limit );
@@ -533,6 +419,7 @@ if (isset($_POST['edit'])) {
                                                 <th>Admission Status <input type="text" class="search-input" placeholder="Admission Status"></th>
                                                 <th>Assigned Nurse ID <input type="text" class="search-input" placeholder="Assigned Nurse ID"></th>
                                                 <th>Device Assigned ID <input type="text" class="search-input" placeholder="Device Assigned ID"></th>
+                                                <th>Change Assigned Ward</th>
                                                 <th>Admit</th>
                                                 <th>Edit</th>
                                                 <th>Delete</th>
@@ -585,11 +472,98 @@ if (isset($_POST['edit'])) {
                                                         echo $patient['gloves_ID'];
                                                     }?>
                                                     </td>
+
+                                                    <td>
+                                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#referPatientPasswordVerificationModal<?= $patient['patient_ID'] ?>">
+                                                            Refer
+                                                        </button>
+<!-- MODAL HERE -->
+                                                        <!-- Modal for refer to another ward, password verification -->
+                                                        <div class="modal fade" id="referPatientPasswordVerificationModal<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="referPatientPasswordVerificationModal" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="referPatientPasswordVerificationModal">Password Verification</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form action="" method="POST">
+                                                                            <div class="form-group">
+                                                                                <input type="hidden" id="patient_ID" name="patient_ID" value="<?=  $patient['patient_ID'] ?>">
+                                                                                <label for="password">Enter Your Password:</label>
+                                                                                <input type="password" class="form-control" id="password" name="password" required>
+                                                                            </div>
+                                                                            <button type="submit" class="btn btn-primary" name="verifyReferPatient">Verify Password</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+<!-- MODAL HERE -->
+                                                        <!-- Refer to another ward modal -->
+                                                        <div class="modal fade" id="refer<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="dischargeModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="exampleModalLabel">Are you sure you want to discharge this patient?</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form action="" method="POST">
+                                                                            <label>Patient will be assigned to a different ward.</label><br>
+
+                                                                            <br>
+                                                                            <label for="dischargeReason1">Reason for referring patient to another ward: </label> <br>
+
+                                                                            <!-- Assign ward here -->
+                                                                            <label for="assigned_Ward">Choose a ward to refer to:</label>
+                                                                            <select id="assigned_Ward" name="assigned_Ward">
+                                                                            <option value="Medicine Ward">Medicine Ward</option>
+                                                                            <option value="Surgery Ward">Surgery Ward</option>
+                                                                            <option value="Intensive Care Unit">Intensive Care Unit</option>
+                                                                            <option value="OB Ward">OB Ward</option>
+                                                                            <option value="Psych Ward">Psych Ward</option>
+                                                                            <option value="Emergency Room">Emergency Room</option>
+                                                                            <option value="Neonatal Intensive Care Unit">Neonatal Intensive Care Unit</option>
+                                                                            <option value="Delivery Room">Delivery Room</option>
+                                                                            <option value="Minor Surgery Unit">Minor Surgery Unit</option>
+                                                                            <option value="Pediatric Ward">Pediatric Ward</option>
+                                                                            <option value="Out-Patient Department">Out-Patient Department</option>
+                                                                            </select>
+                                                                            <br>
+
+                                                                            <!-- Isa lang may required kasi same name naman sila -->
+                                                                            <input type="radio" name="referReason" id="referReason1"  value="Refer order given by doctor" required >
+                                                                            <label for="deleteReason1">Doctor's orders</label> <br>
+
+                                                                            <!-- Iba name cuz input field need -->
+                                                                            <input type="radio" name="referReason" id="referReason3" value="Other" onchange="getValueRefer(this, <?php echo $patient['patient_ID'] ?>)">
+                                                                            <label for="referReason3">Other</label> <br>
+                                                                            
+                                                                            <div id="reasonForReferInputField<?= $patient['patient_ID'] ?>" style="display:none;">
+
+                                                                            <!-- wtf bat iba yung gumagana ?= pero ?php hindi sa code sa baba :/ -->
+                                                                            <textarea rows="4" cols="50" type="text" value="" name="reasonForRefer<?= $patient['patient_ID'] ?>" id="reasonForrefer<?= $patient['patient_ID'] ?>" onchange="getValueRefer(this, <?php echo $patient['patient_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for refer" title="Must only contain letters & numbers"></textarea>    
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                                            <button type="submit" name="patientRefer" value="<?= $patient['patient_ID'] ?>" class="btn btn-success">Refer</a>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+
                                                     <td>
                                                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#admitPatientPasswordVerificationModal<?= $patient['patient_ID'] ?>">
                                                             Admit
                                                         </button>
-
+<!-- MODAL HERE -->
                                                         <!-- Modal for discharge nurse, password verification -->
                                                         <div class="modal fade" id="admitPatientPasswordVerificationModal<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteNursePasswordVerificationModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
@@ -613,7 +587,7 @@ if (isset($_POST['edit'])) {
                                                                 </div>
                                                             </div>
                                                         </div>
-
+<!-- MODAL HERE -->
                                                         <!-- Admit Patient modal -->
                                                         <div class="modal fade" id="admit<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="admitModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
@@ -657,7 +631,7 @@ if (isset($_POST['edit'])) {
 
                                                     <td>
                                                         <a onclick="showSnackbar('edit')" class="btn btn-info" data-toggle="modal" data-target="#editPatientPasswordVerificationModal<?= $patient['patient_ID'] ?>">Edit</a>
-
+<!-- MODAL HERE -->
                                                         <!-- Modal for edit nurse, password verification -->
                                                         <div class="modal fade" id="editPatientPasswordVerificationModal<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="editNursePasswordVerificationModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
@@ -681,7 +655,7 @@ if (isset($_POST['edit'])) {
                                                                 </div>
                                                             </div>
                                                         </div>
-
+<!-- MODAL HERE -->
                                                         <!-- Edit modal -->
                                                         <div class="modal fade" id="edit<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
@@ -844,7 +818,7 @@ if (isset($_POST['edit'])) {
                                                         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deletePatientPasswordVerificationModal<?= $patient['patient_ID'] ?>">
                                                             Delete
                                                         </button>
-
+<!-- MODAL HERE -->
                                                         <!-- Modal for delete nurse, password verification -->
                                                         <div class="modal fade" id="deletePatientPasswordVerificationModal<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteNursePasswordVerificationModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
@@ -868,7 +842,7 @@ if (isset($_POST['edit'])) {
                                                                 </div>
                                                             </div>
                                                         </div>
-
+<!-- MODAL HERE -->
                                                         <!-- Delete modal -->
                                                         <div class="modal fade" id="delete<?= $patient['patient_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog" role="document">
@@ -913,6 +887,37 @@ if (isset($_POST['edit'])) {
                                 } ?>
                                         </tbody>
                                     </table>
+                                    
+                                    <!-- For showing and hiding input field on refer -->
+                                    <script type="text/javascript">
+                                        function getValueRefer(x, ID) {
+                                            if(x.value == 'Other'){
+                                                document.getElementById("reasonForReferInputField" + ID).style.display = 'block'; // you need a identifier for changes
+                                                document.getElementById("reasonForRefer" + ID).value = ""; // you need a identifier for changes
+                                            } else if(x.value == "Refer order given by doctor"){
+                                                document.getElementById("reasonForReferInputField" + ID).style.display = 'none';  // you need a identifier for changes
+                                                document.getElementById("reasonForRefer" + ID).value = "Doctor's order";
+                                            }
+                                            
+                                            // Store the reason in local storage
+                                            //localStorage.setItem('reasonForRefer', document.getElementById("reasonForRefer").value);      
+
+                                            // For debugging
+                                            // // alert(document.getElementById("reasonForDeletion" + ID).id); //Checks if tamang nurse ID yung radio buttons
+
+                                            // var str,
+                                            // element = document.getElementById("reasonForDischarge" + ID);
+                                            // if (element != null) {
+                                            //     str = element.value;
+                                            //     alert("WORKS: " + str);
+                                            // }
+                                            // else {
+                                            //     str = null;
+                                            //     alert("NO WORK: " + str);
+                                            // }
+                                        }
+                                    </script>
+
                                     <!-- For showing and hiding input field on admit -->
                                     <script type="text/javascript">
                                         function getValueAdmit(x, ID) {
@@ -1156,6 +1161,35 @@ if (isset($_POST['edit'])) {
 </html>
 
 <?php
+    if (isset($_POST['verifyReferPatient'])) {
+        $enteredPassword = $_POST['password'];
+        $userName = $_SESSION['userID'];
+        $patient_ID = $_POST['patient_ID']; //One to edit
+
+        //This is for checking if pw is correct
+        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $getuserpassword = $con->prepare($query);
+        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->execute();
+        $getuserpassword->store_result();
+        $getuserpassword->bind_result($verifyPassword);
+        $getuserpassword->fetch();
+        $getuserpassword->close();
+
+        if ($enteredPassword === $verifyPassword) {
+            // echo "<script>alert('$nurse_ID');</script>";
+            
+            echo "<script type='text/javascript'>
+            $(document).ready(function(){
+            $('#refer$patient_ID').modal('show');
+            });
+            </script>";   
+        } else {
+            // Password is incorrect, display an error message
+            echo '<script>alert("Incorrect password. Please try again.");</script>';
+        }
+    }
+
     if (isset($_POST['verifyEditPatient'])) {
         $enteredPassword = $_POST['password'];
         $userName = $_SESSION['userID'];

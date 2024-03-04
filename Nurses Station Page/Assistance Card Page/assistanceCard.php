@@ -6,24 +6,21 @@ require_once('../../dbConnection/connection.php');
 if (isset($_GET['logout'])) {
     $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
 
-        date_default_timezone_set('Asia/Manila');
+    date_default_timezone_set('Asia/Manila');
 
-        $currentDateTime = date("Y-m-d H:i:s");
+    $currentDateTime = date("Y-m-d H:i:s");
 
-        // Insert into superAdminLogs
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Logout', '$currentDateTime')";
-        $query_run_logs = mysqli_query($con, $sqlAddLogs);
+    // Insert into superAdminLogs
+    $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Logout', '$currentDateTime')";
+    $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
-        if ($query_run_logs) 
-        {
-            session_destroy();
-            unset($_SESSION);
-            header("location: ../MainHospital/login_new.php");
-        } 
-        else 
-        {
-            echo 'Error inserting logs: ' . mysqli_error($con);
-        }
+    if ($query_run_logs) {
+        session_destroy();
+        unset($_SESSION);
+        header("location: ../MainHospital/login_new.php");
+    } else {
+        echo 'Error inserting logs: ' . mysqli_error($con);
+    }
 }
 
 if (!isset($_SESSION['userID'])) {
@@ -37,22 +34,22 @@ if (!isset($_SESSION['userID'])) {
     }
 }
 require_once('../../dbConnection/connection2.php');
-    $hospitalName = "Helping Hand";
-    $query = "SELECT hospitalStatus FROM Hospital_Table WHERE hospitalName = ?";
-    $stmt = mysqli_prepare($con2, $query);
-    mysqli_stmt_bind_param($stmt, "s", $hospitalName);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_bind_result($stmt, $hospitalStatus);
-    mysqli_stmt_fetch($stmt);
-    mysqli_stmt_close($stmt);
+$hospitalName = "Helping Hand";
+$query = "SELECT hospitalStatus FROM Hospital_Table WHERE hospitalName = ?";
+$stmt = mysqli_prepare($con2, $query);
+mysqli_stmt_bind_param($stmt, "s", $hospitalName);
+mysqli_stmt_execute($stmt);
+mysqli_stmt_bind_result($stmt, $hospitalStatus);
+mysqli_stmt_fetch($stmt);
+mysqli_stmt_close($stmt);
 
-    // Check if the hospital status is 'Active'
-    if ($hospitalStatus != 'Active') {
-        header("location: ../../expired.php");
-    }
+// Check if the hospital status is 'Active'
+if ($hospitalStatus != 'Active') {
+    header("location: ../../expired.php");
+}
 
 
-    $verpass = $_SESSION['verifyPass'];
+$verpass = $_SESSION['verifyPass'];
 ?>
 
 <!DOCTYPE html>
@@ -70,7 +67,9 @@ require_once('../../dbConnection/connection2.php');
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -93,18 +92,79 @@ require_once('../../dbConnection/connection2.php');
     <link rel="stylesheet" href="../Table Sorting/tablesort.css">
 
     <!-- For Modal -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css"
+        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 
     <!-- for div refresh -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // setInterval(function() {
             //     $("#refresh").load("assistanceCards.php");
             //     refresh();
             // }, 1000);
         });
     </script>
+
+    <style>
+        .nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes bubbleAnimation {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .bubble {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            animation: bubbleAnimation 1s ease-out;
+        }
+    </style>
+    <!-- Bubble animation -->
+    <script>
+        function showBubbleAnimation(event) {
+            const navLink = event.currentTarget;
+            const rect = navLink.getBoundingClientRect();
+            const bubble = document.createElement('span');
+            bubble.classList.add('bubble');
+            bubble.style.top = `${event.clientY - rect.top}px`;
+            bubble.style.left = `${event.clientX - rect.left}px`;
+            navLink.appendChild(bubble);
+            setTimeout(() => {
+                bubble.remove();
+            }, 1000);
+        }
+    </script>
+
+
 </head>
 
 <body id="page-top">
@@ -114,78 +174,68 @@ require_once('../../dbConnection/connection2.php');
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-
+        <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar"
+            style="background-color: rgb(17,24,39); font-family: 'Inter var', sans-serif;">
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
-                <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-laugh-wink"></i>
-                </div>
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php"
+                style="background-color: rgb(28,35,47);">
                 <div class="fa-regular fa-hand"> Helping Hand </div>
             </a>
 
             <!-- Divider -->
-            <hr class="sidebar-divider my-0">
-
-
-
 
             <!-- Nav Item - Tables -->
             <li class="nav-item active">
-                <a onclick="showSnackbar('redirect to assistance page')" class="nav-link" href="../Assistance Card Page/assistanceCard.php">
+                <a onclick="showSnackbar('redirect to assistance page'); showBubbleAnimation(event);" class="nav-link"
+                    href="../Assistance Card Page/assistanceCard.php">
                     <i class="bi bi-wallet2"></i>
-                    <span>Assistance Cards</span></a>
+                    <span>Assistance Cards</span>
+                </a>
             </li>
-            <hr class="sidebar-divider d-none d-md-block">
+
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Nurses List/NursesList.php">
+                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);" class="nav-link"
+                    href="../Nurses List/NursesList.php">
                     <i class="fa-solid fa-user-nurse"></i>
-                    <span>Nurses List</span></a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <li class="nav-item">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Patients List/PatientsList.php">
-                    <i class="bi bi-person-lines-fill"></i>
-                    <span>Patients List</span></a>
-            </li>
-
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <li class="nav-item">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="../Reports Page/overallTest.php">
-                    <i class="bi bi-clipboard2-data"></i>
-                    <span>Reports</span></a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Logs/Logs.php">
-                    <i class="bi bi-clipboard2-data"></i>
-                    <span>Logs</span></a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-toggle="modal" data-target="#smsSettingsModal">
-                    <i class="bi bi-clipboard2-data"></i>
-                    <span>Settings</span>
+                    <span>Nurses List</span>
                 </a>
             </li>
 
             <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
 
-            <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
+            <li class="nav-item">
+                <a onclick="showSnackbar('redirect to patients list page'); showBubbleAnimation(event);"
+                    class="nav-link" href="../Patients List/PatientsList.php">
+                    <i class="bi bi-person-lines-fill"></i>
+                    <span>Patients List</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a onclick="showSnackbar('redirect to patients list page'); showBubbleAnimation(event);"
+                    class="nav-link" href="../Reports Page/overallTest.php">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+
+            <li class="nav-item">
+                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);" class="nav-link"
+                    href="../Logs/Logs.php">
+                    <i class="bi bi-file-ruled"></i>
+                    <span>Logs</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a onclick="showSnackbar('redirect to settings'); showBubbleAnimation(event);" class="nav-link" href="#"
+                    data-toggle="modal" data-target="#smsSettingsModal">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
 
         </ul>
         <!-- End of Sidebar -->
@@ -197,7 +247,8 @@ require_once('../../dbConnection/connection2.php');
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow"
+                    style="background-color: rgb(28,35,47);">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <form class="form-inline">
@@ -207,11 +258,13 @@ require_once('../../dbConnection/connection2.php');
                     </form>
 
                     <!-- Topbar Search -->
-                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                    <form
+                        class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                         <div class="input-group">
-                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
+                                aria-label="Search" aria-describedby="basic-addon2">
                             <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
+                                <button class="btn btn-secondary" type="button">
                                     <i class="fas fa-search fa-sm"></i>
                                 </button>
                             </div>
@@ -223,14 +276,18 @@ require_once('../../dbConnection/connection2.php');
 
                         <!-- Nav Item - Search Dropdown (Visible Only XS) -->
                         <li class="nav-item dropdown no-arrow d-sm-none">
-                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-search fa-fw"></i>
                             </a>
                             <!-- Dropdown - Messages -->
-                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
+                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
+                                aria-labelledby="searchDropdown">
                                 <form class="form-inline mr-auto w-100 navbar-search">
                                     <div class="input-group">
-                                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                                        <input type="text" class="form-control bg-light border-0 small"
+                                            placeholder="Search for..." aria-label="Search"
+                                            aria-describedby="basic-addon2">
                                         <div class="input-group-append">
                                             <button class="btn btn-primary" type="button">
                                                 <i class="fas fa-search fa-sm"></i>
@@ -241,20 +298,24 @@ require_once('../../dbConnection/connection2.php');
                             </div>
                         </li>
 
-
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"> <?php
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    <?php
 
-                                                                                            ?></span>
+                                    ?>
+                                </span>
                                 <img class="img-profile" src="./Images/logout.svg">
                             </a>
                             <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="userDropdown">
 
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="index.php?logout=true" data-toggle="modal" data-target="#logoutModal">
+                                <a class="dropdown-item" href="index.php?logout=true" data-toggle="modal"
+                                    data-target="#logoutModal">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Logout
                                 </a>
@@ -277,7 +338,7 @@ require_once('../../dbConnection/connection2.php');
                     <div id="refresh" class="d-flex flex-wrap">
                         <?php
                         require_once("assistanceCards.php")
-                        ?>
+                            ?>
                     </div>
                     <br>
                     <h1 class="font-weight-bold">ADL Assistance</h1>
@@ -305,7 +366,8 @@ require_once('../../dbConnection/connection2.php');
     </a>
 
     <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -322,42 +384,44 @@ require_once('../../dbConnection/connection2.php');
             </div>
         </div>
     </div>
-    
+
     <!-- SMS Modal-->
-    <div class="modal fade" id="smsSettingsModal" tabindex="-1" role="dialog" aria-labelledby="smsSettingsModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="smsSettingsModalLabel">SMS Settings</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+    <div class="modal fade" id="smsSettingsModal" tabindex="-1" role="dialog" aria-labelledby="smsSettingsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="smsSettingsModalLabel">SMS Settings</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="smsToggle" name="smsSetting">
+                        <label class="form-check-label" for="smsToggle" id="smsStatusLabel"></label>
                     </div>
-                    <div class="modal-body">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="smsToggle" name="smsSetting">
-                            <label class="form-check-label" for="smsToggle" id="smsStatusLabel"></label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" onclick="location.reload()">Save changes</button>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="location.reload()">Save changes</button>
                 </div>
             </div>
         </div>
+    </div>
 
 
     <!-- password Modal-->
-    <div class="modal fade" id="setPasswordModal" tabindex="-1" role="dialog" aria-labelledby="setPasswordModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal fade" id="setPasswordModal" tabindex="-1" role="dialog" aria-labelledby="setPasswordModalLabel"
+        aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="setPasswordModalLabel">Set New Password</h5>
                     <?php if ($verpass == 1): ?>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     <?php endif; ?>
                 </div>
                 <div class="modal-body">
@@ -375,7 +439,8 @@ require_once('../../dbConnection/connection2.php');
                         <div class="form-group">
                             <label for="confirmPassword">Confirm Password:</label>
                             <div class="input-group">
-                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                                    required>
                                 <span class="input-group-text" onclick="confirm_password_show_hide();">
                                     <i class="fas fa-eye" id="showConfirmPassword"></i>
                                     <i class="fas fa-eye-slash d-none" id="hideConfirmPassword"></i>
@@ -449,7 +514,7 @@ require_once('../../dbConnection/connection2.php');
             x.className = "show";
 
             // After 3 seconds, remove the show class from DIV
-            setTimeout(function() {
+            setTimeout(function () {
                 x.className = x.className.replace("show", "");
             }, 3000);
         }
@@ -489,7 +554,7 @@ require_once('../../dbConnection/connection2.php');
 
     <script>
         // Add an event listener for the checkbox click
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var smsToggle = document.getElementById('smsToggle');
             var smsStatusLabel = document.getElementById('smsStatusLabel');
 
@@ -504,7 +569,7 @@ require_once('../../dbConnection/connection2.php');
             }
 
             // Add event listener for checkbox click
-            smsToggle.addEventListener('click', function() {
+            smsToggle.addEventListener('click', function () {
                 if (smsToggle.checked) {
                     smsStatusLabel.textContent = 'SMS On';
                     setCookie('smsSetting', 'on', 365); // Set cookie with expiry of 1 year
@@ -575,20 +640,20 @@ require_once('../../dbConnection/connection2.php');
             }
         }
 
-        
+
         function showSnackbar(message) {
             var snackbar = $("#snackbar");
             snackbar.text(message);
             snackbar.addClass("show");
-            setTimeout(function() { snackbar.removeClass("show"); }, 3000);
+            setTimeout(function () { snackbar.removeClass("show"); }, 3000);
         }
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             <?php if ($verpass == 0): ?>
                 $('#setPasswordModal').modal('show');
             <?php endif; ?>
 
-            $('#savePassword').click(function() {
+            $('#savePassword').click(function () {
                 var password = $('#password').val();
                 var confirmPassword = $('#confirmPassword').val();
 
@@ -609,12 +674,12 @@ require_once('../../dbConnection/connection2.php');
                     type: "POST",
                     url: "change_First_Pass.php",
                     data: { password: password },
-                    success: function(response) {
+                    success: function (response) {
                         console.log("AJAX request successful:", response);
                         $('#setPasswordModal').modal('hide');
                         showSnackbar("Password changed successfully");
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.error("AJAX request failed:", error);
                     }
                 });
@@ -624,10 +689,16 @@ require_once('../../dbConnection/connection2.php');
 
 
     <!-- For modal -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js"
+        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js"
+        integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>

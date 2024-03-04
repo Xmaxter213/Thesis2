@@ -59,110 +59,96 @@ if (isset($_POST['search'])) {
     // AND patient_List.patient_Name LIKE '%$selected_patient_ID%'
 
     $sql = "WITH PatientArduinoData AS (
+        SELECT 
+            patient_List.patient_ID, 
+            MAX(patient_List.patient_Name) AS patient_Name, 
+            MAX(patient_List.room_Number) AS room_Number, 
+            MAX(patient_List.birth_Date) AS birth_Date, 
+            MAX(patient_List.reason_Admission) AS reason_Admission, 
+            MAX(patient_List.admission_Status) AS admission_Status, 
+            MAX(patient_List.nurse_ID) AS nurse_ID, 
+            MAX(patient_List.assistance_Status) AS assistance_Status, 
+            MAX(patient_List.gloves_ID) AS patient_gloves_ID, 
+            MAX(patient_List.activated) AS activated, 
+            MAX(patient_List.delete_at) AS delete_at,  
+            MAX(arduino_Reports.date_Called) AS date_called
+        FROM 
+            patient_List 
+        INNER JOIN 
+            arduino_Reports ON patient_List.gloves_ID = arduino_Reports.device_ID
+        WHERE 
+            patient_List.admission_Status = 'Admitted' AND patient_List.patient_Name LIKE '$selected_patient_ID'
+        GROUP BY
+            patient_List.patient_ID
+    ),
+    ArduinoReportsData AS (
+        SELECT 
+            `patient_ID`, 
+            COUNT(*) AS `total_calls`,
+            SUM(CASE WHEN `assistance_Type` = 'ADL' THEN 1 ELSE 0 END) AS `ADL_calls`,
+            SUM(CASE WHEN `assistance_Type` = 'IMMEDIATE' THEN 1 ELSE 0 END) AS `IMMEDIATE_calls`
+        FROM 
+            `arduino_Reports`
+        WHERE
+            `assistance_Type` IN ('ADL', 'IMMEDIATE')
+        GROUP BY 
+            `patient_ID`
+    ),
+    ReportsWithData AS (
+        SELECT 
+            `ID`, 
+            `device_ID`, 
+            `assistance_Type`, 
+            `assistance_Given`, 
+            `date_Called`, 
+            TIMESTAMPDIFF(SECOND, `date_Called`, `Assitance_Finished`) AS `resolve_Time`, 
+            `Nurse_Assigned_Status`, 
+            TIMESTAMPDIFF(SECOND, `date_Called`, `Nurse_Assigned_Status`) AS `response_Time`, 
+            `Assitance_Finished`,  
+            `nurse_ID`, 
+            `patient_ID` 
+        FROM 
+            `arduino_Reports`
+    )
     SELECT 
-        patient_List.patient_ID, 
-        MAX(patient_List.patient_Name) AS patient_Name, 
-        MAX(patient_List.room_Number) AS room_Number, 
-        MAX(patient_List.birth_Date) AS birth_Date, 
-        MAX(patient_List.reason_Admission) AS reason_Admission, 
-        MAX(patient_List.admission_Status) AS admission_Status, 
-        MAX(patient_List.nurse_ID) AS nurse_ID, 
-        MAX(patient_List.assistance_Status) AS assistance_Status, 
-        MAX(patient_List.gloves_ID) AS patient_gloves_ID, 
-        MAX(patient_List.activated) AS activated, 
-        MAX(patient_List.delete_at) AS delete_at,  
-        MAX(arduino_Device_List.device_ID) AS patient_device_ID, 
-        MAX(arduino_Device_List.pulse_Rate) AS pulse_Rate, 
-        MAX(arduino_Device_List.battery_percent) AS battery_percent, 
-        MAX(arduino_Reports.date_Called) AS date_called
+        PAD.patient_ID,
+        PAD.patient_Name,
+        PAD.room_Number,
+        PAD.birth_Date,
+        PAD.reason_Admission,
+        PAD.admission_Status,
+        PAD.nurse_ID,
+        PAD.assistance_Status,
+        PAD.patient_gloves_ID,
+        PAD.activated,
+        PAD.delete_at,
+        MAX(ARD.total_calls) AS total_calls,
+        MAX(ARD.ADL_calls) AS ADL_calls,
+        MAX(ARD.IMMEDIATE_calls) AS IMMEDIATE_calls,
+        MAX(CASE WHEN RWDA.assistance_Type = 'ADL' THEN RWDA.response_Time END) AS max_ADL_response_Time,
+        MAX(CASE WHEN RWDA.assistance_Type = 'ADL' THEN RWDA.resolve_Time END) AS max_ADL_resolve_Time,
+        MAX(CASE WHEN RWDB.assistance_Type = 'IMMEDIATE' THEN RWDB.response_Time END) AS max_IMMEDIATE_response_Time,
+        MAX(CASE WHEN RWDB.assistance_Type = 'IMMEDIATE' THEN RWDB.resolve_Time END) AS max_IMMEDIATE_resolve_Time
     FROM 
-        patient_List 
-    INNER JOIN 
-        arduino_Device_List ON patient_List.gloves_ID = arduino_Device_List.device_ID
-    INNER JOIN
-        arduino_Reports ON patient_List.gloves_ID = arduino_Reports.device_ID
-    WHERE 
-        patient_List.admission_Status = 'Admitted' AND patient_List.patient_ID = $selected_patient_ID
+        PatientArduinoData PAD
+    LEFT JOIN 
+        ArduinoReportsData ARD ON PAD.patient_ID = ARD.patient_ID
+    LEFT JOIN
+        ReportsWithData RWDA ON PAD.patient_gloves_ID = RWDA.device_ID AND RWDA.assistance_Type = 'ADL'
+    LEFT JOIN
+        ReportsWithData RWDB ON PAD.patient_gloves_ID = RWDB.device_ID AND RWDB.assistance_Type = 'IMMEDIATE'
     GROUP BY
-        patient_List.patient_ID
-),
-ArduinoReportsData AS (
-    SELECT 
-        `patient_ID`, 
-        COUNT(*) AS `total_calls`,
-        SUM(CASE WHEN `assistance_Type` = 'ADL' THEN 1 ELSE 0 END) AS `ADL_calls`,
-        SUM(CASE WHEN `assistance_Type` = 'IMMEDIATE' THEN 1 ELSE 0 END) AS `IMMEDIATE_calls`
-    FROM 
-        `arduino_Reports`
-    WHERE
-        `assistance_Type` IN ('ADL', 'IMMEDIATE')
-    GROUP BY 
-        `patient_ID`
-),
-ReportsWithData AS (
-    SELECT 
-        `ID`, 
-        `device_ID`, 
-        `assistance_Type`, 
-        `assistance_Given`, 
-        `date_Called`, 
-        TIMESTAMPDIFF(SECOND, `date_Called`, `Assitance_Finished`) AS `resolve_Time`, 
-        `Nurse_Assigned_Status`, 
-        TIMESTAMPDIFF(SECOND, `date_Called`, `Nurse_Assigned_Status`) AS `response_Time`, 
-        `Assitance_Finished`, 
-        `Nurse_Remarks`, 
-        `nurse_ID`, 
-        `patient_ID` 
-    FROM 
-        `arduino_Reports`
-)
-SELECT 
-    PAD.patient_ID,
-    PAD.patient_Name,
-    PAD.room_Number,
-    PAD.birth_Date,
-    PAD.reason_Admission,
-    PAD.admission_Status,
-    PAD.nurse_ID,
-    PAD.assistance_Status,
-    PAD.patient_gloves_ID,
-    PAD.activated,
-    PAD.delete_at,
-    PAD.patient_device_ID,
-    PAD.pulse_Rate,
-    PAD.battery_percent,
-    PAD.date_called,
-    MAX(ARD.total_calls) AS total_calls,
-    MAX(ARD.ADL_calls) AS ADL_calls,
-    MAX(ARD.IMMEDIATE_calls) AS IMMEDIATE_calls,
-    MAX(CASE WHEN RWDA.assistance_Type = 'ADL' THEN RWDA.response_Time END) AS max_ADL_response_Time,
-    MAX(CASE WHEN RWDA.assistance_Type = 'ADL' THEN RWDA.resolve_Time END) AS max_ADL_resolve_Time,
-    MAX(CASE WHEN RWDB.assistance_Type = 'IMMEDIATE' THEN RWDB.response_Time END) AS max_IMMEDIATE_response_Time,
-    MAX(CASE WHEN RWDB.assistance_Type = 'IMMEDIATE' THEN RWDB.resolve_Time END) AS max_IMMEDIATE_resolve_Time
-FROM 
-    PatientArduinoData PAD
-LEFT JOIN 
-    ArduinoReportsData ARD ON PAD.patient_ID = ARD.patient_ID
-LEFT JOIN
-    ReportsWithData RWDA ON PAD.patient_device_ID = RWDA.device_ID AND RWDA.assistance_Type = 'ADL'
-LEFT JOIN
-    ReportsWithData RWDB ON PAD.patient_device_ID = RWDB.device_ID AND RWDB.assistance_Type = 'IMMEDIATE'
-GROUP BY
-    PAD.patient_ID,
-    PAD.patient_Name,
-    PAD.room_Number,
-    PAD.birth_Date,
-    PAD.reason_Admission,
-    PAD.admission_Status,
-    PAD.nurse_ID,
-    PAD.assistance_Status,
-    PAD.patient_gloves_ID,
-    PAD.activated,
-    PAD.delete_at,
-    PAD.patient_device_ID,
-    PAD.pulse_Rate,
-    PAD.battery_percent,
-    PAD.date_called
+        PAD.patient_ID,
+        PAD.patient_Name,
+        PAD.room_Number,
+        PAD.birth_Date,
+        PAD.reason_Admission,
+        PAD.admission_Status,
+        PAD.nurse_ID,
+        PAD.assistance_Status,
+        PAD.patient_gloves_ID,
+        PAD.activated,
+        PAD.delete_at
 ";
 
     $result = mysqli_query($con, $sql);
@@ -503,6 +489,65 @@ if ($totalSeconds < 60) {
 
         }
     </script>
+
+    <style>
+        .nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes bubbleAnimation {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .bubble {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            animation: bubbleAnimation 1s ease-out;
+        }
+    </style>
+    <!-- Bubble animation -->
+    <script>
+        function showBubbleAnimation(event) {
+            const navLink = event.currentTarget;
+            const rect = navLink.getBoundingClientRect();
+            const bubble = document.createElement('span');
+            bubble.classList.add('bubble');
+            bubble.style.top = `${event.clientY - rect.top}px`;
+            bubble.style.left = `${event.clientX - rect.left}px`;
+            navLink.appendChild(bubble);
+            setTimeout(() => {
+                bubble.remove();
+            }, 1000);
+        }
+    </script>
+
 </head>
 
 <body id="page-top">
@@ -511,72 +556,60 @@ if ($totalSeconds < 60) {
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-
+        <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar"
+            style="background-color: rgb(17,24,39); font-family: 'Inter var', sans-serif;">
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
-                <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-laugh-wink"></i>
-                </div>
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php"
+                style="background-color: rgb(28,35,47);">
                 <div class="fa-regular fa-hand"> Helping Hand </div>
             </a>
 
             <!-- Divider -->
-            <hr class="sidebar-divider my-0">
-
-
-
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to assistance page')" class="nav-link"
+                <a onclick="showSnackbar('redirect to assistance page'); showBubbleAnimation(event);" class="nav-link"
                     href="../Assistance Card Page/assistanceCard.php">
                     <i class="bi bi-wallet2"></i>
-                    <span>Assistance Cards</span></a>
+                    <span>Assistance Cards</span>
+                </a>
             </li>
 
-            <hr class="sidebar-divider d-none d-md-block">
-
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link"
+                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);" class="nav-link"
                     href="../Nurses List/NursesList.php">
                     <i class="fa-solid fa-user-nurse"></i>
-                    <span>Nurses List</span></a>
+                    <span>Nurses List</span>
+                </a>
             </li>
 
             <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link"
-                    href="../Patients List/PatientsList.php">
+                <a onclick="showSnackbar('redirect to patients list page'); showBubbleAnimation(event);"
+                    class="nav-link" href="../Patients List/PatientsList.php">
                     <i class="bi bi-person-lines-fill"></i>
-                    <span>Patients List</span></a>
+                    <span>Patients List</span>
+                </a>
             </li>
-
-            <hr class="sidebar-divider d-none d-md-block">
 
             <li class="nav-item active">
-                <a onclick="showSnackbar('redirect to patients list page')" class="nav-link" href="./overallTest.php">
-                    <i class="bi bi-clipboard2-data"></i>
-                    <span>Reports</span></a>
+                <a onclick="showSnackbar('redirect to patients list page'); showBubbleAnimation(event);"
+                    class="nav-link" href="./overallTest.php">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Reports</span>
+                </a>
             </li>
+
             <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page')" class="nav-link" href="../Logs/Logs.php">
-                    <i class="bi bi-clipboard2-data"></i>
-                    <span>Logs</span></a>
+                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);" class="nav-link"
+                    href="../Logs/Logs.php">
+                    <i class="bi bi-file-ruled"></i>
+                    <span>Logs</span>
+                </a>
             </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
 
         </ul>
         <!-- End of Sidebar -->
@@ -588,7 +621,8 @@ if ($totalSeconds < 60) {
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow"
+                    style="background-color: rgb(28,35,47);">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <form class="form-inline">
@@ -604,7 +638,7 @@ if ($totalSeconds < 60) {
                             <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
                                 aria-label="Search" aria-describedby="basic-addon2">
                             <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
+                                <button class="btn btn-secondary" type="button">
                                     <i class="fas fa-search fa-sm"></i>
                                 </button>
                             </div>
@@ -674,13 +708,13 @@ if ($totalSeconds < 60) {
                     <h1 class="h3 mb-2 text-gray-800">Reports</h1>
                     <div class="row align-items-center mb-3">
                         <div class="col-auto">
-                            <a href="./overallTest.php" class="btn btn-primary">Overall Reports</a>
+                            <a href="./overallTest.php" class="btn btn-secondary">Overall Reports</a>
                         </div>
                         <div class="col-auto">
-                            <a href="./individualTest.php" class="btn btn-primary active">Individual Reports</a>
+                            <a href="./individualTest.php" class="btn btn-secondary active">Individual Reports</a>
                         </div>
                         <div class="col-auto">
-                            <a href="./criticalChart.php" class="btn btn-primary">Critical Pulse Rate Reports</a>
+                            <a href="./criticalChart.php" class="btn btn-secondary">Critical Pulse Rate Reports</a>
                         </div>
                         <div class="col-auto">
                             <div class="dropdown">

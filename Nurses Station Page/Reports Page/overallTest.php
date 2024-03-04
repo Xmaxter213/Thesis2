@@ -409,7 +409,7 @@ if ($result2->num_rows > 0) {
             <li class="nav-item active">
                 <a onclick="showSnackbar('redirect to patients list page'); showBubbleAnimation(event);"
                     class="nav-link" href="./overallTest.php">
-                    <i class="bi bi-clipboard2-data"></i>
+                    <i class="fa-solid fa-chart-line"></i>
                     <span>Reports</span>
                 </a>
             </li>
@@ -419,7 +419,7 @@ if ($result2->num_rows > 0) {
             <li class="nav-item">
                 <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);" class="nav-link"
                     href="../Logs/Logs.php">
-                    <i class="bi bi-clipboard2-data"></i>
+                    <i class="bi bi-file-ruled"></i>
                     <span>Logs</span>
                 </a>
             </li>

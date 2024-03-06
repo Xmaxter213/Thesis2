@@ -299,51 +299,48 @@
 					            <table class="table table-bordered table-sortable" id="dataTable" width="100%" cellspacing="0">
 					                <thead>
 					                    <tr>
-					                        <th>User</th>
-					                        <th>Action</th>
-					                        <th>Date_Time</th>
+					                        <th>User <input type="text" class="search-input" placeholder="User"></th>
+					                        <th>Action <input type="text" class="search-input" placeholder="Action"></th>
+					                        <th>Date_Time <input type="text" class="search-input" placeholder="Date & Time"></th>
 					                    </tr>
 					                </thead>
 					                <tbody>
 					                    <?php
 
                                         $count = 0;
-                                        $sql = "SELECT * FROM NurseStationLogs";
+                                        $sql = "SELECT * FROM NurseStationLogs ORDER BY ID DESC";
                                         $result = mysqli_query($con, $sql);
 
-                                        $results_per_page = 10;
-                                        $number_of_results = mysqli_num_rows($result);
+                                        //This is for pagination
+                                        $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 200;
+                                        $page = isset($_GET['page']) ? $_GET['page'] : 1;
+                                        $start = ($page - 1) * $limit;
+                                        $result = $con->query("SELECT * FROM NurseStationLogs ORDER BY ID DESC LIMIT $start, $limit");
+                                        $logs = $result->fetch_all(MYSQLI_ASSOC);
 
-                                        $number_of_pages = ceil($number_of_results / $results_per_page);
+                                        $result1 = $con->query("SELECT count(ID) AS ID FROM NurseStationLogs");
+                                        $count2 = $result1->fetch_all(MYSQLI_ASSOC);
+                                        $total = $count2[0]['ID'];
+                                        $pages = ceil( $total / $limit );
 
-                                        if (!isset($_GET['page'])) {
-                                            $page = 1;
-                                        } else {
-                                            $page = $_GET['page'];
-                                        }
-                                        $this_page_first_result = ($page - 1) * $results_per_page;
-
-                                        // retrieve selected results from database and display them on page
-                                        $sql = 'SELECT * FROM NurseStationLogs LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
-                                        $result = mysqli_query($con, $sql);
-
+                                        $Previous = $page - 1;
+                                        $Next = $page + 1;
 
 					                    $count = 0; // Initialize the count variable
-					                    while ($row = mysqli_fetch_array($result)) {
+					                    foreach($logs as $log) :
 					                        $count = $count + 1;
 
-					                        // Use the $count variable to determine odd/even rows
-					                        $row_class = ($count % 2 == 0) ? 'even' : 'odd';
+					                        // // Use the $count variable to determine odd/even rows
+					                        // $row_class = ($count % 2 == 0) ? 'even' : 'odd';
 					                    ?>
 
 					                        <tr class="<?php echo $row_class; ?>">
-					                            <td><?php echo $row['User']; ?></td>
-					                            <td><?php echo $row['Action'] ?></td>
-					                            <td><?php echo $row['Date_Time']; ?></td>
+					                            <td><?php echo $log['User']; ?></td>
+					                            <td><?php echo $log['Action'] ?></td>
+					                            <td><?php echo $log['Date_Time']; ?></td>
 					                        </tr>
-					                    <?php
-					                    }
-					                    ?>
+                                        <?php endforeach;
+                                                 ?>
 					                </tbody>
 					            </table>
 					        </div>
@@ -353,11 +350,36 @@
                     <div class="row">
                         <div class="col-md-12">
                             <ul class="pagination justify-content-center">
-                                <?php
-                                for ($page = 1; $page <= $number_of_pages; $page++) {
-                                    echo '<li class="page-item"><a class="page-link" href="Logs.php?page=' . $page . '">' . $page . '</a></li>';
-                                }
-                                ?>
+                                <!-- Pagination start -->
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination">
+                                        <li class="page-item">
+                                        <a class="page-link" href="Account List.php?page=<?= $Previous; ?>" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo; Previous</span>
+                                        </a>
+                                        </li>
+                                        <?php for($i = 1; $i<= $pages; $i++) : ?>
+                                            <li class="page-item"><a class="page-link" href="Logs.php?page=<?= $i; ?>"><?= $i; ?></a></li>
+                                        <?php endfor; ?>
+                                        <li class="page-item">
+                                        <a class="page-link" href="Account List.php?page=<?= $Next; ?>" aria-label="Next">
+                                            <span aria-hidden="true">Next &raquo;</span>
+                                        </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                                <div class="text-center" style="margin-top: 20px; " class="col-md-2">
+                                        <form method="post" action="#">
+                                                <select name="limit-records" id="limit-records">
+                                                    <option disabled="disabled" selected="selected">---Limit Records---</option>
+                                                    <?php foreach([10,100,500,1000,5000] as $limit): ?>
+                                                        <option <?php if( isset($_POST["limit-records"]) && $_POST["limit-records"] == $limit) echo "selected" ?> value="<?= $limit; ?>"><?= $limit; ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                        </form>
+                                    </div>
+                                </div>
+                                <!-- Pagination end -->
                             </ul>
                         </div>
                     </div>
@@ -421,6 +443,49 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+
+    <!-- Pagination -->
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $("#limit-records").change(function(){
+            // alert(this.value)
+            $('form').submit();
+        })
+    })
+    </script>
+
+    <script src="../Table Sorting/tablesort.js"></script>
+    <script>
+    //Script for searching
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".search-input").forEach((inputField) => {
+            const tableRows = inputField
+            .closest("table")
+            .querySelectorAll("tbody > tr");
+            const headerCell = inputField.closest("th");
+            const otherHeaderCells = headerCell.closest("tr").children;
+            const columnIndex = Array.from(otherHeaderCells).indexOf(headerCell);
+            const searchableCells = Array.from(tableRows).map(
+            (row) => row.querySelectorAll("td")[columnIndex]
+            );
+
+            inputField.addEventListener("input", () => {
+                const searchQuery = inputField.value.toLowerCase();
+
+                for (const tableCell of searchableCells) {
+                const row = tableCell.closest("tr");
+                const value = tableCell.textContent.toLowerCase().replace(",", "");
+
+                row.style.visibility = null;
+
+                    if (value.search(searchQuery) === -1) {
+                        row.style.visibility = "collapse";
+                    }
+                }
+            });
+        });
+    });
+    </script>
 </body>
 
 </html>

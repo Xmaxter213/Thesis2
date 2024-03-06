@@ -882,7 +882,7 @@ if (isset($_POST['edit'])) {
                                                                             <br>
 
                                                                             <!-- Isa lang may required kasi same name naman sila -->
-                                                                            <input type="radio" name="referReason" id="referReason1"  value="Refer order given by doctor" required >
+                                                                            <input type="radio" name="referReason" id="referReason1"  value="Order of doctor" required onchange="getValueRefer(this, <?php echo $patient['patient_ID'] ?>)">
                                                                             <label for="deleteReason1">Doctor's orders</label> <br>
 
                                                                             <!-- Iba name cuz input field need -->
@@ -892,7 +892,7 @@ if (isset($_POST['edit'])) {
                                                                             <div id="reasonForReferInputField<?= $patient['patient_ID'] ?>" style="display:none;">
 
                                                                             <!-- wtf bat iba yung gumagana ?= pero ?php hindi sa code sa baba :/ -->
-                                                                            <textarea rows="4" cols="50" type="text" value="" name="reasonForRefer<?= $patient['patient_ID'] ?>" id="reasonForrefer<?= $patient['patient_ID'] ?>" onchange="getValueRefer(this, <?php echo $patient['patient_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for refer" title="Must only contain letters & numbers"></textarea>    
+                                                                            <textarea rows="4" cols="50" type="text" value="" name="reasonForRefer<?= $patient['patient_ID'] ?>" id="reasonForRefer<?= $patient['patient_ID'] ?>" onchange="getValueRefer(this, <?php echo $patient['patient_ID'] ?>)" pattern="\S(.*\S)?[A-Za-z0-9]+" class="form-control" placeholder="Enter reason for refer" title="Must only contain letters & numbers"></textarea>    
                                                                     </div>
                                                                     <div class="modal-footer">
                                                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -1246,9 +1246,9 @@ if (isset($_POST['edit'])) {
                                             if(x.value == 'Other'){
                                                 document.getElementById("reasonForReferInputField" + ID).style.display = 'block'; // you need a identifier for changes
                                                 document.getElementById("reasonForRefer" + ID).value = ""; // you need a identifier for changes
-                                            } else if(x.value == "Refer order given by doctor"){
+                                            } else if(x.value == "Order of doctor"){
                                                 document.getElementById("reasonForReferInputField" + ID).style.display = 'none';  // you need a identifier for changes
-                                                document.getElementById("reasonForRefer" + ID).value = "Doctor's order";
+                                                document.getElementById("reasonForRefer" + ID).value = "Order of doctor";
                                             }
                                             
                                             // Store the reason in local storage
@@ -1258,7 +1258,7 @@ if (isset($_POST['edit'])) {
                                             // // alert(document.getElementById("reasonForDeletion" + ID).id); //Checks if tamang nurse ID yung radio buttons
 
                                             // var str,
-                                            // element = document.getElementById("reasonForDischarge" + ID);
+                                            // element = document.getElementById("reasonForRefer" + ID);
                                             // if (element != null) {
                                             //     str = element.value;
                                             //     alert("WORKS: " + str);

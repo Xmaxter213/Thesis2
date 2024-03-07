@@ -14,7 +14,7 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
     }
 
     $element = "
-    <div class=\"col-lg-4 my-3\">
+    <div class=\"col-lg-4\" style=\" max-width: 25rem \">
     <div class=\"card px-0\" style=\"color: black; background: $cardClasses\">
         <img src=\"./Images/room.jpg\" class=\"card-img-top\" alt=\"...\">
         <div class=\"card-body\">
@@ -31,13 +31,47 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
             </form>
             <br>
             $changeStatusButton
+
             <!-- Change Status Modal -->
                 <div class=\"modal fade\" tabindex=\"-1\" id=\"changeStatusModal-{$patient_ID}\" role=\"dialog\" aria-labelledby=\"changeStatusModalLabel-{$patient_ID}\" aria-hidden=\"true\">
-                    <!-- Modal content -->
+                    <div class=\"modal-dialog\" role=\"document\">
+                        <div class=\"modal-content\">
+                            <div class=\"modal-header\">
+                                <h5 class=\"modal-title\" id=\"changeStatusModalLabel-{$patient_ID}\">Change Status</h5>
+                                <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">
+                                    <span aria-hidden=\"true\">&times;</span>
+                                </button>
+                            </div>
+                            <div class=\"modal-body\">
+                                <p>Change status to 'On the way'?</p>
+                            </div>
+                            <div class=\"modal-footer\">
+                                <button type=\"button\" class=\"btn btn-secondary\" data-dismiss=\"modal\">No</button>
+                                <button type=\"button\" class=\"btn btn-primary\" onclick=\"changeStatus('$patient_ID')\">Yes</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <!-- Submit Status Modal -->
                 <div class=\"modal fade\" tabindex=\"-1\" id=\"submitAssistanceModal-{$patient_ID}\" role=\"dialog\" aria-labelledby=\"changeStatusModalLabel-{$patient_ID}\" aria-hidden=\"true\">
-                    <!-- Modal content -->
+                    <div class=\"modal-dialog\" role=\"document\">
+                        <div class=\"modal-content\">
+                            <div class=\"modal-header\">
+                                <h5 class=\"modal-title\" id=\"changeStatusModalLabel-{$patient_ID}\">Change Status</h5>
+                                <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">
+                                    <span aria-hidden=\"true\">&times;</span>
+                                </button>
+                            </div>
+                            <div class=\"modal-body\">
+                                <p>Finished attending patient?</p>
+                            </div>
+                            <div class=\"modal-footer\">
+                                <button type=\"button\" class=\"btn btn-secondary\" data-dismiss=\"modal\">No</button>
+                                <button type=\"button\" class=\"btn btn-primary\" onclick=\"confirmAssistanceSubmission('$patient_ID')\">Yes</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
         </div>
     </div>

@@ -30,6 +30,8 @@ if (isset($_GET["devID"]) && isset($_GET["assistance"]) && isset($_GET["bpm"]) &
         $sensor_type = 'BATTERY';
     }
 
+    $assiststatus = 'Unassigned';
+
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -75,6 +77,29 @@ if (isset($_GET["devID"]) && isset($_GET["assistance"]) && isset($_GET["bpm"]) &
 
         if ($insertStmt->execute()) {
             echo "New record created successfully";
+
+            // Check if record exists in patient_List before updating
+            $patientcheckExistenceSql = "SELECT COUNT(*) FROM patient_List WHERE gloves_ID = ? AND assistance_Status IS NULL";
+            $patientcheckExistenceStmt = $conn->prepare($patientcheckExistenceSql);
+            $patientcheckExistenceStmt->bind_param("s", $ID);
+            $patientcheckExistenceStmt->execute();
+            $patientcheckExistenceStmt->bind_result($countpatient);
+            $patientcheckExistenceStmt->fetch();
+            $patientcheckExistenceStmt->close();
+
+            if ($countpatient > 0) {
+                $patientupdateSql = "UPDATE patient_List SET assistance_Status=? WHERE gloves_ID=? AND activated = 1 LIMIT 1";
+                $patientupdateStmt = $conn->prepare($patientupdateSql);
+                $patientupdateStmt->bind_param("sd", $assiststatus, $ID);
+                if ($patientupdateStmt->execute()) {
+                    echo "Patient record updated successfully";
+                } else {
+                    // Log the error instead of echoing directly
+                    error_log("Error updating patient record: " . $conn->error);
+                    echo "Error updating patient record";
+                }
+                $patientupdateStmt->close();
+            }
         } else {
             // Log the error instead of echoing directly
             error_log("Error creating new record: " . $insertStmt->error);

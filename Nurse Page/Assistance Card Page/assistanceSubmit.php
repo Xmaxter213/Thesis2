@@ -6,7 +6,7 @@ $nurseID = $_SESSION['idNUM'] ?? null;
 $patientID = $_POST['patientID'] ?? null;
 $remarks = $_POST['remarks'] ?? null;
 $currentDateTime = date('Y-m-d H:i:s');
-$assist_status = NULL;
+date_default_timezone_set('Asia/Manila');
 
 // Update arduino_Reports table
 $stmt_reports = $con->prepare("UPDATE arduino_Reports 
@@ -20,9 +20,9 @@ if ($stmt_reports) {
 }
 
 // Update patient_List table
-$stmt_patient = $con->prepare("UPDATE patient_List SET assistance_Status = ? WHERE patient_ID = ?");
+$stmt_patient = $con->prepare("UPDATE patient_List SET assistance_Status = NULL WHERE patient_ID = ?");
 if ($stmt_patient) {
-    $stmt_patient->bind_param("si", $assist_status, $patientID);
+    $stmt_patient->bind_param("i", $patientID);
     $stmt_patient->execute();
     $stmt_patient->close();
 }

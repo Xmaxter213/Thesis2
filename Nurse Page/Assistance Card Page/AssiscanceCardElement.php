@@ -7,81 +7,41 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
     $btnClasses = $assistance_Status == "Unassigned" ? "btn-danger" : "btn-primary";
 
     // Check if admission status is "On the way"
-    $changeStatusButton = "";
+    $changeStatusButton = "<button type=\"button\" href=\"#\" class=\"btn btn-secondary\" disabled>Change Status</button>";
+
     if ($assistance_Status != "On The Way") {
         $changeStatusButton = "<button type=\"button\" href=\"#\" class=\"btn btn-info\" data-toggle=\"modal\" data-target=\"#changeStatusModal-{$patient_ID}\">Change Status</button>";
     }
 
     $element = "
-    <div class=\"col-lg-4 col-md-6 col-sm-12 mb-4\"> <!-- Added mb-4 for bottom margin -->
-        <div class=\"card px-0\" style=\"width: 100%; color: black; background: $cardClasses; margin-bottom: 20px;\"> <!-- Adjusted width and added margin-bottom -->
-            <img src=\"./Images/room.jpg\" class=\"card-img-top\" alt=\"...\">
-            <div class=\"card-body\">
-                <h5 class=\"font-weight-bold\">Patient Name: <span class=\"font-weight-normal\">$patient_Name</span> <span class=\"badge $bgClasses text-white\">$assistance_Status</span></h5>
-                <h5 class=\"font-weight-bold\">Room #: $room_Number</h5>
-                <form id=\"assistanceForm-$patient_ID\" action=\"javascript:void(0);\">
-                    <div class=\"d-flex align-items-center justify-content-center\">
-                        <h5 class=\"me-2 mb-0\">Remarks: </h5>
-                        <div class=\"input-group\">
-                            <input type=\"text\" class=\"form-control\" id=\"remarksInput-$patient_ID\" placeholder=\"Enter Remarks\" aria-describedby=\"button-addon\" required>
-                            <button class=\"btn $btnClasses\" type=\"submit\" id=\"button-addon\" onclick=\"submitAssistanceForm('$patient_ID')\">Submit</button>
-                        </div>
+    <div class=\"col-lg-4 my-3\">
+    <div class=\"card px-0\" style=\"color: black; background: $cardClasses\">
+        <img src=\"./Images/room.jpg\" class=\"card-img-top\" alt=\"...\">
+        <div class=\"card-body\">
+            <h5 class=\"font-weight-bold\">Patient Name: <span class=\"font-weight-normal\">$patient_Name</span> <span class=\"badge $bgClasses text-white\">$assistance_Status</span></h5>
+            <h5 class=\"font-weight-bold\">Room #: $room_Number</h5>
+            <form action=\"./assistanceCard.php\">
+                <div class=\"d-flex align-items-center justify-content-center\">
+                    <h5 class=\"me-2 mb-0\">Remarks: </h5>
+                    <div class=\"input-group\">
+                        <input type=\"text\" class=\"form-control\" placeholder=\"Enter Remarks\" aria-describedby=\"button-addon\" required>
+                        <button class=\"btn $btnClasses\" type=\"submit\" id=\"button-addon\">Submit</button>
                     </div>
-                </form>
-                <br>
-                <div class=\"d-flex justify-content-between\">
-                    $changeStatusButton
                 </div>
-
-                <!-- View Details Modal -->
-                <div class=\"modal fade\" tabindex=\"-1\" id=\"view-{$patient_ID}\" role=\"dialog\" aria-labelledby=\"viewModalLabel\" aria-hidden=\"true\">
-                    <!-- Modal content for viewing patient details -->
-                </div>
-
-                <!-- Change Status Modal -->
+            </form>
+            <br>
+            $changeStatusButton
+            <!-- Change Status Modal -->
                 <div class=\"modal fade\" tabindex=\"-1\" id=\"changeStatusModal-{$patient_ID}\" role=\"dialog\" aria-labelledby=\"changeStatusModalLabel-{$patient_ID}\" aria-hidden=\"true\">
-                    <div class=\"modal-dialog\" role=\"document\">
-                        <div class=\"modal-content\">
-                            <div class=\"modal-header\">
-                                <h5 class=\"modal-title\" id=\"changeStatusModalLabel-{$patient_ID}\">Change Status</h5>
-                                <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">
-                                    <span aria-hidden=\"true\">&times;</span>
-                                </button>
-                            </div>
-                            <div class=\"modal-body\">
-                                <p>Change status to 'On the way'?</p>
-                            </div>
-                            <div class=\"modal-footer\">
-                                <button type=\"button\" class=\"btn btn-secondary\" data-dismiss=\"modal\">No</button>
-                                <button type=\"button\" class=\"btn btn-primary\" onclick=\"changeStatus('$patient_ID')\">Yes</button>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Modal content -->
                 </div>
-
                 <!-- Submit Status Modal -->
                 <div class=\"modal fade\" tabindex=\"-1\" id=\"submitAssistanceModal-{$patient_ID}\" role=\"dialog\" aria-labelledby=\"changeStatusModalLabel-{$patient_ID}\" aria-hidden=\"true\">
-                    <div class=\"modal-dialog\" role=\"document\">
-                        <div class=\"modal-content\">
-                            <div class=\"modal-header\">
-                                <h5 class=\"modal-title\" id=\"changeStatusModalLabel-{$patient_ID}\">Change Status</h5>
-                                <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">
-                                    <span aria-hidden=\"true\">&times;</span>
-                                </button>
-                            </div>
-                            <div class=\"modal-body\">
-                                <p>Finished attending patient?</p>
-                            </div>
-                            <div class=\"modal-footer\">
-                                <button type=\"button\" class=\"btn btn-secondary\" data-dismiss=\"modal\">No</button>
-                                <button type=\"button\" class=\"btn btn-primary\" onclick=\"confirmAssistanceSubmission('$patient_ID')\">Yes</button>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Modal content -->
                 </div>
-            </div>
         </div>
     </div>
+</div>
     ";
 
     echo $element;

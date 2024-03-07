@@ -6,6 +6,7 @@ $nurseID = $_SESSION['idNUM'] ?? null;
 
 if(isset($_POST['patientID'])) {
     $patientID = $_POST['patientID'];
+    date_default_timezone_set('Asia/Manila');
 
     $updatedStatus = 'On The Way';
     $stmt_patient = $con->prepare("UPDATE patient_List SET assistance_Status = ? WHERE patient_ID = ?");

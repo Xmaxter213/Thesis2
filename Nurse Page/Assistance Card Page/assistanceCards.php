@@ -14,6 +14,8 @@ $name = isset($_SESSION['idNUM']) ? $_SESSION['idNUM'] : null;
 $sql = "SELECT 
             staff_List.nurse_ID, 
             staff_List.contact_no, 
+            staff_List.assigned_Ward,
+            patient_List.assigned_Ward,
             patient_List.patient_ID, 
             patient_List.patient_Name, 
             patient_List.room_Number, 
@@ -28,9 +30,9 @@ $sql = "SELECT
             staff_List ON patient_List.nurse_ID = staff_List.nurse_ID 
         WHERE 
             patient_List.activated = 1 
-            AND patient_List.nurse_ID = '$name'
+            AND staff_List.nurse_ID = '$name'
             AND (patient_List.assistance_Status = 'On the way' OR patient_List.assistance_Status = 'Unassigned')
-            AND staff_List.nurse_ID = '$name';";
+            AND patient_List.assigned_Ward = staff_List.assigned_Ward;";
 $result = $con->query($sql);
 if ($result->num_rows > 0) {
     echo "";

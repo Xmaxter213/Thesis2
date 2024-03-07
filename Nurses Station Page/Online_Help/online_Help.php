@@ -245,8 +245,7 @@
                             width="100%" height="225">
                         <div class="card-body">
                             <h4>Glove Guide</h4>
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-                                additional content. This content is a little bit longer.</p>
+                            <p class="card-text">A guide to show how to use the glove step by step</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group">
                                     <a href="./glove_Guide.php" class="btn btn-sm btn-outline-secondary">View Guide</a>
@@ -266,8 +265,7 @@
                         </svg>
                         <div class="card-body">
                             <h4>Login</h4>
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-                                additional content. This content is a little bit longer.</p>
+                            <p class="card-text">This tackles down the step by step guide for logging in to the web application, portal page login, password recovery and many other things.</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group">
                                     <a href="./loginGuide.php" class="btn btn-sm btn-outline-secondary">View Guide</a>

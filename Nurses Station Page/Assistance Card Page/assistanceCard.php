@@ -14,7 +14,7 @@ if (isset($_GET['logout'])) {
     $currentDateTime = date("Y-m-d H:i:s");
 
     // Insert into superAdminLogs
-    $sqlAddLogs = "INSERT INTO NurseStationLogs (hospital_ID, User, Action, Date_Time) VALUES ('$hospitalID', '$userName', 'Logout', '$currentDateTime')";
+    $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Logout', '$currentDateTime', '$hospital_ID')";
     $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
     if ($query_run_logs) {
@@ -321,28 +321,60 @@ $verpass = $_SESSION['verifyPass'];
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
-
                 <?php
 
+                $statusQuery = "SELECT DISTINCT `assistance_Type` FROM `arduino_Reports`";
+
+                $immediateAssistance = [];
+                $adlAssistance = [];
+
+                $statusResult = $con->query($statusQuery);
+
+                if ($statusResult->num_rows > 0) {
+                    while ($row = $statusResult->fetch_assoc()) {
+                        $assistance_Type = $row["assistance_Type"];
+
+                        // Assign the row data to the corresponding array based on the assistance status
+                        if ($assistance_Type == 'IMMEDIATE') {
+                            $immediateAssistance[] = $row;
+                        } elseif ($assistance_Type == 'ADL') {
+                            $adlAssistance[] = $row;
+                        }
+                    }
+                }
+                // Output the cards in the desired order
+                // IMMEDIATE Assistance
+                echo '<div class="px-4" style="color: black;">
+                        <h1 class="font-weight-bold">Immediate Assistance</h1>
+                        <br>
+                        <div id="refresh" class="d-flex flex-wrap">';
+                foreach ($immediateAssistance as $row) {
+                    require_once("./assistanceCards.php"); // File for generating IMMEDIATE assistance card
+                }
+                echo '</div>
+                      <br>';
+
+                // ADL Assistance
+                echo '<h1 class="font-weight-bold">ADL Assistance</h1>
+                      <br>
+                      <div id="refresh" class="d-flex flex-wrap">';
+                foreach ($adlAssistance as $row) {
+                    require_once("./assistanceCardsADL.php"); // File for generating ADL assistance card
+                }
+                echo '</div>
+                      <br>';
+
                 ?>
-                <div class="px-4" style="color: black;">
+                <!-- <div class="px-4" style="color: black;">
                     <h1 class="font-weight-bold">Immediate Assistance</h1>
                     <br>
                     <div id="refresh" class="d-flex flex-wrap">
-                        <?php
-                        require_once("assistanceCards.php")
-                            ?>
+                        file--
                     </div>
                     <br>
                     <h1 class="font-weight-bold">ADL Assistance</h1>
                     <br>
-                    <!-- TODO -->
-                    <!-- Create a condition here to look for the ADL cards -->
-                    <!-- <h1 class="font-weight-bold">Completed</h1> -->
-                    <br>
-                    <!-- TODO -->
-                    <!-- Create a condition here to look for the Completed cards -->
-                </div>
+                </div> -->
             </div>
             <!-- End of Main Content -->
 
@@ -469,11 +501,6 @@ $verpass = $_SESSION['verifyPass'];
     <!-- Page level custom scripts -->
     <script src="js/demo/datatables-demo.js"></script>
 
-    <!-- Use a button to open the snackbar -->
-    <button onclick="showSnackbar('added')">Show Snackbar</button>
-
-    <!-- The actual snackbar -->
-    <div id="snackbar">Some text some message..</div>
 
     <!--GARBAGE -->
     <script>
@@ -638,7 +665,9 @@ $verpass = $_SESSION['verifyPass'];
             var snackbar = $("#snackbar");
             snackbar.text(message);
             snackbar.addClass("show");
-            setTimeout(function () { snackbar.removeClass("show"); }, 3000);
+            setTimeout(function () {
+                snackbar.removeClass("show");
+            }, 3000);
         }
 
         $(document).ready(function () {
@@ -666,7 +695,9 @@ $verpass = $_SESSION['verifyPass'];
                 $.ajax({
                     type: "POST",
                     url: "change_First_Pass.php",
-                    data: { password: password },
+                    data: {
+                        password: password
+                    },
                     success: function (response) {
                         console.log("AJAX request successful:", response);
                         $('#setPasswordModal').modal('hide');

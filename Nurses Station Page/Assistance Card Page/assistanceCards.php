@@ -43,23 +43,21 @@ $sql = "WITH PatientArduinoData AS (
         MAX(patient_List.gloves_ID) AS patient_gloves_ID, 
         MAX(patient_List.activated) AS activated, 
         MAX(patient_List.delete_at) AS delete_at,  
-        MAX(arduino_Device_List.device_ID) AS patient_device_ID, 
-        MAX(arduino_Device_List.pulse_Rate) AS pulse_Rate, 
-        MAX(arduino_Device_List.battery_percent) AS battery_percent, 
+        MAX(arduino_Reports.device_ID) AS patient_device_ID, 
+        MAX(arduino_Reports.pulse_Rate) AS pulse_Rate, 
+        MAX(arduino_Reports.battery_percent) AS battery_percent, 
         MAX(arduino_Reports.date_Called) AS date_called,
         staff_List.contact_No
     FROM 
         patient_List 
     INNER JOIN 
-        arduino_Device_List ON patient_List.gloves_ID = arduino_Device_List.device_ID
-    INNER JOIN
         arduino_Reports ON patient_List.gloves_ID = arduino_Reports.device_ID
     LEFT JOIN
         staff_List
     ON
         patient_List.nurse_ID = staff_List.nurse_ID 
     WHERE 
-        patient_List.admission_Status = 'Admitted' AND (patient_List.assistance_Status = 'On the way' OR assistance_Status = 'Unassigned' OR assistance_Status = 'Completed')
+        patient_List.admission_Status = 'Admitted'
     GROUP BY
         patient_List.patient_ID
 ),
@@ -109,6 +107,8 @@ SELECT
     PAD.battery_percent,
     PAD.date_called,
     PAD.contact_No,
+    RWDA.assistance_Type AS RWDA_assistance_Type,
+    RWDB.assistance_Type AS RWDB_assistance_Type,
     MAX(ARD.total_calls) AS total_calls,
     MAX(ARD.ADL_calls) AS ADL_calls,
     MAX(ARD.IMMEDIATE_calls) AS IMMEDIATE_calls,
@@ -124,6 +124,8 @@ LEFT JOIN
     ReportsWithData RWDA ON PAD.patient_device_ID = RWDA.device_ID AND RWDA.assistance_Type = 'ADL'
 LEFT JOIN
     ReportsWithData RWDB ON PAD.patient_device_ID = RWDB.device_ID AND RWDB.assistance_Type = 'IMMEDIATE'
+WHERE 
+    RWDB.assistance_Type = 'IMMEDIATE'
 GROUP BY
     PAD.patient_ID,
     PAD.patient_Name,
@@ -131,6 +133,7 @@ GROUP BY
     PAD.birth_Date,
     PAD.reason_Admission,
     PAD.admission_Status,
+    PAD.nurse_ID,
     PAD.assistance_Status,
     PAD.patient_gloves_ID,
     PAD.activated,
@@ -139,7 +142,9 @@ GROUP BY
     PAD.pulse_Rate,
     PAD.battery_percent,
     PAD.date_called,
-    PAD.contact_No";
+    PAD.contact_No,
+    RWDA.assistance_Type,
+    RWDB.assistance_Type";
 
 $result = $con->query($sql);
 if ($result->num_rows > 0) {

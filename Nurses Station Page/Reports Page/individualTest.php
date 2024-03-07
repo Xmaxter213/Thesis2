@@ -43,8 +43,9 @@ if (isset($_POST['search'])) {
 
     $individualPatients = array();
     $adlCount = array();
-    $pulse_Rate = array();
     $battery_Percent = array();
+    $pulse_Rate = array();
+    $oxygen = array();
 
     // For Response time
     $time_Response_Adl = array();
@@ -55,11 +56,10 @@ if (isset($_POST['search'])) {
     $time_Resolved_Adl = array();
     $time_Resolved_Immediate = array();
 
-
-    // AND patient_List.patient_Name LIKE '%$selected_patient_ID%'
+    // AND patient_List.patient_Name LIKE '$selected_patient_ID'
 
     $sql = "WITH PatientArduinoData AS (
-        SELECT 
+        SELECT
             patient_List.patient_ID, 
             MAX(patient_List.patient_Name) AS patient_Name, 
             MAX(patient_List.room_Number) AS room_Number, 
@@ -71,13 +71,16 @@ if (isset($_POST['search'])) {
             MAX(patient_List.gloves_ID) AS patient_gloves_ID, 
             MAX(patient_List.activated) AS activated, 
             MAX(patient_List.delete_at) AS delete_at,  
-            MAX(arduino_Reports.date_Called) AS date_called
+            MAX(arduino_Reports.date_Called) AS date_called,
+            (SELECT pulse_rate FROM arduino_Reports WHERE device_ID = patient_List.gloves_ID ORDER BY date_Called DESC LIMIT 1) AS pulse_Rate,
+            (SELECT oxygen_levels FROM arduino_Reports WHERE device_ID = patient_List.gloves_ID ORDER BY date_Called DESC LIMIT 1) AS oxygen_Levels,
+            (SELECT battery_percent FROM arduino_Reports WHERE device_ID = patient_List.gloves_ID ORDER BY date_Called DESC LIMIT 1) AS battery_Percent
         FROM 
             patient_List 
         INNER JOIN 
             arduino_Reports ON patient_List.gloves_ID = arduino_Reports.device_ID
         WHERE 
-            patient_List.admission_Status = 'Admitted' AND patient_List.patient_Name LIKE '$selected_patient_ID'
+            patient_List.admission_Status = 'Admitted' AND patient_List.patient_ID = $selected_patient_ID
         GROUP BY
             patient_List.patient_ID
     ),
@@ -122,6 +125,9 @@ if (isset($_POST['search'])) {
         PAD.patient_gloves_ID,
         PAD.activated,
         PAD.delete_at,
+        PAD.pulse_Rate,
+        PAD.oxygen_Levels,
+        PAD.battery_Percent,
         MAX(ARD.total_calls) AS total_calls,
         MAX(ARD.ADL_calls) AS ADL_calls,
         MAX(ARD.IMMEDIATE_calls) AS IMMEDIATE_calls,
@@ -149,7 +155,7 @@ if (isset($_POST['search'])) {
         PAD.patient_gloves_ID,
         PAD.activated,
         PAD.delete_at
-";
+    ";
 
     $result = mysqli_query($con, $sql);
 
@@ -157,14 +163,13 @@ if (isset($_POST['search'])) {
         while ($row = $result->fetch_assoc()) {
 
             $patientName = decryptthis($row["patient_Name"], $key);
-            // $patientID = $row["patient_ID"];
-            // echo '<a class="dropdown-item" href="#" data-value="' . $patientID . '">' . $patientName . '</a>';
 
             // Data Retrieval of Individual Reports Chart
             array_push($individualPatients, array("label" => $patientName, "y" => $row['IMMEDIATE_calls']));
             array_push($adlCount, array("label" => $patientName, "y" => $row['ADL_calls']));
-            array_push($battery_Percent, array("label" => $patientName, "y" => $row['battery_percent']));
+            array_push($battery_Percent, array("label" => $patientName, "y" => $row['battery_Percent']));
             array_push($pulse_Rate, array("label" => $patientName, "y" => $row['pulse_Rate']));
+            array_push($oxygen, array("label" => $patientName, "y" => $row['oxygen_Levels']));
 
             // Data Retrieval of Response Time $ Resolve Time Chart
             array_push($time_Response_Adl, array("label" => $patientName, "y" => $row['max_ADL_response_Time']));
@@ -237,7 +242,7 @@ if ($totalSeconds < 60) {
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Helping Hand - Tables</title>
+    <title>Individual Reports</title>
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -348,6 +353,18 @@ if ($totalSeconds < 60) {
                     name: "Pulse Rate",
                     color: "rgb(74,172,197)",
                     dataPoints: <?php echo json_encode($pulse_Rate, JSON_NUMERIC_CHECK); ?>
+                },
+                {
+                    type: "bar",
+                    showInLegend: true,
+                    indexLabel: "{y}",
+                    indexLabelPlacement: "inside",
+                    indexLabelFontColor: "#36454F",
+                    indexLabelFontSize: 16,
+                    indexLabelFontWeight: "bolder",
+                    name: "Oxygen Level",
+                    color: "rgb(247,150,71)",
+                    dataPoints: <?php echo json_encode($oxygen, JSON_NUMERIC_CHECK); ?>
                 },
                 ]
             });
@@ -531,6 +548,16 @@ if ($totalSeconds < 60) {
             background-color: rgba(255, 255, 255, 0.5);
             animation: bubbleAnimation 1s ease-out;
         }
+
+        .dropdown-menu .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .dropdown-menu .col {
+            flex: 1;
+            margin: 0 5px;
+        }
     </style>
     <!-- Bubble animation -->
     <script>
@@ -674,6 +701,14 @@ if ($totalSeconds < 60) {
 
 
                         <!-- Nav Item - User Information -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="../Online_Help/reports_Guide.php" target="_blank">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    Need Help?
+                                </span>
+                                <i class="bi bi-info-circle"></i>
+                            </a>
+                        </li>
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -682,7 +717,7 @@ if ($totalSeconds < 60) {
 
                                     ?>
                                 </span>
-                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg">
+                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg" style="filter: invert(1);">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -718,33 +753,37 @@ if ($totalSeconds < 60) {
                         </div>
                         <div class="col-auto">
                             <div class="dropdown">
-                                <button class="btn btn-outline-primary dropdown-toggle" type="button"
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
                                     id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
                                     aria-expanded="false">
                                     Search for Specific Patient
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <div class="input-group">
-                                        <form method="POST" action="">
+                                    <form id="searchForm" method="POST" action="">
+                                        <div class="input-group">
                                             <input type="text" class="form-control search-input"
-                                                placeholder="Search Patient" name="selected_patient_ID">
+                                                placeholder="Search Patient" name="selected_patient_ID"
+                                                id="searchInput">
                                             <div class="input-group-append">
-                                                <button type="submit" class="btn btn-outline-primary"
-                                                    name="search">Search</button>
-                                                <?php
-                                                if ($result2->num_rows > 0) {
-                                                    while ($row2 = $result2->fetch_assoc()) {
-                                                        $patientNames = decryptthis($row2["patient_Name"], $key);
-                                                        $patientID = $row2["patient_ID"];
-                                                        echo '<a class="dropdown-item" href="#" data-value="' . $patientID . '">' . $patientNames . '</a>';
-                                                    }
-                                                }
-                                                ?>
+                                                <button type="submit" class="btn btn-outline-primary" name="search"
+                                                    id="searchButton">Search</button>
                                             </div>
-                                        </form>
-                                    </div>
-                                    <div class="dropdown-divider"></div>
+                                        </div>
+                                        <div class="dropdown-divider"></div>
+                                        <div class="row">
+                                            <?php
+                                            if ($result2->num_rows > 0) {
+                                                while ($row2 = $result2->fetch_assoc()) {
+                                                    $patientNames = decryptthis($row2["patient_Name"], $key);
+                                                    $patientID = $row2["patient_ID"];
+                                                    echo '<div class="col"><a class="dropdown-item" href="#" data-value="' . $patientID . '">' . $patientNames . '</a></div>';
+                                                }
+                                            }
+                                            ?>
+                                        </div>
+                                    </form>
                                 </div>
+
                             </div>
                         </div>
 
@@ -903,6 +942,17 @@ if ($totalSeconds < 60) {
             });
         });
     </script>
+
+    <script>
+        // Javascript for enter key
+        document.getElementById("searchInput").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById("searchButton").click();
+            }
+        });
+    </script>
+
     <script>
         // JavaScript for searching dropdown items
         $(document).ready(function () {

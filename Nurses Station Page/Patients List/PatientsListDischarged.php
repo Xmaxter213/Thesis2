@@ -389,12 +389,20 @@ if (isset($_POST['edit'])) {
                         </li>
 
                         <!-- Nav Item - User Information -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="../Online_Help/patient_List_Guide.php" target="_blank">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    Need Help?
+                                </span>
+                                <i class="bi bi-info-circle"></i>
+                            </a>
+                        </li>
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small"> <?php
 
                                                                                             ?></span>
-                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg">
+                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg" style="filter: invert(1);">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">

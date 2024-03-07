@@ -97,7 +97,7 @@ $verpass = $_SESSION['verifyPass'];
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-gradient-primary topbar mb-4 static-top shadow">
+                <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow" style="background-color: rgb(28,35,47);">
 
 
                     <!-- Sidebar Toggle (Topbar) -->
@@ -113,8 +113,8 @@ $verpass = $_SESSION['verifyPass'];
                             <div class="col text-center">
                                 <div class="mx-auto">
                                     <div class="navbar-brand">
-                                        <i class="fas fa-laugh-wink"></i>
-                                        <span class="fa-regular fa-hand ml-2">Helping Hand</span>
+                                        <i class="fas fa-laugh-wink" style="filter: invert(1);"></i>
+                                        <span class="fa-regular fa-hand ml-2" style="filter: invert(1);">Helping Hand</span>
                                     </div>
                                 </div>
                             </div>
@@ -129,7 +129,7 @@ $verpass = $_SESSION['verifyPass'];
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small"> <?php ?></span>
-                                <img class="img-profile" src="./Images/logout.svg">
+                                <img class="img-profile" src="./Images/logout.svg" style="filter: invert(1);">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">

@@ -134,7 +134,7 @@ if ($result->num_rows > 0) {
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Helping Hand - Tables</title>
+    <title>Critical Pulse Rate Reports</title>
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -415,6 +415,14 @@ if ($result->num_rows > 0) {
 
 
                         <!-- Nav Item - User Information -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="../Online_Help/reports_Guide.php">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    Need Help?
+                                </span>
+                                <i class="bi bi-info-circle"></i>
+                            </a>
+                        </li>
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -423,7 +431,7 @@ if ($result->num_rows > 0) {
 
                                     ?>
                                 </span>
-                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg">
+                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg" style="filter: invert(1);">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"

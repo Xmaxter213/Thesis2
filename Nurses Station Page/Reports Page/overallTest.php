@@ -39,147 +39,113 @@ if (!isset($_SESSION['userID'])) {
 
 //This is to make sure that deactivated accounts that are due for deletion are deleted
 
-//This code runs after the NursesList.php page i think
+// $patient_ID = $_SESSION['idNUM'];
 
-// $sql = "SELECT * FROM arduino_Report";
-// $result = mysqli_query($con, $sql);
+// // Prepare the SELECT query using mysqli
+// $query = "SELECT assigned_Ward FROM patient_List WHERE ";
+// $getPatientAssignedWard = $con->prepare($query);
+// $getPatientAssignedWard->bind_param("i", $patient_ID);
 
-// if ($result->num_rows > 0) {
-//     while ($row = $result->fetch_assoc()) {
-//         $dataPoints = array(
-//             array("label" => "Total Assistance", "y" => $row['number_of_Assistance']),
-//             array("label" => "Assistance Given", "y" => $row['assistance_Given']),
-//             array("label" => "Immediate Count", "y" => $row['immediate_Count']),
-//             array("label" => "ADL Count", "y" => $row['adl_Count']),
-//         );
-//     }
-// }
+// // Execute the SELECT query
+// $database = $getPatientAssignedWard->execute();
 
-$immediate_Counts = 0;
-$ADL_Counts = 0;
-$total_Counts = 0;
+// // Store and fetch the result
+// $getPatientAssignedWard->store_result();
+// $getPatientAssignedWard->bind_result($patient_Assigned_Ward);
+// $getPatientAssignedWard->fetch();
 
-// Query for immediate sum & ADL sum
-$sql = "SELECT SUM(CASE WHEN assistance_Type = 'IMMEDIATE' THEN 1 ELSE 0 END) AS immediate_count, 
-SUM(CASE WHEN assistance_Type = 'ADL' THEN 1 ELSE 0 END) AS adl_count FROM arduino_Reports";
+// // Close the statement
+// $getPatientAssignedWard->close();
 
-$result = mysqli_query($con, $sql);
+if (isset($_POST["searchward"])) {
 
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
+    $selectedWard = $_POST["ward"];
 
-        $ADL_Counts = $row["adl_count"];
-        $immediate_Counts = $row["immediate_count"];
+    $immediate_Counts = 0;
+    $ADL_Counts = 0;
+    $firstProcessedRequests = false;
+
+    $graveyardCounts = 0;
+    $nightCounts = 0;
+    $morningCounts = 0;
+    $firstProcessedShifts = false;
+
+    $timeArray = array();
+    $timeArray2 = array();
+
+    // Query for overall response rates
+    $sql = "WITH ward_list AS (
+        SELECT DISTINCT assigned_Ward
+        FROM patient_List
+    ),
+    arduino_sums AS (
+        SELECT 
+            SUM(CASE WHEN assistance_Type = 'IMMEDIATE' THEN 1 ELSE 0 END) AS immediate_count,
+            SUM(CASE WHEN assistance_Type = 'ADL' THEN 1 ELSE 0 END) AS adl_count
+        FROM 
+            arduino_Reports
+    ),
+    shift_sums AS (
+        SELECT 
+            SUM(CASE WHEN `shift_Schedule` = 'Graveyard Shift' THEN 1 ELSE 0 END) AS `Total_Graveyard_Shift_Count`,
+            SUM(CASE WHEN `shift_Schedule` = 'Morning Shift' THEN 1 ELSE 0 END) AS `Total_Morning_Shift_Count`,
+            SUM(CASE WHEN `shift_Schedule` = 'Night Shift' THEN 1 ELSE 0 END) AS `Total_Night_Shift_Count`
+        FROM 
+            staff_List
+    )
+    SELECT 
+        pl.`patient_ID`, 
+        pl.`patient_Name`,
+        SUM(CASE WHEN ar.`assistance_Type` = 'ADL' THEN TIMESTAMPDIFF(SECOND, ar.`date_Called`, ar.`Nurse_Assigned_Status`) ELSE 0 END) AS `Total_Time_ADL`,
+        SUM(CASE WHEN ar.`assistance_Type` = 'IMMEDIATE' THEN TIMESTAMPDIFF(SECOND, ar.`date_Called`, ar.`Nurse_Assigned_Status`) ELSE 0 END) AS `Total_Time_IMMEDIATE`,
+        (SELECT immediate_count FROM arduino_sums) AS immediate_count,
+        (SELECT adl_count FROM arduino_sums) AS adl_count,
+        (SELECT Total_Graveyard_Shift_Count FROM shift_sums) AS Total_Graveyard_Shift_Count,
+        (SELECT Total_Morning_Shift_Count FROM shift_sums) AS Total_Morning_Shift_Count,
+        (SELECT Total_Night_Shift_Count FROM shift_sums) AS Total_Night_Shift_Count
+    FROM 
+        `arduino_Reports` AS ar
+    INNER JOIN 
+        `patient_List` AS pl ON ar.`patient_ID` = pl.`patient_ID`
+    INNER JOIN
+        ward_list ON pl.assigned_Ward = ward_list.assigned_Ward
+    WHERe pl.assigned_Ward = '$selectedWard'
+    GROUP BY
+        pl.`patient_ID`, 
+        pl.`patient_Name`;
+    ";
+
+    // Add WHERE clause to calculate for the $nurse_Assigned_Ward
+
+    $result = mysqli_query($con, $sql);
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+
+            // For the overall # of patient requests
+            if (!$firstProcessedRequests) {
+                $ADL_Counts = $row["adl_count"];
+                $immediate_Counts = $row["immediate_count"];
+                $firstProcessedRequests = true;
+            }
+            // For # of nurses on specific shift schedules
+            if (!$firstProcessedShifts) {
+                $graveyardCounts = $row["Total_Graveyard_Shift_Count"];
+                $morningCounts = $row["Total_Morning_Shift_Count"];
+                $nightCounts = $row["Total_Night_Shift_Count"];
+                $firstProcessedShifts = true;
+            }
+
+            $patientName = decryptthis($row['patient_Name'], $key);
+
+            array_push($timeArray, array("y" => $row['Total_Time_ADL'], "label" => $patientName));
+            array_push($timeArray2, array("y" => $row['Total_Time_IMMEDIATE'], "label" => $patientName));
+        }
     }
+
 }
 
-$timeArray = array();
-$timeArray2 = array();
+$ward_list_query = "SELECT DISTINCT assigned_Ward FROM patient_List";
 
-// Query for dummy data of overall response rates
-$sqlQuery2 = "SELECT 
-adl_data.patient_ID,
-adl_data.patient_Name,
-adl_data.admission_Status,
-adl_data.assistance_Status,
-adl_data.patient_gloves_ID,
-adl_data.activated,
-adl_data.delete_at,
-adl_data.patient_device_ID,
-adl_data.total_ADL_Time,
-immediate_data.total_Immediate_Time,
-CASE 
-    WHEN adl_data.total_ADL_Time IS NOT NULL THEN 'ADL'
-    ELSE NULL
-END AS adl_assistance_type,
-CASE 
-    WHEN immediate_data.total_Immediate_Time IS NOT NULL THEN 'IMMEDIATE'
-    ELSE NULL
-END AS immediate_assistance_type
-FROM 
-(SELECT 
-    patient_List.patient_ID, 
-    patient_List.patient_Name, 
-    patient_List.admission_Status, 
-    patient_List.assistance_Status, 
-    patient_List.gloves_ID AS patient_gloves_ID, 
-    patient_List.activated, 
-    patient_List.delete_at, 
-    arduino_Reports.device_ID AS patient_device_ID,
-    SUM(arduino_Reports.response_Time) AS total_ADL_Time
-FROM 
-    patient_List 
-INNER JOIN 
-    arduino_Reports 
-ON 
-    patient_List.patient_ID = arduino_Reports.patient_ID 
-WHERE 
-    patient_List.admission_Status = 'Admitted' AND 
-    arduino_Reports.assistance_Type = 'ADL'
-GROUP BY 
-    patient_List.patient_ID, arduino_Reports.device_ID) AS adl_data
-LEFT JOIN 
-(SELECT 
-    patient_List.patient_ID AS patient_ID_immediate, 
-    SUM(arduino_Reports.response_Time) AS total_Immediate_Time
-FROM 
-    patient_List 
-INNER JOIN 
-    arduino_Reports 
-ON 
-    arduino_Reports.patient_ID = patient_List.patient_ID 
-WHERE 
-    patient_List.admission_Status = 'Admitted' AND 
-    arduino_Reports.assistance_Type = 'IMMEDIATE'
-GROUP BY 
-    patient_List.patient_ID) AS immediate_data
-ON 
-adl_data.patient_ID = immediate_data.patient_ID_immediate
-";
-
-$result2 = mysqli_query($con, $sqlQuery2);
-if ($result2->num_rows > 0) {
-    while ($row2 = $result2->fetch_assoc()) {
-
-        $patientName = decryptthis($row2['patient_Name'], $key);
-        // Getting the time in seconds
-        // $timeFromDatabase = $row2['total_ADL_Time'];
-        // if ($timeFromDatabase !== null) {
-        //     $timeParts = explode(":", $timeFromDatabase);
-        //     $totalSeconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60) + $timeParts[2];
-        // } else {
-        //     $totalSeconds = 0;
-        // }
-
-        // $referenceValue = 24 * 3600;
-        // if ($referenceValue != 0) {
-        //     $percentage = ($totalSeconds / $referenceValue) * 100;
-        // } else {
-        //     $percentage = 0;
-        // }
-        $label = $row2['adl_assistance_type'] == 'ADL' ? 'ADL Total Response Time' : 'Immediate Total Response Time';
-
-        array_push($timeArray, array("y" => $row2['total_ADL_Time'], "label" => $patientName));
-
-        // $timeFromDatabase2 = $row2['total_Immediate_Time'];
-        // if ($timeFromDatabase2 !== null) {
-        //     $timeParts2 = explode(":", $timeFromDatabase2);
-        //     $totalSeconds2 = ($timeParts2[0] * 3600) + ($timeParts2[1] * 60) + $timeParts2[2];
-        // } else {
-        //     $totalSeconds2 = 0;
-        // }
-
-        // $referenceValue2 = 24 * 3600;
-        // if ($referenceValue2 != 0) {
-        //     $percentage2 = ($totalSeconds2 / $referenceValue2) * 100;
-        // } else {
-        //     $percentage2 = 0;
-        // }
-        $label2 = $row2['immediate_assistance_type'] == 'IMMEDIATE' ? 'Immediate Total Response Time' : 'ADL Total Response Time';
-
-        array_push($timeArray2, array("y" => $row2['total_Immediate_Time'], "label" => $patientName));
-    }
-}
 
 // echo '<script>setTimeout(function(){location.reload()}, 10000);</script>';
 ?>
@@ -195,7 +161,7 @@ if ($result2->num_rows > 0) {
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Helping Hand - Tables</title>
+    <title>Overall Reports</title>
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -204,6 +170,7 @@ if ($result2->num_rows > 0) {
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./styles/overallReports.css">
 
     <!-- Custom styles for this template -->
     <link href="../css/sb-admin-2.min.css" rel="stylesheet">
@@ -260,6 +227,35 @@ if ($result2->num_rows > 0) {
             });
             overallCommand.render();
 
+
+            var overallShifts = new CanvasJS.Chart("containerShifts", {
+                theme: "light2",
+                exportEnabled: true,
+                animationEnabled: true,
+                title: {
+                    text: "Shift Nurse Totals"
+                },
+                subtitles: [{
+                    text: "Number of nurses for each shift schedule"
+                }],
+                legend: {
+                    cursor: "pointer",
+                    itemclick: explodePie
+                },
+                data: [{
+                    type: "pie",
+                    showInLegend: true,
+                    toolTipContent: "{name}: <strong>{y}</strong>",
+                    indexLabel: "{name} - {y}",
+                    dataPoints: [
+                        { y: <?php echo json_encode($graveyardCounts, JSON_NUMERIC_CHECK); ?>, name: "Graveyard Shifts" },
+                        { y: <?php echo json_encode($morningCounts, JSON_NUMERIC_CHECK); ?>, name: "Morning Shifts" },
+                        { y: <?php echo json_encode($nightCounts, JSON_NUMERIC_CHECK); ?>, name: "Night Shifts" },
+                    ]
+                }]
+            });
+            overallShifts.render();
+
             var overallRates = new CanvasJS.Chart("containerRate", {
                 theme: "light2",
                 exportEnabled: true,
@@ -268,27 +264,27 @@ if ($result2->num_rows > 0) {
                     text: "Overall Response Time"
                 },
                 subtitles: [{
-                    text: "This is the average time overall in seconds"
+                    text: "Average time overall in seconds"
                 }],
                 data: [
                     {
-                        type: "line",
+                        type: "column",
                         startAngle: 25,
                         toolTipContent: "<b>{label}</b>: {y}s",
                         showInLegend: "true",
                         legendText: "ADL Total Response Time",
                         indexLabelFontSize: 16,
-                        indexLabel: "{label} - {y}s",
+                        indexLabel: "{y}s",
                         dataPoints: <?php echo json_encode($timeArray, JSON_NUMERIC_CHECK); ?>
                     },
                     {
-                        type: "line",
+                        type: "column",
                         startAngle: 25,
                         toolTipContent: "<b>{label}</b>: {y}s",
                         showInLegend: "true",
                         legendText: "Immediate Total Response Time",
                         indexLabelFontSize: 16,
-                        indexLabel: "{label} - {y}s",
+                        indexLabel: "{y}s",
                         color: "rgb(195,89,87)",
                         dataPoints: <?php echo json_encode($timeArray2, JSON_NUMERIC_CHECK); ?>
                     }]
@@ -302,51 +298,18 @@ if ($result2->num_rows > 0) {
                 }
             }
 
+            function explodePie(e) {
+                if (typeof (e.dataSeries.dataPoints[e.dataPointIndex].exploded) === "undefined" || !e.dataSeries.dataPoints[e.dataPointIndex].exploded) {
+                    e.dataSeries.dataPoints[e.dataPointIndex].exploded = true;
+                } else {
+                    e.dataSeries.dataPoints[e.dataPointIndex].exploded = false;
+                }
+                e.chart.render();
+
+            }
+
         }
     </script>
-
-    <style>
-        .nav-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 10px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            color: white;
-        }
-
-        .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        @keyframes bubbleAnimation {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            50% {
-                transform: scale(1.5);
-                opacity: 0;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .bubble {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.5);
-            animation: bubbleAnimation 1s ease-out;
-        }
-    </style>
     <!-- Bubble animation -->
     <script>
         function showBubbleAnimation(event) {
@@ -373,7 +336,8 @@ if ($result2->num_rows > 0) {
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar"
             style="background-color: rgb(17,24,39); font-family: 'Inter var', sans-serif;">
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php" style="background-color: rgb(28,35,47);">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php"
+                style="background-color: rgb(28,35,47);">
                 <div class="fa-regular fa-hand"> Helping Hand </div>
             </a>
 
@@ -433,7 +397,8 @@ if ($result2->num_rows > 0) {
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow" style="background-color: rgb(28,35,47);">
+                <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow"
+                    style="background-color: rgb(28,35,47);">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <form class="form-inline">
@@ -484,7 +449,17 @@ if ($result2->num_rows > 0) {
                         </li>
 
 
+
                         <!-- Nav Item - User Information -->
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="../Online_Help/reports_Guide.php" target="_blank">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    Need Help?
+                                </span>
+                                <i class="bi bi-info-circle"></i>
+                            </a>
+                        </li>
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -493,7 +468,8 @@ if ($result2->num_rows > 0) {
 
                                     ?>
                                 </span>
-                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg">
+                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg"
+                                    style="filter: invert(1);">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -527,10 +503,49 @@ if ($result2->num_rows > 0) {
                         <div class="col-auto">
                             <a href="./criticalChart.php" class="btn btn-secondary">Critical Pulse Rate Reports</a>
                         </div>
+                        <div class="dropdown col-auto">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false">
+                                Choose Ward
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <form id="wardSearch" method="POST" action="">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control search-input" placeholder="" name="ward"
+                                            id="searchInput">
+                                        <div class="input-group-append">
+                                            <button type="submit" class="btn btn-outline-secondary" name="searchward"
+                                                id="searchButton">Enter</button>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown-divider"></div>
+                                    <div class="dropdown-item ward-item-label">Select a Ward:</div>
+                                    <div class="dropdown-menu-scroll">
+                                        <?php
+                                        // Loop through each value of the assigned_Ward column
+                                        $ward_list_result = mysqli_query($con, $ward_list_query);
+                                        if ($ward_list_result->num_rows > 0) {
+                                            while ($ward_row = $ward_list_result->fetch_assoc()) {
+                                                $ward = $ward_row["assigned_Ward"];
+                                                echo '<a class="dropdown-item ward-item" href="#" data-value="' . $ward . '">' . $ward . '</a>';
+                                            }
+                                        }
+                                        ?>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
                     </div>
                     <div class="card shadow mb-3">
                         <div class="card-body">
                             <div id="containerCommands" style="height: 400px; width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="card shadow mb-3">
+                        <div class="card-body">
+                            <div id="containerShifts" style="height: 400px; width: 100%;"></div>
                         </div>
                     </div>
                     <div class="card shadow mb-3">
@@ -603,6 +618,27 @@ if ($result2->num_rows > 0) {
     <script>
         window.addEventListener('change', event => {
             showSnackbar('added');
+        });
+    </script>
+
+    <script>
+        // Javascript for enter key
+        document.getElementById("searchInput").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById("searchButton").click();
+            }
+        });
+    </script>
+
+    <script>
+        // JavaScript to handle click event on dropdown items
+        document.querySelectorAll('.ward-item').forEach(item => {
+            item.addEventListener('click', event => {
+                event.preventDefault(); // Prevent default link behavior
+                const wardValue = event.target.getAttribute('data-value'); // Get the ward value
+                document.getElementById('searchInput').value = wardValue; // Set the search input value
+            });
         });
     </script>
 

@@ -29,7 +29,7 @@ if (isset($_SESSION['userID'])) {
 
 </head>
 
-<body class="bg-gradient-primary">
+<body style="background-color: rgb(28,35,47);">
 
     <div class="container">
 
@@ -56,7 +56,7 @@ if (isset($_SESSION['userID'])) {
                                             <input type="password" class="form-control form-control-user" id="password" placeholder="Password" required>
                                         </div>
 
-                                        <button type="button" name="button" class="btn btn-primary btn-user btn-block" id="login">Login</button>
+                                        <button type="button" name="button" class="btn btn-secondary btn-user btn-block" id="login">Login</button>
 
                                     </form>
                                     <hr>

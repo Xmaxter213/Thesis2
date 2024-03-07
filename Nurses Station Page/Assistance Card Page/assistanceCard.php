@@ -1,7 +1,10 @@
 <?php
-#require_once('../dbConnection/connection.php');
 require_once('../../dbConnection/connection.php');
 
+// Check if session is not already active before starting a new one
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (isset($_GET['logout'])) {
     $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
@@ -11,7 +14,7 @@ if (isset($_GET['logout'])) {
     $currentDateTime = date("Y-m-d H:i:s");
 
     // Insert into superAdminLogs
-    $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Logout', '$currentDateTime')";
+    $sqlAddLogs = "INSERT INTO NurseStationLogs (hospital_ID, User, Action, Date_Time) VALUES ('$hospitalID', '$userName', 'Logout', '$currentDateTime')";
     $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
     if ($query_run_logs) {
@@ -50,6 +53,9 @@ if ($hospitalStatus != 'Active') {
 
 
 $verpass = $_SESSION['verifyPass'];
+
+// Perform a query here to get the values of ADL & IMMEDIATE
+
 ?>
 
 <!DOCTYPE html>
@@ -63,7 +69,7 @@ $verpass = $_SESSION['verifyPass'];
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Helping Hand - Tables</title>
+    <title>Assistance Card Page</title>
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -177,7 +183,7 @@ $verpass = $_SESSION['verifyPass'];
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar"
             style="background-color: rgb(17,24,39); font-family: 'Inter var', sans-serif;">
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php"
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="./assistanceCard.php"
                 style="background-color: rgb(28,35,47);">
                 <div class="fa-regular fa-hand"> Helping Hand </div>
             </a>
@@ -273,41 +279,25 @@ $verpass = $_SESSION['verifyPass'];
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
-
-                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-                        <li class="nav-item dropdown no-arrow d-sm-none">
-                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-search fa-fw"></i>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
-                                aria-labelledby="searchDropdown">
-                                <form class="form-inline mr-auto w-100 navbar-search">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control bg-light border-0 small"
-                                            placeholder="Search for..." aria-label="Search"
-                                            aria-describedby="basic-addon2">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-primary" type="button">
-                                                <i class="fas fa-search fa-sm"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </li>
-
                         <!-- Nav Item - User Information -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="../Online_Help/online_Help.php" target="_blank">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    Need Help?
+                                </span>
+                                <i class="bi bi-info-circle"></i>
+                            </a>
+                        </li>
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">
                                     <?php
-
+                                    // PHP code here
                                     ?>
                                 </span>
-                                <img class="img-profile" src="./Images/logout.svg">
+                                <img class="img-profile" src="./Images/logout.svg" style="filter: invert(1);">
+                                <!-- Apply CSS filter to invert colors -->
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -325,13 +315,16 @@ $verpass = $_SESSION['verifyPass'];
                                 </a>
                             </div>
                         </li>
-
                     </ul>
 
                 </nav>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
+
+                <?php
+
+                ?>
                 <div class="px-4" style="color: black;">
                     <h1 class="font-weight-bold">Immediate Assistance</h1>
                     <br>
@@ -345,7 +338,7 @@ $verpass = $_SESSION['verifyPass'];
                     <br>
                     <!-- TODO -->
                     <!-- Create a condition here to look for the ADL cards -->
-                    <h1 class="font-weight-bold">Completed</h1>
+                    <!-- <h1 class="font-weight-bold">Completed</h1> -->
                     <br>
                     <!-- TODO -->
                     <!-- Create a condition here to look for the Completed cards -->

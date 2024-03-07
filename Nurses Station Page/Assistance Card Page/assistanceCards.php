@@ -87,7 +87,6 @@ ReportsWithData AS (
         `Nurse_Assigned_Status`, 
         TIMESTAMPDIFF(SECOND, `date_Called`, `Nurse_Assigned_Status`) AS `response_Time`, 
         `Assitance_Finished`, 
-        `Nurse_Remarks`, 
         `nurse_ID`, 
         `patient_ID` 
     FROM 

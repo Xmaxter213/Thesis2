@@ -36,6 +36,23 @@ $verpass = $_SESSION['verifyPass'];
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+    <style>
+        @media (max-width: 768px) {
+            #refresh {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            #refresh {
+                padding-left: 120px;
+                padding-right: 50px;
+            }
+        }
+    </style>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -153,11 +170,18 @@ $verpass = $_SESSION['verifyPass'];
 
                 <!-- Begin Page Content -->
                 <div class="px-4" style="color: black;">
-                    <h1 class="font-weight-bold">Immediate Assistance</h1>
-                    <div id="refresh" class="d-flex flex-wrap">
-                        <?php require_once("assistanceCards.php") ?>
+                    <div class="immediate-assistance-section text-center" style="background-color: rgb(28,35,47); color: white; padding-top: 5px; padding-bottom: 5px; margin-bottom: 20px;">
+                        <h3 class="font-weight-bold">Immediate Assistance</h3>
                     </div>
-                    <h1 class="font-weight-bold">ADL Assistance</h1>
+                        <div id="refresh" class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
+                            <?php require_once("assistanceCards.php") ?>
+                        </div>
+                    <div class="immediate-assistance-section text-center" style="background-color: rgb(28,35,47); color: white; padding-top: 5px; padding-bottom: 5px; margin-bottom: 20px;">
+                        <h3 class="font-weight-bold">ADL Assistance</h3>
+                    </div>
+                    <div id="refresh" class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
+                            <?php require_once("assistanceCardsADL.php") ?>
+                        </div>
                 </div>
 
             </div>

@@ -38,7 +38,7 @@ $sql = "WITH PatientArduinoData AS (
         MAX(patient_List.birth_Date) AS birth_Date, 
         MAX(patient_List.reason_Admission) AS reason_Admission, 
         MAX(patient_List.admission_Status) AS admission_Status, 
-        MAX(patient_List.nurse_ID) AS nurse_ID, 
+        MAX(patient_List.assigned_Ward) AS assigned_Ward,
         MAX(patient_List.assistance_Status) AS assistance_Status, 
         MAX(patient_List.gloves_ID) AS patient_gloves_ID, 
         MAX(patient_List.activated) AS activated, 
@@ -55,7 +55,7 @@ $sql = "WITH PatientArduinoData AS (
     LEFT JOIN
         staff_List
     ON
-        patient_List.nurse_ID = staff_List.nurse_ID 
+        patient_List.assigned_Ward = staff_List.nurse_ID
     WHERE 
         patient_List.admission_Status = 'Admitted'
     GROUP BY
@@ -97,7 +97,7 @@ SELECT
     PAD.birth_Date,
     PAD.reason_Admission,
     PAD.admission_Status,
-    PAD.nurse_ID,
+    PAD.assigned_Ward AS nurse_ID,
     PAD.assistance_Status,
     PAD.patient_gloves_ID,
     PAD.activated,
@@ -133,7 +133,7 @@ GROUP BY
     PAD.birth_Date,
     PAD.reason_Admission,
     PAD.admission_Status,
-    PAD.nurse_ID,
+    PAD.assigned_Ward,
     PAD.assistance_Status,
     PAD.patient_gloves_ID,
     PAD.activated,

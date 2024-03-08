@@ -1,5 +1,7 @@
 <?php
 require_once('../../dbConnection/connection.php');
+
+$hospital_ID = $_SESSION['selectedHospitalID'];
 //include('message.php');
 
 //The functions for the encryption
@@ -319,10 +321,10 @@ include('patientDeleteEntriesDue.php');
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con->query("SELECT * FROM patient_List_Trash WHERE deleted_at !=1 LIMIT $start, $limit");
+                                $result = $con->query("SELECT * FROM patient_List_Trash WHERE deleted_at !=1 AND hospital_ID = $hospital_ID LIMIT $start, $limit");
                                 $patients = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con->query("SELECT count(patient_ID) AS patient_ID FROM patient_List_Trash WHERE deleted_at !=1");
+                                $result1 = $con->query("SELECT count(patient_ID) AS patient_ID FROM patient_List_Trash WHERE deleted_at !=1 AND hospital_ID = $hospital_ID");
                                 $custCount = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $custCount[0]['patient_ID'];
                                 $pages = ceil( $total / $limit );

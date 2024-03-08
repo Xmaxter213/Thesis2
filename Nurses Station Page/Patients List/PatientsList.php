@@ -5,6 +5,8 @@ require_once('../../dbConnection/connection.php');
 //The functions for the encryption
 include('../../dbConnection/AES encryption.php');
 
+$hospital_ID = $_SESSION['selectedHospitalID'];
+
 //This is to make sure that deactivated accounts that are due for deletion are deleted
 include('patientDeleteEntriesDue.php');
 
@@ -16,7 +18,7 @@ if (isset($_GET['logout'])) {
         $currentDateTime = date("Y-m-d H:i:s");
 
         // Insert into superAdminLogs
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Logout', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Logout', '$currentDateTime', '$hospital_ID')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
         if ($query_run_logs) 
@@ -98,17 +100,17 @@ if (isset($_POST['add'])) {
     $enc_reason_Admission = encryptthis($reason_Admission, $key);
     if ($nurse_ID == NULL && $device_Assigned == NULL)
     {
-        $query = "INSERT INTO patient_List (patient_ID, patient_Name, assigned_Ward, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
-        VALUES (NULL, '$enc_patient_Name', $nurse_Assigned_Ward,'$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', NULL, '$assistance_Status', NULL, $activated)";
+        $query = "INSERT INTO patient_List (patient_ID, hospital_ID, patient_Name, assigned_Ward, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
+        VALUES (NULL, '$hospital_ID', '$enc_patient_Name', $nurse_Assigned_Ward,'$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', NULL, '$assistance_Status', NULL, $activated)";
     } else if ($nurse_ID != NULL && $device_Assigned == NULL) {
-        $query = "INSERT INTO patient_List (patient_ID, patient_Name, assigned_Ward, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
-        VALUES (NULL, '$enc_patient_Name', $nurse_Assigned_Ward,'$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', $nurse_ID, '$assistance_Status', NULL, $activated)";
+        $query = "INSERT INTO patient_List (patient_ID, hospital_ID, patient_Name, assigned_Ward, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
+        VALUES (NULL, '$hospital_ID',  '$enc_patient_Name', $nurse_Assigned_Ward,'$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', $nurse_ID, '$assistance_Status', NULL, $activated)";
     } else if ($nurse_ID == NULL && $device_Assigned != NULL) {
-        $query = "INSERT INTO patient_List (patient_ID, patient_Name, assigned_Ward, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
-        VALUES (NULL, '$enc_patient_Name', $nurse_Assigned_Ward,'$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', NULL, '$assistance_Status', $device_Assigned, $activated)";
+        $query = "INSERT INTO patient_List (patient_ID, hospital_ID, patient_Name, assigned_Ward, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
+        VALUES (NULL, '$hospital_ID',  '$enc_patient_Name', $nurse_Assigned_Ward,'$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', NULL, '$assistance_Status', $device_Assigned, $activated)";
     } else if ($nurse_ID != NULL && $device_Assigned != NULL) {
-        $query = "INSERT INTO patient_List (patient_ID, patient_Name, assigned_Ward, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
-        VALUES (NULL, '$enc_patient_Name', $nurse_Assigned_Ward,'$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', '$nurse_ID', '$assistance_Status', $device_Assigned, $activated)";
+        $query = "INSERT INTO patient_List (patient_ID, hospital_ID, patient_Name, assigned_Ward, room_Number, birth_Date, reason_Admission, admission_Status, nurse_ID, assistance_Status, gloves_ID, activated) 
+        VALUES (NULL, '$hospital_ID', '$enc_patient_Name', $nurse_Assigned_Ward,'$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', '$nurse_ID', '$assistance_Status', $device_Assigned, $activated)";
     }
     
     $query_run = mysqli_query($con, $query);
@@ -139,7 +141,7 @@ if (isset($_POST['add'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Created Patient - ID: $ID', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Created Patient - ID: $ID', '$currentDateTime', '$hospital_ID')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 
@@ -179,7 +181,7 @@ if (isset($_POST['patientRefer'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Referred patient $patient_ID to ward: $new_Assigned_Ward. Reason: $reasonForRefer', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Referred patient $patient_ID to ward: $new_Assigned_Ward. Reason: $reasonForRefer', '$currentDateTime', '$hospital_ID')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 
@@ -219,7 +221,7 @@ if (isset($_POST['patientDischarge'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Discharged patient $patient_ID. Reason: $reasonForDischarge', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Discharged patient $patient_ID. Reason: $reasonForDischarge', '$currentDateTime', $hospital_ID)";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 
@@ -285,7 +287,7 @@ if (isset($_POST['edit'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Updated Patient ID: $patient_ID', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Updated Patient ID: $patient_ID', '$currentDateTime', $hospital_ID)";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 
@@ -748,10 +750,10 @@ if (isset($_POST['edit'])) {
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con->query("SELECT * FROM patient_List WHERE activated = 1 AND admission_Status = 'Admitted' AND assigned_Ward = '$nurse_Assigned_Ward' LIMIT $start, $limit");
+                                $result = $con->query("SELECT * FROM patient_List WHERE activated = 1 AND admission_Status = 'Admitted' AND assigned_Ward = '$nurse_Assigned_Ward' AND hospital_ID = '$hospital_ID' LIMIT $start, $limit");
                                 $patients = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con->query("SELECT count(patient_ID) AS patient_ID FROM patient_List WHERE activated = 1 AND admission_Status = 'Admitted'");
+                                $result1 = $con->query("SELECT count(patient_ID) AS patient_ID FROM patient_List WHERE activated = 1 AND admission_Status = 'Admitted' AND hospital_ID = '$hospital_ID' ");
                                 $custCount = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $custCount[0]['patient_ID'];
                                 $pages = ceil( $total / $limit );

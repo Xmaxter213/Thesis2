@@ -5,6 +5,8 @@ require_once('../../dbConnection/connection.php');
 //The functions for the encryption
 include('../../dbConnection/AES encryption.php');
 
+$hospital_ID = $_SESSION['selectedHospitalID'];
+
 if (isset($_GET['logout'])) {
     $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
 
@@ -13,14 +15,14 @@ if (isset($_GET['logout'])) {
         $currentDateTime = date("Y-m-d H:i:s");
 
         // Insert into superAdminLogs
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Logout', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Logout', '$currentDateTime', '$hospital_ID')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
         if ($query_run_logs) 
         {
             session_destroy();
             unset($_SESSION);
-            header("location: ../MainHospital/login_new.php");
+            header("location: ../../portal page/index.php");
         } 
         else 
         {
@@ -29,7 +31,7 @@ if (isset($_GET['logout'])) {
 }
 
 if (!isset($_SESSION['userID'])) {
-    header("location: ../../MainHospital/login_new.php");
+    header("location: ../../portal page/index.php");
 } else {
 
     $status = $_SESSION['userStatus'];
@@ -104,10 +106,10 @@ if (isset($_POST['add'])) {
     $enc_nurse_birth_Date = encryptthis($nurse_birth_Date, $key);
     $enc_date_Employment = encryptthis($date_Employment, $key);
 
-    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', $nurse_Assigned_Ward, '$enc_nurse_Contract_No', '$enc_nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$employment_Status', '$enc_date_Employment', '$activated')";
+    $query = "INSERT INTO staff_List (nurse_ID, hospital_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', '$hospital_ID', $nurse_Assigned_Ward, '$enc_nurse_Contract_No', '$enc_nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$employment_Status', '$enc_date_Employment', '$activated')";
     $query_run = mysqli_query($con, $query);
 
-    $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status, verifyPassword) VALUES (NULL, '$nurse_email','$nurse_password', '$userName', '$account_status', '0')";
+    $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status, verifyPassword, hospital_ID) VALUES (NULL, '$nurse_email','$nurse_password', '$userName', '$account_status', '0','$hospital_ID')";
     $query_Login_run = mysqli_query($con, $query_Login);
 
     if ($query_run) {
@@ -136,7 +138,7 @@ if (isset($_POST['add'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Created $account_status Account ID: $ID status : $account_status ', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Created $account_status Account ID: $ID status : $account_status ', '$currentDateTime', '$hospital_ID')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 
@@ -192,7 +194,7 @@ if (isset($_POST['edit'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Updated Nurse/Admin Account ID: $nurse_ID', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Updated Nurse/Admin Account ID: $nurse_ID', '$currentDateTime', '$hospital_ID')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 
@@ -440,7 +442,7 @@ if (isset($_POST['edit'])) {
                         </li>
 
                         <!-- Nav Item - User Information -->
-                        <li class="nav-item">
+<li class="nav-item">
                             <a class="nav-link" href="../Online_Help/nurses_List_Guide.php" target="_blank">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">
                                     Need Help?
@@ -683,10 +685,10 @@ if (isset($_POST['edit'])) {
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con->query("SELECT * FROM staff_List  WHERE activated = 1 AND assigned_Ward = '$nurse_Assigned_Ward' LIMIT $start, $limit");
+                                $result = $con->query("SELECT * FROM staff_List  WHERE activated = 1 AND assigned_Ward = '$nurse_Assigned_Ward' AND hospital_ID = '$hospital_ID' LIMIT $start, $limit");
                                 $nurses = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con->query("SELECT count(nurse_ID) AS nurse_ID FROM staff_List WHERE activated = 1 AND assigned_Ward = '$nurse_Assigned_Ward'");
+                                $result1 = $con->query("SELECT count(nurse_ID) AS nurse_ID FROM staff_List WHERE activated = 1 AND assigned_Ward = '$nurse_Assigned_Ward' AND hospital_ID = '$hospital_ID'");
                                 $custCount = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $custCount[0]['nurse_ID'];
                                 $pages = ceil( $total / $limit );
@@ -1208,12 +1210,12 @@ if (isset($_POST['edit'])) {
     if (isset($_POST['verifyAddNurse'])) {
         $enteredPassword = $_POST['password'];
     
-        $userName = $_SESSION['userID'];
+        $ID = $_SESSION['idNUM'];
     
         //This is for checking if pw is correct
-        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $query = "SELECT password FROM userLogin WHERE ID = ?";
         $getuserpassword = $con->prepare($query);
-        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->bind_param("s", $ID);
         $getuserpassword->execute();
         $getuserpassword->store_result();
         $getuserpassword->bind_result($verifyPassword);
@@ -1235,9 +1237,9 @@ if (isset($_POST['edit'])) {
             // // Get the current date and time in SQL format
             // $currentDateTime = date('Y-m-d H:i:s');
 
-            // $query = "UPDATE staff_List SET CRUD_auth = '$currentDateTime' WHERE userName = ?";
+            // $query = "UPDATE staff_List SET CRUD_auth = '$currentDateTime' WHERE ID = ?";
             // $getuserpassword = $con->prepare($query);
-            // $getuserpassword->bind_param("s", $userName);
+            // $getuserpassword->bind_param("s", $ID);
             // $getuserpassword->execute();
             // $getuserpassword->store_result();
             // $getuserpassword->bind_result($verifyPassword);
@@ -1252,13 +1254,13 @@ if (isset($_POST['edit'])) {
 
     if (isset($_POST['verifyEditNurse'])) {
         $enteredPassword = $_POST['password'];
-        $userName = $_SESSION['userID'];
+        $ID = $_SESSION['idNUM'];
         $nurse_ID = $_POST['nurse_ID']; //One to edit
 
         //This is for checking if pw is correct
-        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $query = "SELECT password FROM userLogin WHERE ID = ?";
         $getuserpassword = $con->prepare($query);
-        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->bind_param("s", $ID);
         $getuserpassword->execute();
         $getuserpassword->store_result();
         $getuserpassword->bind_result($verifyPassword);
@@ -1281,13 +1283,13 @@ if (isset($_POST['edit'])) {
 
     if (isset($_POST['verifyDeleteNurse'])) {
         $enteredPassword = $_POST['password'];
-        $userName = $_SESSION['userID'];
+        $ID = $_SESSION['idNUM'];
         $nurse_ID = $_POST['nurse_ID']; //One to delete
 
         //This is for checking if pw is correct
-        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $query = "SELECT password FROM userLogin WHERE ID = ?";
         $getuserpassword = $con->prepare($query);
-        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->bind_param("s", $ID);
         $getuserpassword->execute();
         $getuserpassword->store_result();
         $getuserpassword->bind_result($verifyPassword);

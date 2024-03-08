@@ -1,5 +1,7 @@
 <?php
 require_once('../../dbConnection/connection.php');
+
+$hospital_ID = $_SESSION['selectedHospitalID'];
 //include('message.php');
 
 if (isset($_GET['logout'])) {
@@ -23,7 +25,7 @@ if (isset($_POST['add'])) {
     $work_Shift = $_POST['work_Shift'];
     $time_Range = $_POST['time_Range'];
 
-    $query = "INSERT INTO shift_Schedule(ID, work_Shift, time_Range) VALUES (NULL,'$work_Shift', '$time_Range')";
+    $query = "INSERT INTO shift_Schedule(ID, work_Shift, time_Range, hospital_ID) VALUES (NULL,'$work_Shift', '$time_Range', hospital_ID)";
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
@@ -49,7 +51,7 @@ if (isset($_POST['add'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Created Shift Schedule ID: $ID', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Created Shift Schedule ID: $ID', '$currentDateTime', $hospital_ID)";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 
@@ -83,7 +85,7 @@ if (isset($_POST['editsave'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Updated Shift Schedule ID: $ID', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Updated Shift Schedule ID: $ID', '$currentDateTime', $hospital_ID)";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 
@@ -116,7 +118,7 @@ if (isset($_POST['delete'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Deleted Shift Schedule ID: $ID', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Deleted Shift Schedule ID: $ID', '$currentDateTime', $hospital_ID)";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 

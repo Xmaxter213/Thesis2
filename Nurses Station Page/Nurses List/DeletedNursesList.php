@@ -66,10 +66,10 @@ if (isset($_POST['add'])) {
     $enc_nurse_birth_Date = encryptthis($nurse_birth_Date, $key);
     $enc_date_Employment = encryptthis($date_Employment, $key);
 
-    $query = "INSERT INTO staff_List (nurse_ID, nurse_Name, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', '$enc_nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$employment_Status', '$enc_date_Employment', '$activated')";
+    $query = "INSERT INTO staff_List (nurse_ID, hospital_ID, nurse_Name, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$hospital_ID', '$enc_nurse_Name', '$enc_nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$employment_Status', '$enc_date_Employment', '$activated')";
     $query_run = mysqli_query($con, $query);
 
-    $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status) VALUES (NULL, '$nurse_email','$nurse_password', '$userName', '$account_status')";
+    $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status, verifyPassword, hospital_ID) VALUES (NULL, '$nurse_email','$nurse_password', '$userName', '$account_status', '0', '$hospital_ID')";
     $query_Login_run = mysqli_query($con, $query_Login);
 
     if ($query_run) {

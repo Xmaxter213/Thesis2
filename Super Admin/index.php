@@ -44,7 +44,7 @@
         $Hospital_Name = $_POST['Hospital_Name'];
         $Subscriber_Email = $_POST['Subscriber_email'];
         $Hospital_Status = "Active";
-        $Subscription = $_POST['Subscription_Duration'];  // Missing semicolon here
+        $Subscription = $_POST['Subscription_Duration'];
 
         date_default_timezone_set('Asia/Manila');
         $Creation_Date = date("Y-m-d H:i:s");
@@ -61,13 +61,16 @@
             VALUES ('$Subscriber_Email','$Subscriber_Name', '$Subscriber_Name', 'Admin', '0', '$hospital_ID')";
             $query_run = mysqli_query($con, $query);
 
+            $queryStaff = "INSERT INTO staff_List (hospital_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) 
+            VALUES ($hospital_ID, 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', '1')";
+            $query_run = mysqli_query($con, $queryStaff);
 
             $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
             date_default_timezone_set('Asia/Manila');
             $currentDateTime = date("Y-m-d H:i:s");
             // Insert into superAdminLogs
             
-            $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$userName', 'Added Hospital_Name : $Hospital_Name', '$currentDateTime')";
+            $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$userName', 'Added Hospital : $Hospital_Name', '$currentDateTime')";
             $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
             if(!$query_run_logs)

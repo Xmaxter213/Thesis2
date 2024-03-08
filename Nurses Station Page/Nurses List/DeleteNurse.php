@@ -2,6 +2,7 @@
 
 require_once('../../dbConnection/connection.php');
 //include('message.php');
+$hospital_ID = $_SESSION['selectedHospitalID'];
 
 if(isset($_POST['nurseDelete']))
 {
@@ -11,7 +12,7 @@ if(isset($_POST['nurseDelete']))
     
     //Deactivate account & put into trash
     $query1="UPDATE staff_List SET activated=0, delete_at = CURRENT_DATE + INTERVAL 3 DAY WHERE nurse_ID='$nurse_ID'";
-    $query2 = "INSERT INTO staff_List_Trash (nurse_ID, deleted_at, reason_For_Deletion) VALUES ($nurse_ID, NULL, '$reasonForDeletion')";
+    $query2 = "INSERT INTO staff_List_Trash (nurse_ID, deleted_at, reason_For_Deletion, hospital_ID) VALUES ($nurse_ID, NULL, '$reasonForDeletion', $hospital_ID)";
     //$query = "DELETE FROM staff_List WHERE nurse_ID ='$nurse_ID'";//
 
     $query_run1 = mysqli_query($con, $query1);
@@ -26,7 +27,7 @@ if(isset($_POST['nurseDelete']))
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Deleted Nurse/Admin Account ID: $nurse_ID', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Deleted Nurse/Admin Account ID: $nurse_ID', '$currentDateTime', $hospital_ID)";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 

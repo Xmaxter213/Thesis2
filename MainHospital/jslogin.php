@@ -44,7 +44,18 @@ if ($database && $getuserID->num_rows > 0) {
     $_SESSION['idNUM'] = $ID;
     $_SESSION['verifyPass'] =$verifyPassword;
     $_SESSION['userStatus'] = $userStatus;
-} else {
+
+    date_default_timezone_set('Asia/Manila');
+
+    $currentDateTime = date("Y-m-d H:i:s");
+
+    // Insert into superAdminLogs
+    $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Login', '$currentDateTime', '$hospital_ID')";
+    $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+
+} 
+else {
     echo 'Error getting userID';
 }
 

@@ -5,6 +5,8 @@ require_once('../../dbConnection/connection.php');
 //The functions for the encryption
 include('../../dbConnection/AES encryption.php');
 
+$hospital_ID = $_SESSION['selectedHospitalID'];
+
 //This is to make sure that deactivated accounts that are due for deletion are deleted
 include('patientDeleteEntriesDue.php');
 
@@ -57,7 +59,7 @@ if (isset($_POST['patientRefer'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Referred patient $patient_ID to ward: $new_Assigned_Ward. Reason: $reasonForRefer', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Referred patient $patient_ID to ward: $new_Assigned_Ward. Reason: $reasonForRefer', '$currentDateTime', '$hospital_ID')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 
@@ -97,7 +99,7 @@ if (isset($_POST['patientAdmit'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Re-admitted patient $patient_ID. Reason: $reasonForAdmit', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Re-admitted patient $patient_ID. Reason: $reasonForAdmit', '$currentDateTime', $hospital_ID)";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 
@@ -466,10 +468,10 @@ if (isset($_POST['edit'])) {
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con->query("SELECT * FROM patient_List WHERE activated = 1 AND admission_Status = 'Discharged' AND assigned_Ward = '$nurse_Assigned_Ward' LIMIT $start, $limit");
+                                $result = $con->query("SELECT * FROM patient_List WHERE activated = 1 AND admission_Status = 'Discharged' AND assigned_Ward = '$nurse_Assigned_Ward' AND hospital_ID = '$hospital_ID' LIMIT $start, $limit");
                                 $patients = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con->query("SELECT count(patient_ID) AS patient_ID FROM patient_List WHERE activated = 1 AND admission_Status = 'Discharged' AND assigned_Ward = '$nurse_Assigned_Ward'");
+                                $result1 = $con->query("SELECT count(patient_ID) AS patient_ID FROM patient_List WHERE activated = 1 AND admission_Status = 'Discharged' AND assigned_Ward = '$nurse_Assigned_Ward' AND hospital_ID = '$hospital_ID'");
                                 $custCount = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $custCount[0]['patient_ID'];
                                 $pages = ceil( $total / $limit );

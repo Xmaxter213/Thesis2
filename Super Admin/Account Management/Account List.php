@@ -36,8 +36,8 @@ if (isset($_POST['add'])) {
     $password = $_POST['password'];
     $status = $_POST['status'];
     
-    $query = "INSERT INTO userLogin ( email, password, userName, status, verifyPassword) 
-    VALUES ('$email','$password', '$userName', '$status', '1')";
+    $query = "INSERT INTO superAdminAccounts ( email, password, userName, status) 
+    VALUES ('$email','$password', '$userName', '$status')";
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {
@@ -256,17 +256,17 @@ if (isset($_POST['add'])) {
 
                                 <?php
                                 $count = 0;
-                                $sql = "SELECT * FROM userLogin WHERE status = 'Super Admin'";
+                                $sql = "SELECT * FROM superAdminAccounts WHERE status = 'Super Admin'";
                                 $result = mysqli_query($con, $sql);
 
                                 //This is for pagination
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con->query("SELECT * FROM userLogin WHERE status = 'Super Admin' LIMIT $start, $limit");
-                                $userLogin = $result->fetch_all(MYSQLI_ASSOC);
+                                $result = $con->query("SELECT * FROM superAdminAccounts WHERE status = 'Super Admin' LIMIT $start, $limit");
+                                $superAdminAccounts = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con->query("SELECT count(ID) AS ID FROM userLogin WHERE status = 'Super Admin'");
+                                $result1 = $con->query("SELECT count(ID) AS ID FROM superAdminAccounts WHERE status = 'Super Admin'");
                                 $count2 = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $count2[0]['ID'];
                                 $pages = ceil( $total / $limit );
@@ -292,16 +292,16 @@ if (isset($_POST['add'])) {
                                         </thead>
                                         <tbody>
                                             <?php
-                                            foreach($userLogin as $userLogin) :
+                                            foreach($superAdminAccounts as $superAdminAccounts) :
                                                 $count = $count + 1;
 
                                             ?>
 
                                                 <tr>
-                                                    <td><?php echo $userLogin['ID']; ?></td>
-                                                    <td><?php echo $userLogin['userName'] ?></td>
-                                                    <td><?php echo $userLogin['email']; ?></td>
-                                                    <td><?php echo $userLogin['status']; ?></td>
+                                                    <td><?php echo $superAdminAccounts['ID']; ?></td>
+                                                    <td><?php echo $superAdminAccounts['userName'] ?></td>
+                                                    <td><?php echo $superAdminAccounts['email']; ?></td>
+                                                    <td><?php echo $superAdminAccounts['status']; ?></td>
 
                                                 </tr>
                                         <?php endforeach;

@@ -5,6 +5,8 @@ require_once('../../dbConnection/connection.php');
 //The functions for the encryption
 include('../../dbConnection/AES encryption.php');
 
+$hospital_ID = $_SESSION['selectedHospitalID'];
+
 if (isset($_GET['logout'])) {
     session_destroy();
     unset($_SESSION);
@@ -59,7 +61,7 @@ if (isset($_POST['patientRestore'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Restored Patient Account ID: $patient_ID', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Restored Patient Account ID: $patient_ID', '$currentDateTime', '$hospital_ID')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 
@@ -361,10 +363,10 @@ if (isset($_POST['patientRestore'])) {
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
                                 $result = $con->query("SELECT patient_List.patient_ID, patient_List.patient_Name, patient_List.delete_at, patient_List_Trash.reason_For_Deletion 
-                                FROM patient_List JOIN patient_List_Trash ON patient_List.patient_ID=patient_List_Trash.patient_ID ORDER BY patient_List.patient_ID LIMIT $start, $limit");
+                                FROM patient_List JOIN patient_List_Trash ON patient_List.patient_ID=patient_List_Trash.patient_ID WHERE patient_List.hospital_ID = '$hospital_ID' ORDER BY patient_List.patient_ID LIMIT $start, $limit");
                                 $patients = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con->query("SELECT count(patient_ID) AS patient_ID FROM patient_List WHERE activated=0");
+                                $result1 = $con->query("SELECT count(patient_ID) AS patient_ID FROM patient_List WHERE activated=0 AND hospital_ID = '$hospital_ID'");
                                 $custCount = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $custCount[0]['patient_ID'];
                                 $pages = ceil( $total / $limit );

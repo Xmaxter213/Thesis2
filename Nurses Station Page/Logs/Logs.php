@@ -1,6 +1,8 @@
 <?php
     require_once('../../dbConnection/connection.php');
 
+    $hospital_ID = $_SESSION['selectedHospitalID'];
+
 
     if (isset($_GET['logout'])) {
         $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
@@ -10,14 +12,14 @@
         $currentDateTime = date("Y-m-d H:i:s");
 
         // Insert into superAdminLogs
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Logout', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Logout', '$currentDateTime', '$hospital_ID')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
         if ($query_run_logs) 
         {
             session_destroy();
             unset($_SESSION);
-            header("location: ../MainHospital/login_new.php");
+            header("location: ../../portal page/index.php");
         } 
         else 
         {
@@ -27,7 +29,7 @@
     }
 
     if (!isset($_SESSION['userID'])) {
-        header("location: ../MainHospital/login_new.php");
+        header("location: ../../portal page/index.php");
     }
 ?>
 
@@ -323,10 +325,10 @@
                                         $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 200;
                                         $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                         $start = ($page - 1) * $limit;
-                                        $result = $con->query("SELECT * FROM NurseStationLogs ORDER BY ID DESC LIMIT $start, $limit");
+                                        $result = $con->query("SELECT * FROM NurseStationLogs WHERE hospital_ID = $hospital_ID ORDER BY ID DESC LIMIT $start, $limit");
                                         $logs = $result->fetch_all(MYSQLI_ASSOC);
 
-                                        $result1 = $con->query("SELECT count(ID) AS ID FROM NurseStationLogs");
+                                        $result1 = $con->query("SELECT count(ID) AS ID FROM NurseStationLogs ");
                                         $count2 = $result1->fetch_all(MYSQLI_ASSOC);
                                         $total = $count2[0]['ID'];
                                         $pages = ceil( $total / $limit );

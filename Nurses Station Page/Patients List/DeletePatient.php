@@ -2,6 +2,7 @@
 
 require_once('../../dbConnection/connection.php');
 //include('message.php');
+$hospital_ID = $_SESSION['selectedHospitalID'];
 
 if(isset($_POST['patientDelete']))
 {
@@ -11,7 +12,7 @@ if(isset($_POST['patientDelete']))
 
     //Deactivate account & put into trash
     $query1="UPDATE patient_List SET activated=0, delete_at = CURRENT_DATE + INTERVAL 3 DAY WHERE patient_ID='$patient_ID'";
-    $query2 = "INSERT INTO patient_List_Trash (patient_ID, deleted_at, reason_For_Deletion) VALUES ($patient_ID, NULL, '$reasonForDeletion')";
+    $query2 = "INSERT INTO patient_List_Trash (patient_ID, hospital_ID, deleted_at, reason_For_Deletion) VALUES ($patient_ID, $hospital_ID, NULL, '$reasonForDeletion')";
     //$query = "DELETE FROM patient_List WHERE patient_ID ='$patient_ID'";
     
     $query_run1 = mysqli_query($con, $query1);
@@ -26,7 +27,7 @@ if(isset($_POST['patientDelete']))
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Deleted Patient Account ID: $patient_ID', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Deleted Patient Account ID: $patient_ID', '$currentDateTime', '$hospital_ID')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 
@@ -58,7 +59,7 @@ if(isset($_POST['dischargedPatientDelete']))
 
     //Deactivate account & put into trash
     $query1="UPDATE patient_List SET activated=0, delete_at = CURRENT_DATE + INTERVAL 3 DAY WHERE patient_ID='$patient_ID'";
-    $query2 = "INSERT INTO patient_List_Trash (patient_ID, deleted_at, reason_For_Deletion) VALUES ($patient_ID, NULL, '$reasonForDeletion')";
+    $query2 = "INSERT INTO patient_List_Trash (patient_ID, hospital_ID, deleted_at, reason_For_Deletion) VALUES ($patient_ID, $hospital_ID, NULL, '$reasonForDeletion')";
     //$query = "DELETE FROM patient_List WHERE patient_ID ='$patient_ID'";
     
     $query_run1 = mysqli_query($con, $query1);
@@ -73,7 +74,7 @@ if(isset($_POST['dischargedPatientDelete']))
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Deleted Patient Account ID: $patient_ID', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Deleted Patient Account ID: $patient_ID', '$currentDateTime', '$hospital_ID')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
 

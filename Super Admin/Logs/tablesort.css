@@ -1,0 +1,33 @@
+.table-sortable th {
+	cursor: pointer;
+}
+
+.table-sortable .th-sort-asc::after {
+	content: "\25b4";
+}
+
+.table-sortable .th-sort-desc::after {
+	content: "\25be";
+}
+
+.table-sortable .th-sort-asc::after,
+.table-sortable .th-sort-desc::after {
+	margin-left: 5px;
+}
+
+.table {
+	font-family: "Fira Sans", sans-serif;
+	border-collapse: collapse;
+}
+
+.table th {
+text-align: left;
+/* border-top: 2px solid #3465ce;
+border-bottom: 2px solid #3465ce; */
+}
+
+.table td,
+.search-input {
+font-size: .9em;
+padding: 0.6em 1em;
+}

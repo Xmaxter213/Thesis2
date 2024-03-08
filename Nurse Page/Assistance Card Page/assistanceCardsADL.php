@@ -38,7 +38,7 @@ $sql = "SELECT
             AND staff_List.nurse_ID = ?
             AND (patient_List.assistance_Status = 'On the way' OR patient_List.assistance_Status = 'Unassigned')
             AND patient_List.admission_Status = 'Admitted'
-            AND (arduino_Reports.assistance_Type = 'IMMEDIATE' AND arduino_Reports.Assitance_Finished IS NULL)";
+            AND (arduino_Reports.assistance_Type = 'ADL' AND arduino_Reports.Assitance_Finished IS NULL)";
 
 
 $stmt = $con->prepare($sql);

@@ -14,25 +14,25 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
     }
 
     $element = "
-    <div class=\"col-lg-4\" style=\" max-width: 25rem \">
-    <div class=\"card px-0\" style=\"color: black; background: $cardClasses\">
-        <img src=\"./Images/room.jpg\" class=\"card-img-top\" alt=\"...\">
-        <div class=\"card-body\">
-            <h5 class=\"font-weight-bold\">Patient Name: <span class=\"font-weight-normal\">$patient_Name</span> <span class=\"badge $bgClasses text-white\">$assistance_Status</span></h5>
-            <h5 class=\"font-weight-bold\">Room #: $room_Number</h5>
-            <form action=\"./assistanceCard.php\">
-                <div class=\"d-flex align-items-center justify-content-center\">
-                    <h5 class=\"me-2 mb-0\">Remarks: </h5>
-                    <div class=\"input-group\">
-                        <input type=\"text\" class=\"form-control\" placeholder=\"Enter Remarks\" aria-describedby=\"button-addon\" required>
-                        <button class=\"btn $btnClasses\" type=\"submit\" id=\"button-addon\">Submit</button>
+    <div class=\"col-lg-4\" style=\"max-width: 25rem;\">
+        <div class=\"card px-0\" style=\"color: black; background: $cardClasses;\">
+            <img src=\"./Images/room.jpg\" class=\"card-img-top\" alt=\"...\">
+            <div class=\"card-body\">
+                <h5 class=\"font-weight-bold\">Patient Name: <span class=\"font-weight-normal\">$patient_Name</span> <span class=\"badge $bgClasses text-white\">$assistance_Status</span></h5>
+                <h5 class=\"font-weight-bold\">Room #: $room_Number</h5>
+                <form id=\"assistanceForm-$patient_ID\" action=\"javascript:void(0);\">
+                    <div class=\"d-flex align-items-center justify-content-center\">
+                        <h5 class=\"me-2 mb-0\">Remarks: </h5>
+                        <div class=\"input-group\">
+                            <input type=\"text\" class=\"form-control\" id=\"remarksInput-$patient_ID\" placeholder=\"Enter Remarks\" aria-describedby=\"button-addon\" required " . ($assistance_Status == 'Unassigned' ? 'disabled' : '') . ">
+                            <button class=\"btn $btnClasses\" type=\"submit\" id=\"button-addon\" onclick=\"submitAssistanceForm('$patient_ID')\">Submit</button>
+                        </div>
                     </div>
-                </div>
-            </form>
-            <br>
-            $changeStatusButton
+                </form>
+                <br>
+                $changeStatusButton
 
-            <!-- Change Status Modal -->
+                <!-- Change Status Modal -->
                 <div class=\"modal fade\" tabindex=\"-1\" id=\"changeStatusModal-{$patient_ID}\" role=\"dialog\" aria-labelledby=\"changeStatusModalLabel-{$patient_ID}\" aria-hidden=\"true\">
                     <div class=\"modal-dialog\" role=\"document\">
                         <div class=\"modal-content\">
@@ -73,10 +73,10 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
                         </div>
                     </div>
                 </div>
+            </div>
         </div>
     </div>
-</div>
-    ";
+";
 
     echo $element;
 }

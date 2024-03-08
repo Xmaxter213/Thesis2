@@ -401,7 +401,7 @@ if (isset($_POST['delete'])) {
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
                     <a href="NursesList.php" class="btn btn-secondary float-end">Nurses List</a>
                     <a href="EditShiftSchedule.php" class="btn btn-secondary float-end active">Shift Schedules List</a>
-                    <a href="RestoreNurse.php" class="btn btn-secondary float-end">Restore Data</a>
+                    <a href="RestoreNurse.php" class="btn btn-secondary float-end">Restore Nurse</a>
                     <a href="DeletedNursesList.php" class="btn btn-secondary float-end">Deleted Nurses List</a>
                     <br><br>
 

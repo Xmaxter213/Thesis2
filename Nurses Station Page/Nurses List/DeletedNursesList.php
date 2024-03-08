@@ -379,7 +379,7 @@ if (isset($_POST['edit'])) {
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
                     <a href="NursesList.php" class="btn btn-secondary float-end">Nurses List</a>
                     <a href="EditShiftSchedule.php" class="btn btn-secondary float-end">Shift Schedules List</a>
-                    <a href="RestoreNurse.php" class="btn btn-secondary float-end">Restore Data</a>
+                    <a href="RestoreNurse.php" class="btn btn-secondary float-end">Restore Nurse</a>
                     <a href="DeletedPatientsList.php" class="btn btn-secondary float-end active">Deleted Patients List</a>
                     <br><br>
 

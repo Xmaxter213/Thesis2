@@ -131,8 +131,6 @@ if (isset($_POST['edit'])) {
     $room_Number = $_POST['room_Number'];
     $patient_birth_Date = $_POST['patient_birth_Date'];
     $reason_Admission = $_POST['reason_Admission'];
-    $admission_Status = $_POST['admission_Status'];
-    $nurse_ID = $_POST['nurse_ID'];
     $assistance_Status = $_POST['assistance_Status'];
     $device_Assigned = $_POST['device_Assigned'];
     //$password = sha1($_POST['password']);
@@ -142,19 +140,12 @@ if (isset($_POST['edit'])) {
     $enc_patient_birth_Date = encryptthis($patient_birth_Date, $key);
     $enc_reason_Admission = encryptthis($reason_Admission, $key);
 
-    if ($nurse_ID == NULL && $device_Assigned == NULL)
-    {
+    if ($device_Assigned == NULL) {
         $query = "UPDATE patient_List SET patient_Name ='$enc_patient_Name', room_Number='$room_Number', birth_Date='$enc_patient_birth_Date', reason_Admission='$enc_reason_Admission', 
-        admission_Status='$admission_Status', nurse_ID=NULL, assistance_Status='$assistance_Status', gloves_ID=NULL WHERE patient_ID='$patient_ID'";
-    } else if ($nurse_ID != NULL && $device_Assigned == NULL) {
+        assistance_Status='$assistance_Status', gloves_ID=NULL WHERE patient_ID='$patient_ID'";
+    } else if ($device_Assigned != NULL) {
         $query = "UPDATE patient_List SET patient_Name ='$enc_patient_Name', room_Number='$room_Number', birth_Date='$enc_patient_birth_Date', reason_Admission='$enc_reason_Admission', 
-        admission_Status='$admission_Status', nurse_ID='$nurse_ID', assistance_Status='$assistance_Status', gloves_ID=NULL WHERE patient_ID='$patient_ID'";
-    } else if ($nurse_ID == NULL && $device_Assigned != NULL) {
-        $query = "UPDATE patient_List SET patient_Name ='$enc_patient_Name', room_Number='$room_Number', birth_Date='$enc_patient_birth_Date', reason_Admission='$enc_reason_Admission', 
-        admission_Status='$admission_Status', nurse_ID=NULL, assistance_Status='$assistance_Status', gloves_ID='$device_Assigned' WHERE patient_ID='$patient_ID'";
-    } else if ($nurse_ID != NULL && $device_Assigned != NULL) {
-        $query = "UPDATE patient_List SET patient_Name ='$enc_patient_Name', room_Number='$room_Number', birth_Date='$enc_patient_birth_Date', reason_Admission='$enc_reason_Admission', 
-        admission_Status='$admission_Status', nurse_ID='$nurse_ID', assistance_Status='$assistance_Status', gloves_ID='$device_Assigned' WHERE patient_ID='$patient_ID'";
+        assistance_Status='$assistance_Status', gloves_ID='$device_Assigned' WHERE patient_ID='$patient_ID'";
     }
     
     $query_run = mysqli_query($con, $query);
@@ -427,16 +418,14 @@ if (isset($_POST['edit'])) {
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
                     <a href="PatientsList.php" class="btn btn-secondary float-end">Admitted Patients List</a>
                     <a href="PatientsListDischarged.php" class="btn btn-secondary float-end active">Discharged Patients List</a>
-                    <a href="RestorePatient.php" class="btn btn-secondary float-end">Restore Data</a>
+                    <a href="RestorePatient.php" class="btn btn-secondary float-end">Restore Patient</a>
                     <a href="DeletedPatientsList.php" class="btn btn-secondary float-end">Deleted Patients List</a>
                     <br><br>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-secondary">Patients Table</h6>
-                            <br>
-                            <a class="btn btn-secondary float-end" data-toggle="modal" data-target="#addPatient">Add Patient</a>
+                            <h6 class="m-0 font-weight-bold text-secondary">Discharged Patients Table</h6>
                         </div>
                         <div class="card-body">
 
@@ -490,8 +479,6 @@ if (isset($_POST['edit'])) {
                                                 <th>Room Number <input type="text" class="search-input" placeholder="Room Number"></th>
                                                 <th>Age <input type="text" class="search-input" placeholder="Age"></th>
                                                 <th>Reason for Admission <input type="text" class="search-input" placeholder="Reason for Admission"></th>
-                                                <th>Admission Status <input type="text" class="search-input" placeholder="Admission Status"></th>
-                                                <th>Assigned Nurse ID <input type="text" class="search-input" placeholder="Assigned Nurse ID"></th>
                                                 <th>Device Assigned ID <input type="text" class="search-input" placeholder="Device Assigned ID"></th>
                                                 <th>Change Assigned Ward</th>
                                                 <th>Admit</th>
@@ -529,15 +516,6 @@ if (isset($_POST['edit'])) {
                                                     <td><?php echo $patient['room_Number']; ?></td>
                                                     <td><?php echo $patient_Age ?></td>
                                                     <td><?php echo $dec_reason_Admission ?></td>
-                                                    <td><?php 
-                                                    if ($patient['nurse_ID'] == NULL) {
-                                                        echo "No Assigned Nurse";
-                                                    } 
-                                                    else {
-                                                        echo $patient['nurse_ID'];
-                                                    }?>
-                                                    </td>
-                                                    <td><?php echo $patient['assistance_Status']; ?></td>
                                                     <td><?php 
                                                     if ($patient['gloves_ID'] == NULL) {
                                                         echo "No Assigned Device";
@@ -788,46 +766,6 @@ if (isset($_POST['edit'])) {
                                                                             <div>
                                                                                 <label>Reason for Admission</label>
                                                                                 <input type="text" class="form-control" name="reason_Admission" value="<?=  $dec_reason_Admission ?>" placeholder="Enter Reason for Admission" required pattern ="\S(.*\S)?[A-Za-z0-9]+" title="Must only contain letters & numbers"/>
-                                                                            </div>
-                                                                            <br>
-                                                                            <div>
-                                                                                <?php
-                                                                                // Check if patient has assigned nurse ID
-                                                                                $nurse_Assigned_Variable = NULL;
-                                                                                if ($patient['nurse_ID'] != NULL)
-                                                                                {
-                                                                                    $nurse_Assigned_Variable = $patient['nurse_ID'];
-                                                                                }
-
-                                                                                // Retrieve selected results from database and display them on page
-                                                                                $sqlNursesList = 'SELECT staff_List.nurse_ID, staff_List.nurse_Name, userLogin.status FROM staff_List JOIN userLogin WHERE staff_List.nurse_ID = userLogin.ID AND staff_List.activated = "1" AND userLogin.status = "Nurse"';
-                                                                                $resultNursesList = mysqli_query($con, $sqlNursesList);
-                                                                                
-                                                                                if (mysqli_num_rows($resultNursesList) > 0) { 
-                                                                                ?>
-                                                                                <label>Assigned Nurse ID</label>
-                                                                                <select id="nurse_ID" name="nurse_ID">
-                                                                                            <option value="">Not Assigned a Nurse</option>
-                                                                                    <?php
-                                                                                        while ($row2 = mysqli_fetch_array($resultNursesList)) {
-                                                                                            //Decrypt name
-                                                                                            $dec_nurse_Name = decryptthis($row2["nurse_Name"], $key);
-
-                                                                                            $concatenatedRow = $row2["nurse_ID"] . " - " . $dec_nurse_Name;
-                                                                                    ?>
-                                                                                            <option value="<?php echo $row2["nurse_ID"]; ?>"
-                                                                                            <?php
-                                                                                            // The value we usually set is the primary key
-                                                                                            if ($row2["nurse_ID"] == $nurse_Assigned_Variable){
-                                                                                                echo "selected";
-                                                                                            }?>>
-                                                                                                <?php echo $concatenatedRow;
-                                                                                            ?>
-                                                                                            </option>
-                                                                                            <?php
-                                                                                        }
-                                                                                    }?>
-                                                                                </select>
                                                                             </div>
                                                                             <br>
                                                                             <div>

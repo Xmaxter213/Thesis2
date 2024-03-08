@@ -341,16 +341,14 @@ if (isset($_POST['nurseRestore'])) {
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
                     <a href="NursesList.php" class="btn btn-secondary float-end">Nurses List</a>
                     <a href="EditShiftSchedule.php" class="btn btn-secondary float-end">Shift Schedules List</a>
-                    <a href="RestoreNurse.php" class="btn btn-secondary float-end active">Restore Data</a>
+                    <a href="RestoreNurse.php" class="btn btn-secondary float-end active">Restore Nurse</a>
                     <a href="DeletedNursesList.php" class="btn btn-secondary float-end">Deleted Nurses List</a>
                     <br><br>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-3">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-secondary">DataTables Example</h6>
-                            <a onclick="showSnackbar('add nurse')" href="AddNurse.php" class="btn btn-secondary float-end">Add</a>
-                            
+                            <h6 class="m-0 font-weight-bold text-secondary">Soft Deleted Nurses</h6>           
                         </div>
                         <div class="card-body">
 

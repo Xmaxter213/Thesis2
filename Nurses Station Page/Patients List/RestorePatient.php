@@ -343,7 +343,7 @@ if (isset($_POST['patientRestore'])) {
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
                     <a href="PatientsList.php" class="btn btn-secondary float-end">Admitted Patients List</a>
                     <a href="PatientsListDischarged.php" class="btn btn-secondary float-end">Discharged Patients List</a>
-                    <a href="RestorePatient.php" class="btn btn-secondary float-end active">Restore Data</a>
+                    <a href="RestorePatient.php" class="btn btn-secondary float-end active">Restore Patient</a>
                     <a href="DeletedPatientsList.php" class="btn btn-secondary float-end">Deleted Patients List</a>
                     <br><br>
 

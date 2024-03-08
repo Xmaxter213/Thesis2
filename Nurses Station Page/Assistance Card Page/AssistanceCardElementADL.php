@@ -1,6 +1,6 @@
 <?php
 #bg-primary blue, bg-warning yellow, bg-success green, bg-danger red
-function assistanceCardAdl($patient_ID, $patient_Name, $room_Number, $birth_Date, $reason_Admission, $admission_Status, $nurse_ID, $assistance_Status, $gloves_ID, $device_ID, $ADL_calls, $max_ADL_response_Time, $IMMEDIATE_calls, $max_IMMEDIATE_response_Time, $pulse_Rate, $date_called, $pulse_Rate_Status, $nurse_contact)
+function assistanceCardAdl($patient_ID, $patient_Name, $room_Number, $birth_Date, $reason_Admission, $admission_Status, $assigned_Ward, $assistance_Status, $gloves_ID, $device_ID, $ADL_calls, $max_ADL_response_Time, $IMMEDIATE_calls, $max_IMMEDIATE_response_Time, $pulse_Rate, $date_called, $pulse_Rate_Status, $nurse_contact)
 {
     $cardClasses = $assistance_Status == "Unassigned" ? "rgba(220,53,69, 0.25)" : "rgba(14,202,240, 0.25)";
     $bgClasses = $assistance_Status == "Unassigned" ? "bg-danger" : "bg-primary";

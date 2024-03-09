@@ -155,19 +155,6 @@ $verpass = $_SESSION['verifyPass'];
             animation: bubbleAnimation 1s ease-out;
         }
 
-        @media (max-width: 768px) {
-            #refresh {
-                padding-left: 10px;
-                padding-right: 10px;
-            }
-        }
-
-        @media (min-width: 768px) {
-            #refresh {
-                padding-left: 120px;
-                padding-right: 50px;
-            }
-        }
     </style>
     <!-- Bubble animation -->
     <script>

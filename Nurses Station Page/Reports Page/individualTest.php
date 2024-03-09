@@ -79,7 +79,7 @@ if (isset($_POST['search'])) {
         INNER JOIN 
             arduino_Reports ON patient_List.gloves_ID = arduino_Reports.device_ID
         WHERE 
-            patient_List.activated = 1 
+            patient_List.admission_Status = 'Admitted'
             AND patient_List.patient_ID = $selected_patient_ID
             AND (patient_List.assistance_Status = 'On the way' OR patient_List.assistance_Status = 'Unassigned')
             AND patient_List.admission_Status = 'Admitted'

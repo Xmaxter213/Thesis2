@@ -48,7 +48,7 @@ if ($hospitalStatus != 'Active') {
 
 $verpass = $_SESSION['verifyPass'];
 
-echo '<script>setTimeout(function(){location.reload()}, 15000);</script>';
+// echo '<script>setTimeout(function(){location.reload()}, 15000);</script>';
 ?>
 
 <!DOCTYPE html>
@@ -98,10 +98,18 @@ echo '<script>setTimeout(function(){location.reload()}, 15000);</script>';
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <script>
         $(document).ready(function () {
-            // setInterval(function() {
-            //     $("#refresh").load("assistanceCards.php");
-            //     refresh();
-            // }, 1000);
+            setInterval(function () {
+                $("#refreshImmediate").load("./assistanceCards.php");
+                refresh();
+            }, 1000);
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            setInterval(function () {
+                $("#refreshADL").load("./assistanceCardsADL.php");
+                refresh();
+            }, 1000);
         });
     </script>
 
@@ -333,14 +341,14 @@ echo '<script>setTimeout(function(){location.reload()}, 15000);</script>';
                         style="background-color: rgb(28,35,47); color: white; padding-top: 5px; padding-bottom: 5px; margin-bottom: 20px;">
                         <h3 class="font-weight-bold">Immediate Assistance</h3>
                     </div>
-                    <div id="refresh" class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
+                    <div id="refreshImmediate" class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
                         <?php require_once("./assistanceCards.php") ?>
                     </div>
                     <div class="immediate-assistance-section text-center"
                         style="background-color: rgb(28,35,47); color: white; padding-top: 5px; padding-bottom: 5px; margin-bottom: 20px;">
                         <h3 class="font-weight-bold">ADL Assistance</h3>
                     </div>
-                    <div class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
+                    <div id="refreshADL" class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
                         <?php require_once("./assistanceCardsADL.php") ?>
                     </div>
                 </div>

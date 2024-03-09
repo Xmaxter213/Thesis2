@@ -68,10 +68,10 @@ SELECT
     patient_List.gloves_ID AS patient_gloves_ID, 
     patient_List.activated, 
     patient_List.delete_at, 
-    arduino_Device_List.device_ID AS patient_device_ID,
-    arduino_Device_List.pulse_Rate,
+    arduino_Reports.device_ID AS patient_device_ID,
+    arduino_Reports.pulse_rate AS pulse_Rate,
     CASE 
-        WHEN arduino_Device_List.pulse_Rate >= 100 THEN 'High Pulse Rate'
+        WHEN arduino_Reports.pulse_rate >= 100 THEN 'High Pulse Rate'
         ELSE 'Normal Pulse Rate'
     END AS pulse_Rate_Status
 FROM 
@@ -83,11 +83,10 @@ ON
 INNER JOIN 
     arduino_Device_List 
 ON 
-    patient_List.gloves_ID = arduino_Device_List.device_ID 
+    patient_List.gloves_ID = arduino_Reports.device_ID 
 WHERE 
     patient_List.admission_Status = 'Admitted'
 GROUP BY 
-    arduino_Reports.ID, 
     arduino_Reports.device_ID, 
     arduino_Reports.date_Called, 
     arduino_Reports.nurse_ID, 
@@ -96,8 +95,8 @@ GROUP BY
     patient_List.gloves_ID, 
     patient_List.activated, 
     patient_List.delete_at, 
-    arduino_Device_List.device_ID, 
-    arduino_Device_List.pulse_Rate
+    arduino_Reports.device_ID, 
+    arduino_Reports.pulse_rate
 ) AS subquery
 GROUP BY 
 arduino_device_ID, 

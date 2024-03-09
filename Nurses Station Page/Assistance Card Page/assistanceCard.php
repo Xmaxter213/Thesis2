@@ -48,7 +48,7 @@ if ($hospitalStatus != 'Active') {
 
 $verpass = $_SESSION['verifyPass'];
 
-// echo '<script>setTimeout(function(){location.reload()}, 15000);</script>';
+echo '<script>setTimeout(function(){location.reload()}, 15000);</script>';
 ?>
 
 <!DOCTYPE html>

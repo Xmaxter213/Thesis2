@@ -1,11 +1,6 @@
 <?php
 require_once('../../dbConnection/connection.php');
 
-// Check if session is not already active before starting a new one
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
 if (isset($_GET['logout'])) {
     $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
 
@@ -51,11 +46,9 @@ if ($hospitalStatus != 'Active') {
     header("location: ../../expired.php");
 }
 
-
 $verpass = $_SESSION['verifyPass'];
 
-// Perform a query here to get the values of ADL & IMMEDIATE
-
+// echo '<script>setTimeout(function(){location.reload()}, 15000);</script>';
 ?>
 
 <!DOCTYPE html>
@@ -152,6 +145,20 @@ $verpass = $_SESSION['verifyPass'];
             border-radius: 50%;
             background-color: rgba(255, 255, 255, 0.5);
             animation: bubbleAnimation 1s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            #refresh {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            #refresh {
+                padding-left: 120px;
+                padding-right: 50px;
+            }
         }
     </style>
     <!-- Bubble animation -->
@@ -321,408 +328,371 @@ $verpass = $_SESSION['verifyPass'];
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
-                <?php
-
-                $statusQuery = "SELECT DISTINCT `assistance_Type` FROM `arduino_Reports`";
-
-                $immediateAssistance = [];
-                $adlAssistance = [];
-
-                $statusResult = $con->query($statusQuery);
-
-                if ($statusResult->num_rows > 0) {
-                    while ($row = $statusResult->fetch_assoc()) {
-                        $assistance_Type = $row["assistance_Type"];
-
-                        // Assign the row data to the corresponding array based on the assistance status
-                        if ($assistance_Type == 'IMMEDIATE') {
-                            $immediateAssistance[] = $row;
-                        } elseif ($assistance_Type == 'ADL') {
-                            $adlAssistance[] = $row;
-                        }
-                    }
-                }
-                // Output the cards in the desired order
-                // IMMEDIATE Assistance
-                echo '<div class="px-4" style="color: black;">
-                        <h1 class="font-weight-bold">Immediate Assistance</h1>
-                        <br>
-                        <div id="refresh" class="d-flex flex-wrap">';
-                foreach ($immediateAssistance as $row) {
-                    require_once("./assistanceCards.php"); // File for generating IMMEDIATE assistance card
-                }
-                echo '</div>
-                      <br>';
-
-                // ADL Assistance
-                echo '<h1 class="font-weight-bold">ADL Assistance</h1>
-                      <br>
-                      <div id="refresh" class="d-flex flex-wrap">';
-                foreach ($adlAssistance as $row) {
-                    require_once("./assistanceCardsADL.php"); // File for generating ADL assistance card
-                }
-                echo '</div>
-                      <br>';
-
-                ?>
-                <!-- <div class="px-4" style="color: black;">
-                    <h1 class="font-weight-bold">Immediate Assistance</h1>
-                    <br>
-                    <div id="refresh" class="d-flex flex-wrap">
-                        file--
+                <div class="px-4" style="color: black;">
+                    <div class="immediate-assistance-section text-center"
+                        style="background-color: rgb(28,35,47); color: white; padding-top: 5px; padding-bottom: 5px; margin-bottom: 20px;">
+                        <h3 class="font-weight-bold">Immediate Assistance</h3>
                     </div>
-                    <br>
-                    <h1 class="font-weight-bold">ADL Assistance</h1>
-                    <br>
-                </div> -->
-            </div>
-            <!-- End of Main Content -->
-
-
-        </div>
-        <!-- End of Content Wrapper -->
-
-    </div>
-    <!-- End of Page Wrapper -->
-
-    <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
-
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="?logout=1">Logout</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SMS Modal-->
-    <div class="modal fade" id="smsSettingsModal" tabindex="-1" role="dialog" aria-labelledby="smsSettingsModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="smsSettingsModalLabel">SMS Settings</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="smsToggle" name="smsSetting">
-                        <label class="form-check-label" for="smsToggle" id="smsStatusLabel"></label>
+                    <div id="refresh" class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
+                        <?php require_once("./assistanceCards.php") ?>
+                    </div>
+                    <div class="immediate-assistance-section text-center"
+                        style="background-color: rgb(28,35,47); color: white; padding-top: 5px; padding-bottom: 5px; margin-bottom: 20px;">
+                        <h3 class="font-weight-bold">ADL Assistance</h3>
+                    </div>
+                    <div class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
+                        <?php require_once("./assistanceCardsADL.php") ?>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="location.reload()">Save changes</button>
+
+                <!-- End of Main Content -->
+
+
+            </div>
+            <!-- End of Content Wrapper -->
+
+        </div>
+        <!-- End of Page Wrapper -->
+
+        <!-- Scroll to Top Button-->
+        <a class="scroll-to-top rounded" href="#page-top">
+            <i class="fas fa-angle-up"></i>
+        </a>
+
+        <!-- Logout Modal-->
+        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        <a class="btn btn-primary" href="?logout=1">Logout</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-
-    <!-- password Modal-->
-    <div class="modal fade" id="setPasswordModal" tabindex="-1" role="dialog" aria-labelledby="setPasswordModalLabel"
-        aria-hidden="true" data-backdrop="static" data-keyboard="false">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="setPasswordModalLabel">Set New Password</h5>
-                    <?php if ($verpass == 1): ?>
+        <!-- SMS Modal-->
+        <div class="modal fade" id="smsSettingsModal" tabindex="-1" role="dialog"
+            aria-labelledby="smsSettingsModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="smsSettingsModalLabel">SMS Settings</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                    <?php endif; ?>
-                </div>
-                <div class="modal-body">
-                    <form id="passwordForm">
-                        <div class="form-group">
-                            <label for="password">Password:</label>
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="password" name="password" required>
-                                <span class="input-group-text" onclick="password_show_hide();">
-                                    <i class="fas fa-eye" id="show_eye"></i>
-                                    <i class="fas fa-eye-slash d-none" id="hide_eye"></i>
-                                </span>
-                            </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="smsToggle"
+                                name="smsSetting">
+                            <label class="form-check-label" for="smsToggle" id="smsStatusLabel"></label>
                         </div>
-                        <div class="form-group">
-                            <label for="confirmPassword">Confirm Password:</label>
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
-                                    required>
-                                <span class="input-group-text" onclick="confirm_password_show_hide();">
-                                    <i class="fas fa-eye" id="showConfirmPassword"></i>
-                                    <i class="fas fa-eye-slash d-none" id="hideConfirmPassword"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <?php if ($verpass == 1): ?>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <?php endif; ?>
-                    <button type="button" class="btn btn-primary" id="savePassword">Save</button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="location.reload()">Save changes</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
-
-    <!-- Page level plugins -->
-    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
-    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
-
-    <!-- Page level custom scripts -->
-    <script src="js/demo/datatables-demo.js"></script>
 
 
-    <!--GARBAGE -->
-    <script>
-        window.addEventListener('change', event => {
-            showSnackbar('added');
-        });
-    </script>
+        <!-- password Modal-->
+        <div class="modal fade" id="setPasswordModal" tabindex="-1" role="dialog"
+            aria-labelledby="setPasswordModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="setPasswordModalLabel">Set New Password</h5>
+                        <?php if ($verpass == 1): ?>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="modal-body">
+                        <form id="passwordForm">
+                            <div class="form-group">
+                                <label for="password">Password:</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                    <span class="input-group-text" onclick="password_show_hide();">
+                                        <i class="fas fa-eye" id="show_eye"></i>
+                                        <i class="fas fa-eye-slash d-none" id="hide_eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirm Password:</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="confirmPassword"
+                                        name="confirmPassword" required>
+                                    <span class="input-group-text" onclick="confirm_password_show_hide();">
+                                        <i class="fas fa-eye" id="showConfirmPassword"></i>
+                                        <i class="fas fa-eye-slash d-none" id="hideConfirmPassword"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <?php if ($verpass == 1): ?>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <?php endif; ?>
+                        <button type="button" class="btn btn-primary" id="savePassword">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap core JavaScript-->
+        <script src="vendor/jquery/jquery.min.js"></script>
+        <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Core plugin JavaScript-->
+        <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+        <!-- Custom scripts for all pages-->
+        <script src="js/sb-admin-2.min.js"></script>
+
+        <!-- Page level plugins -->
+        <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+        <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+        <!-- Page level custom scripts -->
+        <script src="js/demo/datatables-demo.js"></script>
 
 
-    <script>
-        function showSnackbar(msg) {
-            // Get the snackbar DIV
-            var x = document.getElementById("snackbar");
+        <!--GARBAGE -->
+        <script>
+            window.addEventListener('change', event => {
+                showSnackbar('added');
+            });
+        </script>
 
-            //Change text
-            if (msg.includes('add nurse')) {
-                document.getElementById("snackbar").innerHTML = "Add nurse page opening...";
-            } else if (msg.includes('edit nurse')) {
-                document.getElementById("snackbar").innerHTML = "Opening edit page...";
-            } else if (msg.includes('delete nurse')) {
-                document.getElementById("snackbar").innerHTML = "Item is being deleted...";
-            } else if (msg.includes('error')) {
-                document.getElementById("snackbar").innerHTML = "Error.. Please try again.";
-            } else if (msg.includes('redirect to nurses list page')) {
-                document.getElementById("snackbar").innerHTML = "Opening nurses list page...";
-            } else if (msg.includes('redirect to patients list page')) {
-                document.getElementById("snackbar").innerHTML = "Refreshing patients list page...";
+
+        <script>
+            function showSnackbar(msg) {
+                // Get the snackbar DIV
+                var x = document.getElementById("snackbar");
+
+                //Change text
+                if (msg.includes('add nurse')) {
+                    document.getElementById("snackbar").innerHTML = "Add nurse page opening...";
+                } else if (msg.includes('edit nurse')) {
+                    document.getElementById("snackbar").innerHTML = "Opening edit page...";
+                } else if (msg.includes('delete nurse')) {
+                    document.getElementById("snackbar").innerHTML = "Item is being deleted...";
+                } else if (msg.includes('error')) {
+                    document.getElementById("snackbar").innerHTML = "Error.. Please try again.";
+                } else if (msg.includes('redirect to nurses list page')) {
+                    document.getElementById("snackbar").innerHTML = "Opening nurses list page...";
+                } else if (msg.includes('redirect to patients list page')) {
+                    document.getElementById("snackbar").innerHTML = "Refreshing patients list page...";
+                }
+
+                // Add the "show" class to DIV
+                x.className = "show";
+
+                // After 3 seconds, remove the show class from DIV
+                setTimeout(function () {
+                    x.className = x.className.replace("show", "");
+                }, 3000);
             }
+        </script>
+        <script src="../Table Sorting/tablesort.js"></script>
+        <script>
+            //Script for searching
+            document.addEventListener("DOMContentLoaded", () => {
+                document.querySelectorAll(".search-input").forEach((inputField) => {
+                    const tableRows = inputField
+                        .closest("table")
+                        .querySelectorAll("tbody > tr");
+                    const headerCell = inputField.closest("th");
+                    const otherHeaderCells = headerCell.closest("tr").children;
+                    const columnIndex = Array.from(otherHeaderCells).indexOf(headerCell);
+                    const searchableCells = Array.from(tableRows).map(
+                        (row) => row.querySelectorAll("td")[columnIndex]
+                    );
 
-            // Add the "show" class to DIV
-            x.className = "show";
+                    inputField.addEventListener("input", () => {
+                        const searchQuery = inputField.value.toLowerCase();
 
-            // After 3 seconds, remove the show class from DIV
-            setTimeout(function () {
-                x.className = x.className.replace("show", "");
-            }, 3000);
-        }
-    </script>
-    <script src="../Table Sorting/tablesort.js"></script>
-    <script>
-        //Script for searching
-        document.addEventListener("DOMContentLoaded", () => {
-            document.querySelectorAll(".search-input").forEach((inputField) => {
-                const tableRows = inputField
-                    .closest("table")
-                    .querySelectorAll("tbody > tr");
-                const headerCell = inputField.closest("th");
-                const otherHeaderCells = headerCell.closest("tr").children;
-                const columnIndex = Array.from(otherHeaderCells).indexOf(headerCell);
-                const searchableCells = Array.from(tableRows).map(
-                    (row) => row.querySelectorAll("td")[columnIndex]
-                );
+                        for (const tableCell of searchableCells) {
+                            const row = tableCell.closest("tr");
+                            const value = tableCell.textContent.toLowerCase().replace(",", "");
 
-                inputField.addEventListener("input", () => {
-                    const searchQuery = inputField.value.toLowerCase();
+                            row.style.visibility = null;
 
-                    for (const tableCell of searchableCells) {
-                        const row = tableCell.closest("tr");
-                        const value = tableCell.textContent.toLowerCase().replace(",", "");
-
-                        row.style.visibility = null;
-
-                        if (value.search(searchQuery) === -1) {
-                            row.style.visibility = "collapse";
+                            if (value.search(searchQuery) === -1) {
+                                row.style.visibility = "collapse";
+                            }
                         }
-                    }
+                    });
                 });
             });
-        });
-    </script>
+        </script>
 
-    <script>
-        // Add an event listener for the checkbox click
-        document.addEventListener('DOMContentLoaded', function () {
-            var smsToggle = document.getElementById('smsToggle');
-            var smsStatusLabel = document.getElementById('smsStatusLabel');
+        <script>
+            // Add an event listener for the checkbox click
+            document.addEventListener('DOMContentLoaded', function () {
+                var smsToggle = document.getElementById('smsToggle');
+                var smsStatusLabel = document.getElementById('smsStatusLabel');
 
-            // Check if there is a cookie for smsSetting
-            var smsSetting = getCookie('smsSetting');
-            if (smsSetting === 'on') {
-                smsToggle.checked = true;
-                smsStatusLabel.textContent = 'SMS On';
-            } else {
-                smsToggle.checked = false;
-                smsStatusLabel.textContent = 'SMS Off';
-            }
-
-            // Add event listener for checkbox click
-            smsToggle.addEventListener('click', function () {
-                if (smsToggle.checked) {
+                // Check if there is a cookie for smsSetting
+                var smsSetting = getCookie('smsSetting');
+                if (smsSetting === 'on') {
+                    smsToggle.checked = true;
                     smsStatusLabel.textContent = 'SMS On';
-                    setCookie('smsSetting', 'on', 365); // Set cookie with expiry of 1 year
                 } else {
+                    smsToggle.checked = false;
                     smsStatusLabel.textContent = 'SMS Off';
-                    setCookie('smsSetting', 'off', 365); // Set cookie with expiry of 1 year
-                }
-            });
-        });
-
-        // Function to set a cookie
-        function setCookie(name, value, days) {
-            var expires = "";
-            if (days) {
-                var date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                expires = "; expires=" + date.toUTCString();
-            }
-            document.cookie = name + "=" + (value || "") + expires + "; path=/";
-        }
-
-        // Function to get a cookie by name
-        function getCookie(name) {
-            var nameEQ = name + "=";
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i];
-                while (cookie.charAt(0) == ' ') {
-                    cookie = cookie.substring(1, cookie.length);
-                }
-                if (cookie.indexOf(nameEQ) == 0) {
-                    return cookie.substring(nameEQ.length, cookie.length);
-                }
-            }
-            return null;
-        }
-    </script>
-
-    <!-- function for change password -->
-    <script>
-        function password_show_hide() {
-            var passwordField = $('#password');
-            var showEye = $('#show_eye');
-            var hideEye = $('#hide_eye');
-            if (passwordField.attr('type') === 'password') {
-                passwordField.attr('type', 'text');
-                showEye.addClass('d-none');
-                hideEye.removeClass('d-none');
-            } else {
-                passwordField.attr('type', 'password');
-                showEye.removeClass('d-none');
-                hideEye.addClass('d-none');
-            }
-        }
-
-        function confirm_password_show_hide() {
-            var confirmPasswordField = $('#confirmPassword');
-            var showConfirmPassword = $('#showConfirmPassword');
-            var hideConfirmPassword = $('#hideConfirmPassword');
-            if (confirmPasswordField.attr('type') === 'password') {
-                confirmPasswordField.attr('type', 'text');
-                showConfirmPassword.addClass('d-none');
-                hideConfirmPassword.removeClass('d-none');
-            } else {
-                confirmPasswordField.attr('type', 'password');
-                showConfirmPassword.removeClass('d-none');
-                hideConfirmPassword.addClass('d-none');
-            }
-        }
-
-
-        function showSnackbar(message) {
-            var snackbar = $("#snackbar");
-            snackbar.text(message);
-            snackbar.addClass("show");
-            setTimeout(function () {
-                snackbar.removeClass("show");
-            }, 3000);
-        }
-
-        $(document).ready(function () {
-            <?php if ($verpass == 0): ?>
-                $('#setPasswordModal').modal('show');
-            <?php endif; ?>
-
-            $('#savePassword').click(function () {
-                var password = $('#password').val();
-                var confirmPassword = $('#confirmPassword').val();
-
-                if (password !== confirmPassword) {
-                    alert("Passwords do not match");
-                    return;
                 }
 
-                if (password == '' && confirmPassword == '') {
-                    alert("Fields are empty");
-                    return;
-                }
-
-                // Log a message before sending AJAX request
-                console.log("Sending AJAX request...");
-
-                $.ajax({
-                    type: "POST",
-                    url: "change_First_Pass.php",
-                    data: {
-                        password: password
-                    },
-                    success: function (response) {
-                        console.log("AJAX request successful:", response);
-                        $('#setPasswordModal').modal('hide');
-                        showSnackbar("Password changed successfully");
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("AJAX request failed:", error);
+                // Add event listener for checkbox click
+                smsToggle.addEventListener('click', function () {
+                    if (smsToggle.checked) {
+                        smsStatusLabel.textContent = 'SMS On';
+                        setCookie('smsSetting', 'on', 365); // Set cookie with expiry of 1 year
+                    } else {
+                        smsStatusLabel.textContent = 'SMS Off';
+                        setCookie('smsSetting', 'off', 365); // Set cookie with expiry of 1 year
                     }
                 });
             });
-        });
-    </script>
+
+            // Function to set a cookie
+            function setCookie(name, value, days) {
+                var expires = "";
+                if (days) {
+                    var date = new Date();
+                    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                    expires = "; expires=" + date.toUTCString();
+                }
+                document.cookie = name + "=" + (value || "") + expires + "; path=/";
+            }
+
+            // Function to get a cookie by name
+            function getCookie(name) {
+                var nameEQ = name + "=";
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i];
+                    while (cookie.charAt(0) == ' ') {
+                        cookie = cookie.substring(1, cookie.length);
+                    }
+                    if (cookie.indexOf(nameEQ) == 0) {
+                        return cookie.substring(nameEQ.length, cookie.length);
+                    }
+                }
+                return null;
+            }
+        </script>
+
+        <!-- function for change password -->
+        <script>
+            function password_show_hide() {
+                var passwordField = $('#password');
+                var showEye = $('#show_eye');
+                var hideEye = $('#hide_eye');
+                if (passwordField.attr('type') === 'password') {
+                    passwordField.attr('type', 'text');
+                    showEye.addClass('d-none');
+                    hideEye.removeClass('d-none');
+                } else {
+                    passwordField.attr('type', 'password');
+                    showEye.removeClass('d-none');
+                    hideEye.addClass('d-none');
+                }
+            }
+
+            function confirm_password_show_hide() {
+                var confirmPasswordField = $('#confirmPassword');
+                var showConfirmPassword = $('#showConfirmPassword');
+                var hideConfirmPassword = $('#hideConfirmPassword');
+                if (confirmPasswordField.attr('type') === 'password') {
+                    confirmPasswordField.attr('type', 'text');
+                    showConfirmPassword.addClass('d-none');
+                    hideConfirmPassword.removeClass('d-none');
+                } else {
+                    confirmPasswordField.attr('type', 'password');
+                    showConfirmPassword.removeClass('d-none');
+                    hideConfirmPassword.addClass('d-none');
+                }
+            }
 
 
-    <!-- For modal -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js"
-        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js"
-        integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
-        crossorigin="anonymous"></script>
+            function showSnackbar(message) {
+                var snackbar = $("#snackbar");
+                snackbar.text(message);
+                snackbar.addClass("show");
+                setTimeout(function () {
+                    snackbar.removeClass("show");
+                }, 3000);
+            }
+
+            $(document).ready(function () {
+                <?php if ($verpass == 0): ?>
+                    $('#setPasswordModal').modal('show');
+                <?php endif; ?>
+
+                $('#savePassword').click(function () {
+                    var password = $('#password').val();
+                    var confirmPassword = $('#confirmPassword').val();
+
+                    if (password !== confirmPassword) {
+                        alert("Passwords do not match");
+                        return;
+                    }
+
+                    if (password == '' && confirmPassword == '') {
+                        alert("Fields are empty");
+                        return;
+                    }
+
+                    // Log a message before sending AJAX request
+                    console.log("Sending AJAX request...");
+
+                    $.ajax({
+                        type: "POST",
+                        url: "change_First_Pass.php",
+                        data: {
+                            password: password
+                        },
+                        success: function (response) {
+                            console.log("AJAX request successful:", response);
+                            $('#setPasswordModal').modal('hide');
+                            showSnackbar("Password changed successfully");
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("AJAX request failed:", error);
+                        }
+                    });
+                });
+            });
+        </script>
+
+
+        <!-- For modal -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js"
+            integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js"
+            integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+            crossorigin="anonymous"></script>
 </body>
 
 </html>

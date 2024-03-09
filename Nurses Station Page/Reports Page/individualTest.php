@@ -66,7 +66,6 @@ if (isset($_POST['search'])) {
             MAX(patient_List.birth_Date) AS birth_Date, 
             MAX(patient_List.reason_Admission) AS reason_Admission, 
             MAX(patient_List.admission_Status) AS admission_Status, 
-            MAX(patient_List.nurse_ID) AS nurse_ID, 
             MAX(patient_List.assistance_Status) AS assistance_Status, 
             MAX(patient_List.gloves_ID) AS patient_gloves_ID, 
             MAX(patient_List.activated) AS activated, 
@@ -80,7 +79,10 @@ if (isset($_POST['search'])) {
         INNER JOIN 
             arduino_Reports ON patient_List.gloves_ID = arduino_Reports.device_ID
         WHERE 
-            patient_List.admission_Status = 'Admitted' AND patient_List.patient_ID = $selected_patient_ID
+            patient_List.activated = 1 
+            AND patient_List.patient_ID = $selected_patient_ID
+            AND (patient_List.assistance_Status = 'On the way' OR patient_List.assistance_Status = 'Unassigned')
+            AND patient_List.admission_Status = 'Admitted'
         GROUP BY
             patient_List.patient_ID
     ),
@@ -120,7 +122,6 @@ if (isset($_POST['search'])) {
         PAD.birth_Date,
         PAD.reason_Admission,
         PAD.admission_Status,
-        PAD.nurse_ID,
         PAD.assistance_Status,
         PAD.patient_gloves_ID,
         PAD.activated,
@@ -150,7 +151,6 @@ if (isset($_POST['search'])) {
         PAD.birth_Date,
         PAD.reason_Admission,
         PAD.admission_Status,
-        PAD.nurse_ID,
         PAD.assistance_Status,
         PAD.patient_gloves_ID,
         PAD.activated,

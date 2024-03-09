@@ -62,8 +62,8 @@ unsigned long u8LCDmilli;
 #define Flex1 35
 #define Flex2 32
 
-const char* ssid = "HUAWEIMateBohol";
-const char* password = "Thunderblade39";
+const char* ssid = "ZTE_2.4G_Rvv5KV";
+const char* password = "3CbGK2Fb";
 
 // 'battery_full', 30x10px
 const unsigned char epd_bitmap_battery_full [] PROGMEM = {
@@ -102,7 +102,7 @@ int status = WL_IDLE_STATUS;
 
 int HTTP_PORT = 80;
 String HTTP_METHOD = "GET";
-char HOST_NAME[] = "192.168.43.228"; // IPv4
+char HOST_NAME[] = "192.168.1.8"; // IPv4
 String PATH_NAME = "/Thesis2/arduino/assistance_Send.php";
 
 bool buttonPressed = false;

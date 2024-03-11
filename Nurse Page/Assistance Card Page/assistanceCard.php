@@ -1,33 +1,71 @@
 <?php
 require_once('../../dbConnection/connection.php');
 
-// Check if session is not already active before starting a new one
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+$hospital_ID = $_SESSION['selectedHospitalID'];
 
+// LOGOUT
 if (isset($_GET['logout'])) {
-    session_destroy();
-    unset($_SESSION);
-    header("location: ../../MainHospital/login_new.php");
+    $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
+
+    date_default_timezone_set('Asia/Manila');
+
+    $currentDateTime = date("Y-m-d H:i:s");
+
+    // Insert into superAdminLogs
+    $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Logout', '$currentDateTime', '$hospital_ID')";
+    $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+    if ($query_run_logs) {
+        session_destroy();
+        unset($_SESSION);
+        header("location: ../../MainHospital/login_new.php");
+    } else {
+        echo 'Error inserting logs: ' . mysqli_error($con);
+    }
 }
 
+// USER LOGGED IN
 if (!isset($_SESSION['userID'])) {
     header("location: ../../MainHospital/login_new.php");
 } 
-require_once('../../dbConnection/connection2.php');
-$hospitalName = "Helping Hand";
-$query = "SELECT hospitalStatus FROM Hospital_Table WHERE hospitalName = ?";
-$stmt = mysqli_prepare($con2, $query);
-mysqli_stmt_bind_param($stmt, "s", $hospitalName);
-mysqli_stmt_execute($stmt);
-mysqli_stmt_bind_result($stmt, $hospitalStatus);
-mysqli_stmt_fetch($stmt);
-mysqli_stmt_close($stmt);
+else 
+{
+    $status = $_SESSION['userStatus'];
 
-// Check if the hospital status is 'Active'
-if ($hospitalStatus != 'Active') {
-    header("location: ../../expired.php");
+    if ($status === 'Admin') {
+        header("location: ../../Nurses Station Page/assistanceCard.php");
+    }
+    if ($status === 'Super Admin')
+    {
+        header("location: ../../Super Admin/index.php");
+    }
+}
+
+// SELECTED HOSPITAL !EXPIRED
+if(isset($_SESSION['selectedHospitalID']))
+{
+    $hospital_ID = $_SESSION['selectedHospitalID'];
+
+    $query = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
+    $query_run = mysqli_query($con, $query);
+
+    if($query_run)
+    {
+        $row = mysqli_fetch_assoc($query_run);
+        $expirationDate = new DateTime($row['Expiration']);
+        $currentDate = new DateTime();
+
+        if($expirationDate < $currentDate)
+        {
+            header("location: ../../expiredPage/expired.php");
+        }
+    }
+    else
+    {
+        echo "Error executing the query: " . mysqli_error($con);
+    }
+
+    
 }
 
 $verpass = $_SESSION['verifyPass'];

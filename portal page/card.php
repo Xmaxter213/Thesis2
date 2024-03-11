@@ -55,6 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: 1px solid #ccc;
             cursor: pointer;
         }
+
+        .card img {
+            max-width: 100%;
+            max-height: 50px; /* Set the desired height for the logo */
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -73,6 +79,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $hospitalID = $row["hospital_ID"];
         ?>
         <div class="card" onclick="selectHospital('<?php echo $hospitalID; ?>')">
+            <?php 
+                // You can adjust the path to the logo based on your setup
+                $logoPath = '../LOGO FOLDER/' . $row['hospital_Logo'];
+            ?>
+            <img src="<?php echo $logoPath; ?>" alt="Hospital Logo">
             <h3><?php echo $row["hospitalName"]; ?></h3>
             <!-- You can add more details here if needed -->
         </div>

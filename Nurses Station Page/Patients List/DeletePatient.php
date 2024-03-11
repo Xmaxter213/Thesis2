@@ -11,7 +11,7 @@ if(isset($_POST['patientDelete']))
     $reasonForDeletion = $_POST[$reason_For_Deletion_Variable];
 
     //Deactivate account & put into trash
-    $query1="UPDATE patient_List SET activated=0, delete_at = CURRENT_DATE + INTERVAL 3 DAY WHERE patient_ID='$patient_ID'";
+    $query1="UPDATE patient_List SET activated=0, delete_at = CURRENT_DATE + INTERVAL 30 DAY WHERE patient_ID='$patient_ID'";
     $query2 = "INSERT INTO patient_List_Trash (patient_ID, hospital_ID, deleted_at, reason_For_Deletion) VALUES ($patient_ID, $hospital_ID, NULL, '$reasonForDeletion')";
     //$query = "DELETE FROM patient_List WHERE patient_ID ='$patient_ID'";
     

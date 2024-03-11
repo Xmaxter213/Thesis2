@@ -59,6 +59,8 @@ if (isset($_POST['nurseRestore'])) {
         date_default_timezone_set('Asia/Manila');
         $currentDateTime = date("Y-m-d H:i:s");
 
+        $hospital_ID = $_SESSION['selectedHospitalID'];
+        
         $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Restored Nurse/Admin Account ID: $nurse_ID', '$currentDateTime', $hospital_ID)";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 

@@ -81,7 +81,7 @@ if (isset($_POST['add'])) {
     //$date_Employment = sha1($_POST['date_Employment']);
 
     //Let's get the current website user's assigned ward
-        $staff_ID = $_SESSION['userID'];
+        $staff_ID = $_SESSION['idNUM'];
 
         // Prepare the SELECT query using mysqli
         $query = "SELECT assigned_Ward FROM staff_List WHERE nurse_ID = ?";
@@ -106,10 +106,10 @@ if (isset($_POST['add'])) {
     $enc_nurse_birth_Date = encryptthis($nurse_birth_Date, $key);
     $enc_date_Employment = encryptthis($date_Employment, $key);
 
-    $query = "INSERT INTO staff_List (nurse_ID, hospital_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL,'$enc_nurse_Name', '$hospital_ID', $nurse_Assigned_Ward, '$enc_nurse_Contract_No', '$enc_nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$employment_Status', '$enc_date_Employment', '$activated')";
+    $query = "INSERT INTO staff_List (nurse_ID, hospital_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL, '$hospital_ID', '$enc_nurse_Name', '$nurse_Assigned_Ward', '$enc_nurse_Contract_No', '$enc_nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$employment_Status', '$enc_date_Employment', '$activated')";
     $query_run = mysqli_query($con, $query);
 
-    $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status, verifyPassword, hospital_ID) VALUES (NULL, '$nurse_email','$nurse_password', '$userName', '$account_status', '0','$hospital_ID')";
+    $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status, code, verifyPassword, hospital_ID) VALUES (NULL, '$nurse_email','$nurse_password', '$userName', '$account_status', '0', '0','$hospital_ID')";
     $query_Login_run = mysqli_query($con, $query_Login);
 
     if ($query_run) {
@@ -950,7 +950,7 @@ if (isset($_POST['edit'])) {
                                                                         </button>
                                                                     </div>
                                                                     <div class="modal-body">
-                                                                        The deleted item would be in the recycle bin for 3 days before being permanently deleted.
+                                                                        The deleted item would be in the recycle bin for 30 days before being permanently deleted.
                                                                         <form action="DeleteNurse.php" method="POST">
                                                                             <br>
                                                                             <label for="deleteReason1">Reason for deletion: </label> <br>

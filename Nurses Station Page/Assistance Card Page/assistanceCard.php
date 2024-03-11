@@ -26,45 +26,37 @@ if (isset($_GET['logout'])) {
 // USER LOGGED IN
 if (!isset($_SESSION['userID'])) {
     header("location: ../../MainHospital/login_new.php");
-} 
-else 
-{
+} else {
     $status = $_SESSION['userStatus'];
 
     if ($status === 'Nurse') {
         header("location: ../../Nurse page/assistanceCard.php");
     }
-    if ($status === 'Super Admin')
-    {
+    if ($status === 'Super Admin') {
         header("location: ../../Super Admin/index.php");
     }
 }
 
 // SELECTED HOSPITAL !EXPIRED
-if(isset($_SESSION['selectedHospitalID']))
-{
+if (isset($_SESSION['selectedHospitalID'])) {
     $hospital_ID = $_SESSION['selectedHospitalID'];
 
     $query = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
     $query_run = mysqli_query($con, $query);
 
-    if($query_run)
-    {
+    if ($query_run) {
         $row = mysqli_fetch_assoc($query_run);
         $expirationDate = new DateTime($row['Expiration']);
         $currentDate = new DateTime();
 
-        if($expirationDate < $currentDate)
-        {
+        if ($expirationDate < $currentDate) {
             header("location: ../../expiredPage/expired.php");
         }
-    }
-    else
-    {
+    } else {
         echo "Error executing the query: " . mysqli_error($con);
     }
 
-    
+
 }
 
 $verpass = $_SESSION['verifyPass'];
@@ -115,25 +107,6 @@ $verpass = $_SESSION['verifyPass'];
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css"
         integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 
-    <!-- for div refresh -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            setInterval(function () {
-                $("#refreshImmediate").load("./assistanceCards.php");
-                refresh();
-            }, 1000);
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            setInterval(function () {
-                $("#refreshADL").load("./assistanceCardsADL.php");
-                refresh();
-            }, 1000);
-        });
-    </script>
-
     <style>
         .nav-link {
             display: flex;
@@ -176,7 +149,41 @@ $verpass = $_SESSION['verifyPass'];
             animation: bubbleAnimation 1s ease-out;
         }
 
+        @media (max-width: 768px) {
+            #refresh {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            #refresh {
+                padding-left: 10px;
+                padding-right: 50px;
+            }
+        }
     </style>
+
+
+    <!-- for div refresh -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            setInterval(function () {
+                $("#refreshImmediate").load("./assistanceCards.php");
+                refresh();
+            }, 1000);
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            setInterval(function () {
+                $("#refreshADL").load("./assistanceCardsADL.php");
+                refresh();
+            }, 1000);
+        });
+    </script>
+
     <!-- Bubble animation -->
     <script>
         function showBubbleAnimation(event) {

@@ -79,15 +79,15 @@ $verpass = $_SESSION['verifyPass'];
 
     <style>
         @media (max-width: 768px) {
-            #refreshImmediate {
+            #refresh {
                 padding-left: 10px;
                 padding-right: 10px;
             }
         }
 
         @media (min-width: 768px) {
-            #refreshADL {
-                padding-left: 120px;
+            #refresh {
+                padding-left: 10px;
                 padding-right: 50px;
             }
         }

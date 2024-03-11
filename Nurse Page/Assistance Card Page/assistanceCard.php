@@ -1,6 +1,7 @@
 <?php
 require_once('../../dbConnection/connection.php');
 
+// Check if session is not already active before starting a new one
 $hospital_ID = $_SESSION['selectedHospitalID'];
 
 // LOGOUT
@@ -67,7 +68,6 @@ if(isset($_SESSION['selectedHospitalID']))
 
     
 }
-
 $verpass = $_SESSION['verifyPass'];
 
 // echo '<script>setTimeout(function(){location.reload()}, 10000);</script>';

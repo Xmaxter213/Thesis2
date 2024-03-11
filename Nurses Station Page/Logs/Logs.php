@@ -3,33 +3,69 @@
 
     $hospital_ID = $_SESSION['selectedHospitalID'];
 
-
+    // LOGOUT
     if (isset($_GET['logout'])) {
         $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
-
+    
         date_default_timezone_set('Asia/Manila');
-
+    
         $currentDateTime = date("Y-m-d H:i:s");
-
+    
         // Insert into superAdminLogs
         $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Logout', '$currentDateTime', '$hospital_ID')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
-
-        if ($query_run_logs) 
-        {
+    
+        if ($query_run_logs) {
             session_destroy();
             unset($_SESSION);
-            header("location: ../../portal page/index.php");
-        } 
-        else 
-        {
+            header("location: ../../MainHospital/login_new.php");
+        } else {
             echo 'Error inserting logs: ' . mysqli_error($con);
         }
-
     }
-
+    
+    // USER LOGGED IN
     if (!isset($_SESSION['userID'])) {
-        header("location: ../../portal page/index.php");
+        header("location: ../../MainHospital/login_new.php");
+    } 
+    else 
+    {
+        $status = $_SESSION['userStatus'];
+    
+        if ($status === 'Nurse') {
+            header("location: ../../Nurse page/assistanceCard.php");
+        }
+        if ($status === 'Super Admin')
+        {
+            header("location: ../../Super Admin/index.php");
+        }
+    }
+    
+    // SELECTED HOSPITAL !EXPIRED
+    if(isset($_SESSION['selectedHospitalID']))
+    {
+        $hospital_ID = $_SESSION['selectedHospitalID'];
+    
+        $query = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
+        $query_run = mysqli_query($con, $query);
+    
+        if($query_run)
+        {
+            $row = mysqli_fetch_assoc($query_run);
+            $expirationDate = new DateTime($row['Expiration']);
+            $currentDate = new DateTime();
+    
+            if($expirationDate < $currentDate)
+            {
+                header("location: ../../expiredPage/expired.php");
+            }
+        }
+        else
+        {
+            echo "Error executing the query: " . mysqli_error($con);
+        }
+    
+        
     }
 ?>
 

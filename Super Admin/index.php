@@ -43,7 +43,6 @@
 
         $Hospital_Name = $_POST['Hospital_Name'];
         $Subscriber_Email = $_POST['Subscriber_email'];
-        $Hospital_Status = "Active";
         $Subscription = $_POST['Subscription_Duration'];
 
         date_default_timezone_set('Asia/Manila');
@@ -51,7 +50,7 @@
 
         $Expiration_Date = date("Y-m-d H:i:s", strtotime("+" . $Subscription . " months", strtotime($Creation_Date)));
 
-        $sqladdHospital = "INSERT INTO Hospital_Table (Subscriber_Name, hospitalName, hospitalStatus, email, creation_Date, Expiration) VALUES ('$Subscriber_Name', '$Hospital_Name', '$Hospital_Status', '$Subscriber_Email', '$Creation_Date', '$Expiration_Date')";
+        $sqladdHospital = "INSERT INTO Hospital_Table (Subscriber_Name, hospitalName, email, creation_Date, Expiration) VALUES ('$Subscriber_Name', '$Hospital_Name', '$Subscriber_Email', '$Creation_Date', '$Expiration_Date')";
         $query_run_addHospital = mysqli_query($con, $sqladdHospital);
 
         if($query_run_addHospital)
@@ -440,18 +439,15 @@
 
                                                 $interval = $currentDate->diff($expirationDate);
 
-                                                // Check if the status is empty or if the expiration is less than 0 days
-                                                if (empty($hospital['hospitalStatus']) || $interval->format('%R%a') < 0) {
-                                                    // Update the hospital status to 'Expired' in the database
-                                                    $hospitalID = $hospital['hospital_ID'];
-                                                    $updateQuery = "UPDATE Hospital_Table SET hospitalStatus = 'Expired' WHERE hospital_ID = '$hospitalID'";
-                                                    mysqli_query($con, $updateQuery);
-                                                } else {
-                                                    // Set the status to 'Active' if the duration is greater than or equal to 0 days
-                                                    $hospitalID = $hospital['hospital_ID'];
-                                                    $updateQuery = "UPDATE Hospital_Table SET hospitalStatus = 'Active' WHERE hospital_ID = '$hospitalID'";
-                                                    mysqli_query($con, $updateQuery);
+                                                if($expirationDate >= $currentDate)
+                                                {
+                                                    $hospital_status = "ACTIVE";
                                                 }
+                                                else
+                                                {
+                                                    $hospital_status = "EXPIRED";
+                                                }
+
                                                 ?>
 
 
@@ -460,7 +456,7 @@
                                                     <td><?php echo $hospital['Subscriber_Name'] ?></td>
                                                     <td><?php echo $hospital['hospitalName'] ?></td>
                                                     <td><?php echo $hospital['email'] ?></td>
-                                                    <td><?php echo $hospital['hospitalStatus'] ?></td>
+                                                    <td><?php echo $hospital_status?></td>
                                                     <td>
                                                         <?php
                                                         // Check if there are years, months, or days

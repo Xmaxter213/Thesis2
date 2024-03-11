@@ -2,23 +2,70 @@
 require_once('../../dbConnection/connection.php');
 
 $hospital_ID = $_SESSION['selectedHospitalID'];
-//include('message.php');
 
+// LOGOUT
 if (isset($_GET['logout'])) {
-    session_destroy();
-    unset($_SESSION);
-    header("location: ../../MainHospital/login_new.php");
+    $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
+
+    date_default_timezone_set('Asia/Manila');
+
+    $currentDateTime = date("Y-m-d H:i:s");
+
+    // Insert into superAdminLogs
+    $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Logout', '$currentDateTime', '$hospital_ID')";
+    $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+    if ($query_run_logs) {
+        session_destroy();
+        unset($_SESSION);
+        header("location: ../../MainHospital/login_new.php");
+    } else {
+        echo 'Error inserting logs: ' . mysqli_error($con);
+    }
 }
 
+// USER LOGGED IN
 if (!isset($_SESSION['userID'])) {
     header("location: ../../MainHospital/login_new.php");
-} else {
+} 
+else 
+{
     $status = $_SESSION['userStatus'];
 
-
     if ($status === 'Nurse') {
-        header("location: ../../dumHomePage/index.php");
+        header("location: ../../Nurse page/assistanceCard.php");
     }
+    if ($status === 'Super Admin')
+    {
+        header("location: ../../Super Admin/index.php");
+    }
+}
+
+// SELECTED HOSPITAL !EXPIRED
+if(isset($_SESSION['selectedHospitalID']))
+{
+    $hospital_ID = $_SESSION['selectedHospitalID'];
+
+    $query = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
+    $query_run = mysqli_query($con, $query);
+
+    if($query_run)
+    {
+        $row = mysqli_fetch_assoc($query_run);
+        $expirationDate = new DateTime($row['Expiration']);
+        $currentDate = new DateTime();
+
+        if($expirationDate < $currentDate)
+        {
+            header("location: ../../expiredPage/expired.php");
+        }
+    }
+    else
+    {
+        echo "Error executing the query: " . mysqli_error($con);
+    }
+
+    
 }
 
 if (isset($_POST['add'])) {
@@ -469,10 +516,10 @@ if (isset($_POST['delete'])) {
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con->query("SELECT * FROM shift_Schedule LIMIT $start, $limit");
+                                $result = $con->query("SELECT * FROM shift_Schedule WHERE hospital_ID = '$hospital_ID' LIMIT $start, $limit");
                                 $shiftSchedules = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con->query("SELECT count(ID) AS ID FROM shift_Schedule");
+                                $result1 = $con->query("SELECT count(ID) AS ID FROM shift_Schedule WhERE hospital_ID = '$hospital_ID'");
                                 $custCount = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $custCount[0]['ID'];
                                 $pages = ceil( $total / $limit );

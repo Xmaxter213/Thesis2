@@ -101,6 +101,6 @@ if ($result->num_rows > 0) {
         assistanceCard($row['patient_ID'], $dec_patient_Name, $row['room_Number'], $patient_Age, $admissionReason, $row['admission_Status'], $row['nurse_ID'], $row['assistance_Status'], $row['gloves_ID'], $nurse_contact, $row['assigned_Ward']);
     }
 } else {
-    echo "0";
+    echo "<h2>No Requests</h2>";
 }
 ?>

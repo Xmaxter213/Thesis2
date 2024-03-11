@@ -8,6 +8,8 @@ include('../../dbConnection/AES encryption.php');
 //This is to make sure that deactivated accounts that are due for deletion are deleted
 include('patientDeleteEntriesDue.php');
 
+$hospital_ID = $_SESSION['selectedHospitalID'];
+
 // LOGOUT
 if (isset($_GET['logout'])) {
     $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
@@ -23,7 +25,7 @@ if (isset($_GET['logout'])) {
     if ($query_run_logs) {
         session_destroy();
         unset($_SESSION);
-        header("location: ../MainHospital/login_new.php");
+        header("location: ../../MainHospital/login_new.php");
     } else {
         echo 'Error inserting logs: ' . mysqli_error($con);
     }

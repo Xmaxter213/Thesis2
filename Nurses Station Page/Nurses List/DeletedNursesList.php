@@ -5,39 +5,70 @@ require_once('../../dbConnection/connection.php');
 //The functions for the encryption
 include('../../dbConnection/AES encryption.php');
 
+// LOGOUT
 if (isset($_GET['logout'])) {
-    session_destroy();
-    unset($_SESSION);
-    header("location: ../../MainHospital/login_new.php");
+    $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
+
+    date_default_timezone_set('Asia/Manila');
+
+    $currentDateTime = date("Y-m-d H:i:s");
+
+    // Insert into superAdminLogs
+    $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Logout', '$currentDateTime', '$hospital_ID')";
+    $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+    if ($query_run_logs) {
+        session_destroy();
+        unset($_SESSION);
+        header("location: ../MainHospital/login_new.php");
+    } else {
+        echo 'Error inserting logs: ' . mysqli_error($con);
+    }
 }
 
+// USER LOGGED IN
 if (!isset($_SESSION['userID'])) {
     header("location: ../../MainHospital/login_new.php");
-} else {
-
+} 
+else 
+{
     $status = $_SESSION['userStatus'];
 
-
     if ($status === 'Nurse') {
-        header("location: ../../dumHomePage/index.php");
+        header("location: ../../Nurse page/assistanceCard.php");
+    }
+    if ($status === 'Super Admin')
+    {
+        header("location: ../../Super Admin/index.php");
     }
 }
 
-require_once('../../dbConnection/connection2.php');
-    $hospitalName = "Helping Hand";
-    $query = "SELECT hospitalStatus FROM Hospital_Table WHERE hospitalName = ?";
-    $stmt = mysqli_prepare($con2, $query);
-    mysqli_stmt_bind_param($stmt, "s", $hospitalName);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_bind_result($stmt, $hospitalStatus);
-    mysqli_stmt_fetch($stmt);
-    mysqli_stmt_close($stmt);
+// SELECTED HOSPITAL !EXPIRED
+if(isset($_SESSION['selectedHospitalID']))
+{
+    $hospital_ID = $_SESSION['selectedHospitalID'];
 
-    // Check if the hospital status is 'Active'
-    if ($hospitalStatus != 'Active') {
-        header("location: ../../expired.html");
+    $query = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
+    $query_run = mysqli_query($con, $query);
+
+    if($query_run)
+    {
+        $row = mysqli_fetch_assoc($query_run);
+        $expirationDate = new DateTime($row['Expiration']);
+        $currentDate = new DateTime();
+
+        if($expirationDate < $currentDate)
+        {
+            header("location: ../../expiredPage/expired.php");
+        }
+    }
+    else
+    {
+        echo "Error executing the query: " . mysqli_error($con);
     }
 
+    
+}
 //This is to make sure that deactivated accounts that are due for deletion are deleted
 include('nurseDeleteEntriesDue.php');
 
@@ -400,10 +431,10 @@ if (isset($_POST['edit'])) {
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con->query("SELECT * FROM staff_List_Trash WHERE deleted_at != 1 LIMIT $start, $limit");
+                                $result = $con->query("SELECT * FROM staff_List_Trash WHERE deleted_at != 1 AND hospital_ID = '$hospital_ID' LIMIT $start, $limit");
                                 $nurses = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con->query("SELECT count(nurse_ID) AS nurse_ID FROM staff_List_Trash");
+                                $result1 = $con->query("SELECT count(nurse_ID) AS nurse_ID FROM staff_List_Trash WHERE hospital_ID = '$hospital_ID'");
                                 $custCount = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $custCount[0]['nurse_ID'];
                                 $pages = ceil( $total / $limit );

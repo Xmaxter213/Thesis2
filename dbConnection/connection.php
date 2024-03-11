@@ -21,7 +21,7 @@ $dbname = "dbthesis2";
 
 if (!$con = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname))
 {
-    die("failed to connect!");
+    die("failed to connect!" . mysqli_connect_error());
 }
 
 //This is used on add book.php to add to db using this variable

@@ -1,6 +1,11 @@
 <?php
 require_once('../dbConnection/connection.php');
 
+if (isset($_SESSION['selectedHospitalID']))
+{
+    header("location: ../MainHospital/Login_new.php");
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Check if Hospital ID is selected
     if(isset($_POST['Hospital_Table']) && !empty($_POST['Hospital_Table'])) {

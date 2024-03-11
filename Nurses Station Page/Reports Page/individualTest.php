@@ -5,6 +5,7 @@ require_once('../../dbConnection/connection.php');
 //The functions for the encryption
 include('../../dbConnection/AES encryption.php');
 
+// LOGOUT
 if (isset($_GET['logout'])) {
     $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
 
@@ -13,7 +14,7 @@ if (isset($_GET['logout'])) {
     $currentDateTime = date("Y-m-d H:i:s");
 
     // Insert into superAdminLogs
-    $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time) VALUES ('$userName', 'Logout', '$currentDateTime')";
+    $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$userName', 'Logout', '$currentDateTime', '$hospital_ID')";
     $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
     if ($query_run_logs) {
@@ -25,16 +26,48 @@ if (isset($_GET['logout'])) {
     }
 }
 
+// USER LOGGED IN
 if (!isset($_SESSION['userID'])) {
     header("location: ../../MainHospital/login_new.php");
-} else {
-
+} 
+else 
+{
     $status = $_SESSION['userStatus'];
 
-
     if ($status === 'Nurse') {
-        header("location: ../../dumHomePage/index.php");
+        header("location: ../../Nurse page/assistanceCard.php");
     }
+    if ($status === 'Super Admin')
+    {
+        header("location: ../../Super Admin/index.php");
+    }
+}
+
+// SELECTED HOSPITAL !EXPIRED
+if(isset($_SESSION['selectedHospitalID']))
+{
+    $hospital_ID = $_SESSION['selectedHospitalID'];
+
+    $query = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
+    $query_run = mysqli_query($con, $query);
+
+    if($query_run)
+    {
+        $row = mysqli_fetch_assoc($query_run);
+        $expirationDate = new DateTime($row['Expiration']);
+        $currentDate = new DateTime();
+
+        if($expirationDate < $currentDate)
+        {
+            header("location: ../../expiredPage/expired.php");
+        }
+    }
+    else
+    {
+        echo "Error executing the query: " . mysqli_error($con);
+    }
+
+    
 }
 
 if (isset($_POST['search'])) {

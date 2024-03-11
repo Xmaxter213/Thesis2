@@ -2,8 +2,21 @@
 require_once('../dbConnection/connection.php');
 
 if (isset($_SESSION['userID'])) {
-    header("Location: ../dumHomePage/index.php");
+    header("Location: ../Nurses Station Page/Assistance Card Page/assistanceCard.php");
 }
+if (!isset($_SESSION['selectedHospitalID']))
+{
+    header("location: ../portal page/index.php");
+}
+
+
+if(isset($_GET['Change_Hospital']))
+{
+    session_destroy();
+    unset($_SESSION);
+    header("location: ../portal page/index.php");
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -17,7 +30,7 @@ if (isset($_SESSION['userID'])) {
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>F.O.O.D - Login</title>
+    <title>Hospital Login</title>
     <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="assets/FinalLogo.png" />
     <!-- Custom fonts for this template-->
@@ -63,11 +76,7 @@ if (isset($_SESSION['userID'])) {
                                     <div class="text-center">
                                     </div>
                                     <div class="text-center">
-                                        <a class="small" href="./forgot_password.php">Forgot Password?</a>
-                                        <br>
-                                        <a class="small" href="../Register Page/Register.php">Create an Account!</a>
-                                        <br>
-                                        <a class="small" href="../Nurses Station Page/Assistance Card Page/assistanceCard.php">Go to Home!</a>
+                                        <a class="small" href="?Change_Hospital=1">Change Hospital</a>
                                     </div>
                                 </div>
                             </div>
@@ -111,7 +120,7 @@ if (isset($_SESSION['userID'])) {
                                     'type': 'success'
                                 })
                                 if ($.trim(data) === "Successfully") {
-                                    setTimeout('window.location.href = "../dumHomePage/index.php"', 2000);
+                                    setTimeout('window.location.href = "../Nurses Station Page/Assistance Card Page/assistanceCard.php"', 2000);
                                 }
                             } else if (data === "Account Not validated") {
                                 Swal.fire({

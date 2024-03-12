@@ -485,11 +485,7 @@ if (isset($_POST['edit'])) {
 
                                 // Close the statement
                                 $getNurseAssignedWard->close();
-                                                     
-                                echo 'staff_ID' . $staff_ID;
-                                    echo 'ward' . $nurse_Assigned_Ward;
-                                    echo 'hospital ID' . $hospital_ID;
-                                    
+                                                       
                                 //This is for pagination
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;

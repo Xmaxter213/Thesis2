@@ -5,6 +5,7 @@ require_once('../dbConnection/connection.php');
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["email"])) {
     $email = $_POST["email"];
     $hospitalID = $_SESSION['selectedHospitalID'];
+    $_SESSION['userEmail'] = $email;
 
     // Get the current expiration date from the database using prepared statement
     $checkemailQuery = "SELECT ID FROM userLogin WHERE email = ?";
@@ -17,7 +18,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["email"])) {
         $row = $result->fetch_assoc();
         $randomCode = generateRandomCode();
         $response['success'] = true;
-        $response['message'] = "Email exists in the database.";
         $id = $row['ID'];
 
         $phoneQeuery = "SELECT contact_No FROM staff_List WHERE nurse_ID = ?";

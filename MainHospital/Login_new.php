@@ -129,14 +129,15 @@ if(isset($_GET['Change_Hospital']))
                         <input type="email" id="typeEmail" class="form-control my-3" />
                         <label class="form-label" for="typeEmail">Email input</label>
                     </div>
-                    <a href="#" class="btn btn-primary w-100">Reset password</a>
+                    <button type="button" class="btn btn-primary w-100" id="resetPassButton">Reset password</button>
                     <div class="d-flex justify-content-end mt-4">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="forgotclose">Close</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     <div class="modal top fade" id="confirmCodeModal" tabindex="-1" aria-labelledby="exampleModalLabel" data-bs-backdrop='static' aria-hidden="true" data-mdb-keyboard="true">
         <div class="modal-dialog" style="width: 500px;">
@@ -149,12 +150,12 @@ if(isset($_GET['Change_Hospital']))
                         Enter your code
                     </p>
                     <div class="form-outline">
-                        <input type="email" id="typeEmail" class="form-control my-3" />
-                        <label class="form-label" for="typeEmail">Code</label>
+                        <input type="text" id="typeCode" class="form-control my-3" />
+                        <label class="form-label" for="typeCode">Code</label>
                     </div>
-                    <a href="#" class="btn btn-primary w-100">Confirm Code</a>
+                    <button type="button" class="btn btn-primary w-100" id="comfirmCode">Submit</button>
                     <div class="d-flex justify-content-end mt-4">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="confirmclose">Close</button>
                     </div>
                 </div>
             </div>
@@ -249,7 +250,9 @@ if(isset($_GET['Change_Hospital']))
                 });
                 return;
             }
-
+            
+            document.getElementById("resetPassButton").disabled = true; 
+            document.getElementById("forgotclose").disabled = true;
             e.preventDefault();
 
             $.ajax({
@@ -265,6 +268,13 @@ if(isset($_GET['Change_Hospital']))
                         'title': 'Success',
                         'text': response.message,
                         'type': 'success'
+                    }).then((result) => {
+                        
+                        $('#forgotPasswordModal').modal('hide');
+                        $('.modal-backdrop').remove(); 
+                        $('body').removeClass('modal-open');
+
+                        $('#confirmCodeModal').modal('show');
                     });
                 } else {
                     Swal.fire({
@@ -275,18 +285,72 @@ if(isset($_GET['Change_Hospital']))
                 }
             },
             error: function(xhr, status, error) {
-                // Handle error response
-                console.error(xhr.responseText);
-                Swal.fire({
-                    'title': 'Error',
-                    'text': 'An error occurred while processing your request.',
-                    'type': 'error'
-                });
-            }
-        });
+            
+            console.error(xhr.responseText);
+            Swal.fire({
+                'title': 'Error',
+                'text': 'An error occurred while processing your request.',
+                'type': 'error'
+            });
+        },
+        complete: function() {
+            
+            document.getElementById("comfirmCode").disabled = false;
+            document.getElementById("confirmclose").disabled = false;
+        }
     });
+});
+
+        $('#confirmCodeModal #comfirmCode').click(function(e) {
+                var code = $('#typeCode').val(); 
+
+                e.preventDefault();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'confirmCode.php', 
+                    data: {
+                        code: code 
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                'title': 'Success',
+                                'text': response.message,
+                                'type': 'success'
+                            }).then((result) => {
+                                
+                                $('#confirmCodeModal').modal('hide');
+                                $('.modal-backdrop').remove(); 
+                                $('body').removeClass('modal-open');
+
+                                //$('#confirmCodeModal').modal('show');
+                            });
+                        } else {
+                            Swal.fire({
+                                'title': 'Error',
+                                'text': response.message,
+                                'type': 'error'
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                    
+                    console.error(xhr.responseText);
+                    Swal.fire({
+                        'title': 'Error',
+                        'text': 'An error occurred while processing your request.',
+                        'type': 'error'
+                    });
+                },
+                complete: function() {
+                    
+                    document.getElementById("comfirmCode").disabled = false;
+                    document.getElementById("confirmclose").disabled = false;
+                }
+                });
+            });
 </script>
-    </script>
 
 </body>
 

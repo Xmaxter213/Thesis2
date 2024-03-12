@@ -1,14 +1,18 @@
 <?php
 require_once('../dbConnection/connection.php');
+include('../dbConnection/AES encryption.php');
 
 $hospital_ID = $_SESSION['selectedHospitalID'];
 
 $email = $_POST['email'];
 $password = $_POST['password'];
 
+$enc_email = encryptthis($email, $key);
+$enc_password = encryptthis($password, $key);
+
 $sql = "SELECT * FROM userLogin WHERE email = ? AND password = ? AND hospital_ID = ? LIMIT 1";
 $stmtselect = $con->prepare($sql);
-$stmtselect->bind_param("sss", $email, $password, $hospital_ID);
+$stmtselect->bind_param("sss", $enc_email, $enc_password, $hospital_ID);
 $result = $stmtselect->execute();
 $stmtselect->store_result();
 
@@ -32,7 +36,7 @@ $stmtselect->close();
 
 $sqlgetuserID = "SELECT userName, ID, verifyPassword, status FROM userLogin WHERE email = ? AND password = ? AND hospital_ID = ? LIMIT 1";
 $getuserID = $con->prepare($sqlgetuserID);
-$getuserID->bind_param("sss", $email, $password, $hospital_ID);
+$getuserID->bind_param("sss", $enc_email, $enc_password, $hospital_ID);
 $database = $getuserID->execute();
 $getuserID->store_result();
 
@@ -40,10 +44,13 @@ if ($database && $getuserID->num_rows > 0) {
     $getuserID->bind_result($userName, $ID, $verifyPassword, $userStatus);
     $getuserID->fetch();
 
-    $_SESSION['userID'] = $userName;  // Assuming userName is the correct field you want to store
+    $dec_userName = decryptthis($userName, $key);
+    $dec_userStatus = decryptthis($userStatus, $key);
+
+    $_SESSION['userID'] = $dec_userName;  // Assuming userName is the correct field you want to store
     $_SESSION['idNUM'] = $ID;
     $_SESSION['verifyPass'] =$verifyPassword;
-    $_SESSION['userStatus'] = $userStatus;
+    $_SESSION['userStatus'] = $dec_userStatus;
 
     date_default_timezone_set('Asia/Manila');
 

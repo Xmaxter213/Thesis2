@@ -36,9 +36,32 @@ if(isset($_GET['Change_Hospital']))
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-
+    <!-- Font Awesome -->
+    <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    rel="stylesheet"
+    />
+    <!-- Google Fonts -->
+    <link
+    href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+    rel="stylesheet"
+    />
+    <!-- MDB -->
+    <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.min.css"
+    rel="stylesheet"
+    />
+    
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
+    <style>
+        .vertical-line {
+            border-left: 1px solid #000; /* Adjust thickness and color as needed */
+            height: 2px; /* Adjust height as needed */
+            margin: 0 10px; /* Adjust spacing as needed */
+        }
+    </style>
 
 </head>
 
@@ -77,6 +100,8 @@ if(isset($_GET['Change_Hospital']))
                                     </div>
                                     <div class="text-center">
                                         <a class="small" href="?Change_Hospital=1">Change Hospital</a>
+                                        <span class="vertical-line"></span> <!-- Vertical line -->
+                                        <a class="small" href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot password</a>
                                     </div>
                                 </div>
                             </div>
@@ -89,6 +114,54 @@ if(isset($_GET['Change_Hospital']))
         </div>
 
     </div>
+
+    <div class="modal top fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="exampleModalLabel" data-bs-backdrop='static' aria-hidden="true" data-mdb-keyboard="true">
+        <div class="modal-dialog" style="width: 500px;">
+            <div class="modal-content text-center">
+                <div class="modal-header h5 text-white bg-primary justify-content-center">
+                    Password Reset
+                </div>
+                <div class="modal-body px-5">
+                    <p class="py-2">
+                        Enter your email address and we'll send you an email with instructions to reset your password.
+                    </p>
+                    <div class="form-outline">
+                        <input type="email" id="typeEmail" class="form-control my-3" />
+                        <label class="form-label" for="typeEmail">Email input</label>
+                    </div>
+                    <a href="#" class="btn btn-primary w-100">Reset password</a>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal top fade" id="confirmCodeModal" tabindex="-1" aria-labelledby="exampleModalLabel" data-bs-backdrop='static' aria-hidden="true" data-mdb-keyboard="true">
+        <div class="modal-dialog" style="width: 500px;">
+            <div class="modal-content text-center">
+                <div class="modal-header h5 text-white bg-primary justify-content-center">
+                    Confirm Code
+                </div>
+                <div class="modal-body px-5">
+                    <p class="py-2">
+                        Enter your code
+                    </p>
+                    <div class="form-outline">
+                        <input type="email" id="typeEmail" class="form-control my-3" />
+                        <label class="form-label" for="typeEmail">Code</label>
+                    </div>
+                    <a href="#" class="btn btn-primary w-100">Confirm Code</a>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
@@ -161,6 +234,58 @@ if(isset($_GET['Change_Hospital']))
 
             })
         });
+
+        // Handling "Reset password" button click event
+        $('#forgotPasswordModal .btn-primary').click(function(e) {
+            var email = $('#typeEmail').val();
+
+            // Email validation using regular expression
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                Swal.fire({
+                    'title': 'Error',
+                    'text': 'Please enter a valid email address.',
+                    'type': 'error'
+                });
+                return;
+            }
+
+            e.preventDefault();
+
+            $.ajax({
+            type: 'POST',
+            url: 'sendCode.php', // Replace with your PHP file handling password reset
+            data: {
+                email: email
+            },
+            success: function(response) {
+                // Handle success response
+                if (response.success) {
+                    Swal.fire({
+                        'title': 'Success',
+                        'text': response.message,
+                        'type': 'success'
+                    });
+                } else {
+                    Swal.fire({
+                        'title': 'Error',
+                        'text': response.message,
+                        'type': 'error'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                console.error(xhr.responseText);
+                Swal.fire({
+                    'title': 'Error',
+                    'text': 'An error occurred while processing your request.',
+                    'type': 'error'
+                });
+            }
+        });
+    });
+</script>
     </script>
 
 </body>

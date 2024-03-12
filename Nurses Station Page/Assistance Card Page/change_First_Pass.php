@@ -8,13 +8,13 @@ if (isset($_POST['password']) && !empty($_POST['password'])) {
     $nurseID = $_SESSION['idNUM'] ?? null;
 
 
-    //$enc_password = encryptthis($password, $key);
+    $enc_password = encryptthis($password, $key);
     $verPass = 1;
 
     try {
         $query = "UPDATE userLogin SET password = ?, verifyPassword = ? WHERE ID = ?";
         $stmt_pass = $con->prepare($query);
-        $stmt_pass->bind_param("sii", $password, $verPass, $nurseID);
+        $stmt_pass->bind_param("sii", $enc_password, $verPass, $nurseID);
         $stmt_pass->execute();
         $stmt_pass->close();
 

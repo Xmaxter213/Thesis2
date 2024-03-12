@@ -61,6 +61,40 @@ if(isset($_GET['Change_Hospital']))
             height: 2px; /* Adjust height as needed */
             margin: 0 10px; /* Adjust spacing as needed */
         }
+        .form-outline {
+    position: relative;
+    margin-bottom: 1rem; /* Adjust as needed */
+    }
+
+    .form-outline input.form-control {
+        padding: 1.25rem 1rem;
+        border: 1px solid #ced4da; /* Adjust the border color as needed */
+        border-radius: 0.375rem; /* Adjust the border radius as needed */
+        font-size: 1rem; /* Adjust the font size as needed */
+    }
+
+    .form-outline input.form-control:focus {
+        border-color: #80bdff; /* Adjust the border color for focus state as needed */
+        box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25); /* Adjust the box shadow for focus state as needed */
+    }
+
+    .form-outline label {
+        position: absolute;
+        top: 1rem; /* Adjust the label position as needed */
+        left: 1rem; /* Adjust the label position as needed */
+        color: #6c757d; /* Adjust the label color as needed */
+        transition: transform 0.15s ease-in-out, opacity 0.15s ease-in-out;
+        opacity: 0.5;
+        cursor: text;
+    }
+
+    .form-outline input.form-control:focus ~ label,
+    .form-outline input.form-control:not(:placeholder-shown) ~ label {
+        top: 0.25rem; /* Adjust the label position for focus and active states as needed */
+        left: 0.75rem; /* Adjust the label position for focus and active states as needed */
+        font-size: 0.75rem; /* Adjust the font size for focus and active states as needed */
+        opacity: 1;
+    }
     </style>
 
 </head>
@@ -123,15 +157,15 @@ if(isset($_GET['Change_Hospital']))
                 </div>
                 <div class="modal-body px-5">
                     <p class="py-2">
-                        Enter your email address and we'll send you an email with instructions to reset your password.
+                        Enter your email address and we'll send you an SMS verification code.
                     </p>
                     <div class="form-outline">
                         <input type="email" id="typeEmail" class="form-control my-3" />
                         <label class="form-label" for="typeEmail">Email input</label>
                     </div>
-                    <button type="button" class="btn btn-primary w-100" id="resetPassButton">Reset password</button>
+                    <button type="button" class="btn btn-secondary btn-user btn-block" id="resetPassButton">Reset password</button>
                     <div class="d-flex justify-content-end mt-4">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="forgotclose">Close</button>
+                        <button type="button" class="btn btn-secondary btn-user " data-bs-dismiss="modal" id="forgotclose">Close</button>
                     </div>
                 </div>
             </div>
@@ -153,9 +187,33 @@ if(isset($_GET['Change_Hospital']))
                         <input type="text" id="typeCode" class="form-control my-3" />
                         <label class="form-label" for="typeCode">Code</label>
                     </div>
-                    <button type="button" class="btn btn-primary w-100" id="comfirmCode">Submit</button>
+                    <button type="button" class="btn btn-secondary btn-user btn-block" id="comfirmCode">Submit</button>
                     <div class="d-flex justify-content-end mt-4">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="confirmclose">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal top fade" id="changePasswordModal" tabindex="-1" aria-labelledby="exampleModalLabel" data-bs-backdrop='static' aria-hidden="true" data-mdb-keyboard="true">
+        <div class="modal-dialog" style="width: 500px;">
+            <div class="modal-content text-center">
+                <div class="modal-header h5 text-white bg-primary justify-content-center">
+                    Change Password
+                </div>
+                <div class="modal-body px-5">
+                    <div class="form-outline">
+                        <input type="password" id="type1Password" class="form-control my-3" />
+                        <label class="form-label" for="type1Password">Password</label>
+                    </div>
+                    <div class="form-outline">
+                        <input type="password" id="type2Password" class="form-control my-3" />
+                        <label class="form-label" for="type2Password">Confirm Password</label>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-user btn-block" id="submitChangePassword">Submit</button>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="ChangePasswordclose">Close</button>
                     </div>
                 </div>
             </div>
@@ -167,6 +225,8 @@ if(isset($_GET['Change_Hospital']))
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
     <script type="text/javascript">
         $(function() {
             $('#login').click(function(e) {
@@ -307,7 +367,7 @@ if(isset($_GET['Change_Hospital']))
                 var code = $('#typeCode').val(); 
 
                 document.getElementById("comfirmCode").disabled = true;
-                    document.getElementById("confirmclose").disabled = true;
+                document.getElementById("confirmclose").disabled = true;
                 e.preventDefault();
 
                 $.ajax({
@@ -328,7 +388,7 @@ if(isset($_GET['Change_Hospital']))
                                 $('.modal-backdrop').remove(); 
                                 $('body').removeClass('modal-open');
 
-                                //$('#confirmCodeModal').modal('show');
+                                $('#changePasswordModal').modal('show');
                             });
                         } else {
                             Swal.fire({
@@ -354,6 +414,70 @@ if(isset($_GET['Change_Hospital']))
                 }
                 });
             });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('#submitChangePassword').click(function(e) {
+            var password1 = $('#type1Password').val().trim();
+            var password2 = $('#type2Password').val().trim();
+
+            // Check if fields are empty
+            if (password1 === '' || password2 === '') {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Please fill in all fields.',
+                    type: 'error'
+                });
+                return;
+            }
+
+            // Check if passwords match
+            if (password1 !== password2) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Passwords do not match.',
+                    type: 'error'
+                });
+                return;
+            }
+
+            document.getElementById("submitChangePassword").disabled = true;
+            document.getElementById("ChangePasswordclose").disabled = true;
+            $.ajax({
+                type: 'POST',
+                url: 'change_pass.php', 
+                data: {
+                    password: password1
+                },
+                success: function(response) {
+                    
+                    Swal.fire({
+                        title: 'Success',
+                        text: 'Password changed successfully.',
+                        type: 'success'
+                    }).then((result) => {
+                        $('#changePasswordModal').modal('hide');
+                        $('.modal-backdrop').remove(); 
+                        $('body').removeClass('modal-open');
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'An error occurred while processing your request.',
+                        type: 'error'
+                    });
+                },
+                complete: function() {
+                    
+                    document.getElementById("submitChangePassword").disabled = false;
+                    document.getElementById("ChangePasswordclose").disabled = false;
+                }
+                });
+            });
+    });
 </script>
 
 </body>

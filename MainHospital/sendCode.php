@@ -25,11 +25,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["email"])) {
         $stmtPhone->bind_param("i", $id);
         $stmtPhone->execute();
         $resultphone = $stmtPhone->get_result();
-        if($resultphone->num_rows > 0)
-        {
+        if ($resultphone->num_rows > 0) {
             $codeloginQuery = "UPDATE userLogin SET code = ? WHERE ID = ? and email = ?";
             $stmtCode = $con->prepare($codeloginQuery);
-            $stmtCode->bind_param("sis", $randomCode, $id,$email);
+            $stmtCode->bind_param("sis", $randomCode, $id, $email);
             $stmtCode->execute();
             $stmtCode->close();
 
@@ -39,9 +38,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["email"])) {
             $phoneNumber = $dec_contact;
             if ($message != null && $phoneNumber != null) {
                 sendSMS($message, $dec_contact);
-            } 
+            }
         }
 
+        $stmtPhone->close();
     } else {
         $response['success'] = false;
         $response['message'] = "Email does not exist.";
@@ -58,7 +58,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["email"])) {
 header('Content-Type: application/json');
 echo json_encode($response);
 
-function generateRandomCode($length = 8) {
+function generateRandomCode($length = 8)
+{
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $randomString = '';
     $max = strlen($characters) - 1;
@@ -70,7 +71,7 @@ function generateRandomCode($length = 8) {
 
 function sendSMS($message, $phoneNumber)
 {
-    $url = "http://172.16.79.30:8090/SendSMS?username=Mawser&password=1234&phone=" . $phoneNumber . "&message=" . urlencode($message);
+    $url = "http://192.168.1.20:8090/SendSMS?username=Mawser&password=1234&phone=" . $phoneNumber . "&message=" . urlencode($message);
     $curl = curl_init($url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     $curl_response = curl_exec($curl);

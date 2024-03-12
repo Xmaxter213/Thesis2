@@ -295,15 +295,19 @@ if(isset($_GET['Change_Hospital']))
         },
         complete: function() {
             
-            document.getElementById("comfirmCode").disabled = false;
-            document.getElementById("confirmclose").disabled = false;
+            document.getElementById("resetPassButton").disabled = false; 
+            document.getElementById("forgotclose").disabled = false;
         }
     });
 });
+</script>
 
-        $('#confirmCodeModal #comfirmCode').click(function(e) {
+<script>
+    $('#confirmCodeModal #comfirmCode').click(function(e) {
                 var code = $('#typeCode').val(); 
 
+                document.getElementById("comfirmCode").disabled = true;
+                    document.getElementById("confirmclose").disabled = true;
                 e.preventDefault();
 
                 $.ajax({
@@ -329,7 +333,7 @@ if(isset($_GET['Change_Hospital']))
                         } else {
                             Swal.fire({
                                 'title': 'Error',
-                                'text': response.message,
+                                'text': 'this codes',
                                 'type': 'error'
                             });
                         }

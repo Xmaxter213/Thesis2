@@ -63,11 +63,7 @@ if (isset($_SESSION['userID'])) {
                                     <div class="text-center">
                                     </div>
                                     <div class="text-center">
-                                        <a class="small" href="./forgot_password.php">Forgot Password?</a>
-                                        <br>
-                                        <a class="small" href="../Register Page/Register.php">Create an Account!</a>
-                                        <br>
-                                        <a class="small" href="../Nurses Station Page/Assistance Card Page/assistanceCard.php">Go to Home!</a>
+                                        <a class="small" href="../portal page/index.php">Change Hospital</a>
                                     </div>
                                 </div>
                             </div>

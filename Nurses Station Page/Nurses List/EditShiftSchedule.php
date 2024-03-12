@@ -72,7 +72,7 @@ if (isset($_POST['add'])) {
     $work_Shift = $_POST['work_Shift'];
     $time_Range = $_POST['time_Range'];
 
-    $query = "INSERT INTO shift_Schedule(ID, work_Shift, time_Range, hospital_ID) VALUES (NULL,'$work_Shift', '$time_Range', hospital_ID)";
+    $query = "INSERT INTO shift_Schedule(ID, work_Shift, time_Range, hospital_ID) VALUES (NULL,'$work_Shift', '$time_Range', $hospital_ID)";
     $query_run = mysqli_query($con, $query);
 
     if ($query_run) {

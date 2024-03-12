@@ -56,8 +56,8 @@
         if($query_run_addHospital)
         {
             $hospital_ID = mysqli_insert_id($con);
-            $query = "INSERT INTO userLogin ( email, password, userName, status, verifyPassword, hospital_ID) 
-            VALUES ('$Subscriber_Email','$Subscriber_Name', '$Subscriber_Name', 'Admin', '0', '$hospital_ID')";
+            $query = "INSERT INTO userLogin ( email, password, userName, status, code, verifyPassword, hospital_ID) 
+            VALUES ('$Subscriber_Email','$Subscriber_Name', '$Subscriber_Name', 'Admin', '0', '0', '$hospital_ID')";
             $query_run = mysqli_query($con, $query);
 
             $queryStaff = "INSERT INTO staff_List (hospital_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) 

@@ -34,7 +34,7 @@ else
     $status = $_SESSION['userStatus'];
 
     if ($status === 'Admin') {
-        header("location: ../../Nurses Station Page/assistanceCard.php");
+        header("location: ../../Nurses Station Page/Assistance Card Page/assistanceCard.php");
     }
     if ($status === 'Super Admin')
     {

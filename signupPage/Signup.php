@@ -22,7 +22,7 @@ if (isset($_POST['add'])) {
     if ($query_run_addHospital) {
         $hospital_ID = mysqli_insert_id($con);
         $query = "INSERT INTO userLogin ( email, password, userName, status, code, verifyPassword, hospital_ID) 
-        VALUES ('$Subscriber_Email','$Subscriber_Name', '$Subscriber_Name', '0', 'Admin', '0', '$hospital_ID')";
+        VALUES ('$Subscriber_Email','$Subscriber_Name', '$Subscriber_Name', 'Admin', '0', '0', '$hospital_ID')";
         $query_run = mysqli_query($con, $query);
 
         $queryStaff = "INSERT INTO staff_List (hospital_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) 
@@ -269,9 +269,7 @@ if (isset($_POST['add'])) {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="exampleModalLabel">Add Hospital</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="hideAddHospitalModal();">x</button>
                     </div>
                     <div class="modal-body">
                         <form action="" method="POST">
@@ -332,8 +330,8 @@ if (isset($_POST['add'])) {
                             <br>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary" name="add">Pay</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="hideAddHospitalModal();">Close</button>
+                            <button type="submit" class="btn btn-primary" name="add">Add</button>
                         </div>
                     </form>
                 </div>
@@ -355,6 +353,11 @@ if (isset($_POST['add'])) {
         function showAddHospitalModal() {
             // Show the modal using Bootstrap's modal method
             $('#addHospital').modal('show');
+        }
+
+        function hideAddHospitalModal() {
+            // Show the modal using Bootstrap's modal method
+            $('#addHospital').modal('hide');
         }
 
         function showSnackbar(message) {

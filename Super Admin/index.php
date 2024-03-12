@@ -50,19 +50,49 @@
 
         $Expiration_Date = date("Y-m-d H:i:s", strtotime("+" . $Subscription . " months", strtotime($Creation_Date)));
 
-        $sqladdHospital = "INSERT INTO Hospital_Table (Subscriber_Name, hospitalName, email, creation_Date, Expiration) VALUES ('$Subscriber_Name', '$Hospital_Name', '$Subscriber_Email', '$Creation_Date', '$Expiration_Date')";
+        //encrypted
+        $enc_Subscriber_Name = encryptthis($Subscriber_Name, $key);
+        $enc_Subscriber_Email = encryptthis($Subscriber_Email, $key);
+        $enc_Status = encryptthis($Status, $key);
+
+        $sqladdHospital = "INSERT INTO Hospital_Table (hospital_Logo, Subscriber_Name, hospitalName, email, creation_Date, Expiration) 
+        VALUES ('default.png', '$enc_Subscriber_Name', '$Hospital_Name', '$enc_Subscriber_Email', '$Creation_Date', '$Expiration_Date')";
         $query_run_addHospital = mysqli_query($con, $sqladdHospital);
 
         if($query_run_addHospital)
         {
             $hospital_ID = mysqli_insert_id($con);
             $query = "INSERT INTO userLogin ( email, password, userName, status, code, verifyPassword, hospital_ID) 
-            VALUES ('$Subscriber_Email','$Subscriber_Name', '$Subscriber_Name', 'Admin', '0', '0', '$hospital_ID')";
+            VALUES ('$Subscriber_Email','$enc_Subscriber_Name', '$enc_Subscriber_Name', '$enc_Status', '0', '0', '$hospital_ID')";
             $query_run = mysqli_query($con, $query);
 
             $queryStaff = "INSERT INTO staff_List (hospital_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) 
             VALUES ($hospital_ID, 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', '1')";
             $query_run = mysqli_query($con, $queryStaff);
+
+            $mail = new PHPMailer(true);
+            try {
+                $mail->isSMTP();                                            
+                $mail->Host       = 'smtp.elasticemail.com';                     
+                $mail->SMTPAuth   = true;                                  
+                $mail->Username   = 'j4ishere@gmail.com';                     
+                $mail->Password   = 'A02F3F4222553D746B478EC9E43E48624D90'; 
+                $mail->Port       = 2525;
+
+                $mail->setFrom('j4ishere@gmail.com', 'Helping Hand');
+                $mail->addAddress($Subscriber_Email, 'Recipient Name');
+                $mail->isHTML(true);
+                $mail->Subject = 'Hospital Subscription';
+                $mail->Body    = "Hello {$Hospital_Name},<br><br>We're pleased to inform you that your subscription has been successful .<br><br>Your subscription is up until: 
+                    {$Expiration_Date}.<br><br>Your Account Have been Created.<br>Email: {$Subscriber_Email} <br>Password: {$Subscriber_Name} <br><br>Thank you for choosing our Helping Hand service!<br><br>Best regards,<br>Helping Hand";
+
+                $mail->send();
+                echo 'Message has been sent';
+            } 
+            catch (Exception $e) {
+                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            }
+
 
             $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
             date_default_timezone_set('Asia/Manila');

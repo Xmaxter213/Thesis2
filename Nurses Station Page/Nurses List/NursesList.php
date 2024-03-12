@@ -134,7 +134,7 @@ if (isset($_POST['add'])) {
     $query = "INSERT INTO staff_List (nurse_ID, hospital_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL, '$hospital_ID', '$enc_nurse_Name', '$nurse_Assigned_Ward', '$enc_nurse_Contract_No', '$enc_nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$employment_Status', '$enc_date_Employment', '$activated')";
     $query_run = mysqli_query($con, $query);
 
-    $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status, code, verifyPassword, hospital_ID) VALUES (NULL, '$enc_nurse_email','$enc_password', '$enc_userName', '$enc_account_status', '0', '0','$hospital_ID')";
+    $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status, code, verifyPassword, hospital_ID) VALUES (NULL, '$nurse_email','$enc_password', '$enc_userName', '$enc_account_status', '0', '0','$hospital_ID')";
     $query_Login_run = mysqli_query($con, $query_Login);
 
     if ($query_run) {
@@ -1242,8 +1242,6 @@ if (isset($_POST['edit'])) {
 <?php
     if (isset($_POST['verifyAddNurse'])) {
         $enteredPassword = $_POST['password'];
-
-        $enc_enteredPassword = encryptthis($enteredPassword, $key);
     
         $ID = $_SESSION['idNUM'];
     
@@ -1259,7 +1257,7 @@ if (isset($_POST['edit'])) {
 
 
         
-        if ($enc_enteredPassword === $verifyPassword) {
+        if ($enteredPassword === $verifyPassword) {
             echo "<script type='text/javascript'>
             $(document).ready(function(){
             $('#addNurse').modal('show');
@@ -1291,7 +1289,6 @@ if (isset($_POST['edit'])) {
         $enteredPassword = $_POST['password'];
         $ID = $_SESSION['idNUM'];
         $nurse_ID = $_POST['nurse_ID']; //One to edit
-        $enc_enteredPassword = encryptthis($enteredPassword, $key);
 
         //This is for checking if pw is correct
         $query = "SELECT password FROM userLogin WHERE ID = ?";
@@ -1303,7 +1300,7 @@ if (isset($_POST['edit'])) {
         $getuserpassword->fetch();
         $getuserpassword->close();
 
-        if ($enc_enteredPassword === $verifyPassword) {
+        if ($enteredPassword === $verifyPassword) {
             // echo "<script>alert('$nurse_ID');</script>";
             
             echo "<script type='text/javascript'>
@@ -1321,7 +1318,6 @@ if (isset($_POST['edit'])) {
         $enteredPassword = $_POST['password'];
         $ID = $_SESSION['idNUM'];
         $nurse_ID = $_POST['nurse_ID']; //One to delete
-        $enc_enteredPassword = encryptthis($enteredPassword, $key);
 
         //This is for checking if pw is correct
         $query = "SELECT password FROM userLogin WHERE ID = ?";
@@ -1333,7 +1329,7 @@ if (isset($_POST['edit'])) {
         $getuserpassword->fetch();
         $getuserpassword->close();
 
-        if ($enc_enteredPassword === $verifyPassword) {
+        if ($enteredPassword === $verifyPassword) {
             // echo "<script>alert('$nurse_ID');</script>";
             
             echo "<script type='text/javascript'>

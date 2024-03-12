@@ -26,14 +26,15 @@ if (isset($_POST['add'])) {
     $enc_Subscriber_Email = encryptthis($Subscriber_Email, $key);
     $enc_Status = encryptthis($Status, $key);
 
-    $sqladdHospital = "INSERT INTO Hospital_Table (Subscriber_Name, hospitalName, email, creation_Date, Expiration) 
-    VALUES ('$enc_Subscriber_Name', '$Hospital_Name', '$enc_Subscriber_Email', '$Creation_Date', '$Expiration_Date')";
+    $sqladdHospital = "INSERT INTO Hospital_Table (hospital_Logo, Subscriber_Name, hospitalName, email, creation_Date, Expiration) 
+    VALUES ('default.png', '$enc_Subscriber_Name', '$Hospital_Name', '$enc_Subscriber_Email', '$Creation_Date', '$Expiration_Date')";
     $query_run_addHospital = mysqli_query($con, $sqladdHospital);
 
-    if ($query_run_addHospital) {
+    if ($query_run_addHospital) 
+    {
         $hospital_ID = mysqli_insert_id($con);
         $query = "INSERT INTO userLogin ( email, password, userName, status, code, verifyPassword, hospital_ID) 
-        VALUES ('$enc_Subscriber_Email','$enc_Subscriber_Name', '$enc_Subscriber_Name', '$enc_Status', '0', '0', '$hospital_ID')";
+        VALUES ('$Subscriber_Email','$enc_Subscriber_Name', '$enc_Subscriber_Name', '$enc_Status', '0', '0', '$hospital_ID')";
         $query_run = mysqli_query($con, $query);
 
         $queryStaff = "INSERT INTO staff_List (hospital_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) 
@@ -113,6 +114,17 @@ if (isset($_POST['add'])) {
         body {
             background: #DCDCDC;
         }
+
+        .navbar-brand {
+            color: white !important; /* Set the color to white */
+            text-align: center; /* Center the text */
+            width: 100%; /* Take up the full width of the navbar */
+        }
+
+        .navbar-brand h1 {
+            margin: 0; /* Remove default margin */
+        }
+
 
         .pricing-content {
             position: relative;
@@ -223,6 +235,11 @@ if (isset($_POST['add'])) {
             <!-- Topbar -->
             <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow" style="background-color: rgb(28,35,47);">
                 <!-- Topbar Navbar -->
+
+                <a class="navbar-brand" href="#">
+                    <h1 class="m-0">Medical Portal</h1>
+                </a>
+
                 <ul class="navbar-nav ml-auto">
                     <!-- Nav Item - Search Dropdown (Visible Only XS) -->
                     <li class="nav-item dropdown no-arrow d-sm-none">
@@ -235,6 +252,9 @@ if (isset($_POST['add'])) {
                     </li>
                     <li class="nav-item dropdown no-arrow">
                         <!-- ... -->
+                    </li>
+                    <li class="nav-item">
+                        <a href="../portal page/index.php" class="nav-link">Have&nbsp;an&nbsp;account?</a>
                     </li>
                 </ul>
             </nav>

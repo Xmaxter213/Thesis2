@@ -75,6 +75,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-left: auto; /* Push the Admin word to the right */
         }
 
+        .nav-link.align-middle {
+            display: flex;
+            align-items: center;
+        }
+
         .navbar-nav .admin {
             color: white;
             font-size: 14px;
@@ -133,7 +138,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </li>
                     <!-- Admin Word -->
                     <li class="nav-item">
-                        <a href="../Super Admin/Login_new.php" class="admin">Admin</a>
+                        <a href="../signupPage/Signup.php" class="nav-link">Sign<span>-</span>Up</a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link align-middle">|</span>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../Super Admin/Login_new.php" class="nav-link">Admin</a>
                     </li>
                 </ul>
             </nav>

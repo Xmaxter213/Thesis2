@@ -8,6 +8,19 @@ if (!isset($_SESSION['selectedHospitalID']))
 {
     header("location: ../portal page/index.php");
 }
+else
+{
+    $stmt = $con->prepare("SELECT hospital_Logo FROM Hospital_Table WHERE hospital_ID = ?");
+    $stmt->bind_param("i", $_SESSION['selectedHospitalID']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $logo_path = "../LOGO FOLDER/" . $row['hospital_Logo'];
+    } else {
+        $logo_path = "../LOGO FOLDER/default.png";
+    }
+}
 
 
 if(isset($_GET['Change_Hospital']))
@@ -32,7 +45,7 @@ if(isset($_GET['Change_Hospital']))
 
     <title>Hospital Login</title>
     <!-- Favicon-->
-    <link rel="icon" type="image/x-icon" href="assets/FinalLogo.png" />
+    <link rel="icon" type="image/x-icon" href="<?php echo $logo_path; ?>" />
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
@@ -95,6 +108,11 @@ if(isset($_GET['Change_Hospital']))
         font-size: 0.75rem; /* Adjust the font size for focus and active states as needed */
         opacity: 1;
     }
+    
+    .bg-login-image {
+            background-image: url('<?php echo $logo_path; ?>');
+            /* Other background properties like size, position, repeat, etc. can be added here */
+        }
     </style>
 
 </head>
@@ -116,7 +134,7 @@ if(isset($_GET['Change_Hospital']))
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
-                                        <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
+                                        <h1 class="h4 text-gray-900 mb-4">Welcome</h1>
                                     </div>
                                     <form class="user">
                                         <div class="form-group">

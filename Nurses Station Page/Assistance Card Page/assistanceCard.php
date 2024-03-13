@@ -59,6 +59,42 @@ if (isset($_SESSION['selectedHospitalID'])) {
 
 }
 
+if(isset($_POST['ChangeLogo']))
+{
+    $fileToUpload = $_FILES["fileToUpload"]['name']; //Returns array, "name" is to get the file's name
+    $target_dir = "../../LOGO FOLDER/"; // Target directory where file will be saved
+    $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]); // Path of the file in the target directory
+    $uploadOk = 1; // Flag to check if the upload process should proceed
+
+    // Check if image file is an actual image or fake image
+    if(isset($_POST["submit"])) {
+        // echo "<script>alert('File content: " . $fileToUpload . "');</script>";
+        $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
+        if($check !== false) {
+            echo "File is an image - " . $check["mime"] . ".";
+            $uploadOk = 1;
+        } else {
+            echo "File is not an image.";
+            $uploadOk = 0;
+        }
+    }
+
+    // Check if $uploadOk is set to 0 by an error
+    if ($uploadOk == 0) {
+        echo "Sorry, your file was not uploaded.";
+    // if everything is ok, try to upload file
+    } else {
+        // Move the uploaded file to the new location
+        if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+            //Put directory of image in database
+            $query = "UPDATE Hospital_Table SET hospital_Logo='$fileToUpload' WHERE hospital_ID = $hospital_ID";
+            $query_run = mysqli_query($con, $query);
+        } else {
+            echo "Sorry, there was an error uploading your file.";
+        }
+    }
+}
+
 $verpass = $_SESSION['verifyPass'];
 
 // echo '<script>setTimeout(function(){location.reload()}, 15000);</script>';
@@ -334,14 +370,18 @@ $verpass = $_SESSION['verifyPass'];
                                 aria-labelledby="userDropdown">
 
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="index.php?logout=true" data-toggle="modal"
-                                    data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Logout
+                                <a class="dropdown-item" data-toggle="modal" data-target="#setHospitalLogo">
+                                    <i class="fas fa-gear fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Change Hospital Logo
                                 </a>
                                 <a class="dropdown-item" data-toggle="modal" data-target="#setPasswordModal">
                                     <i class="fas fa-unlock fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Change password
+                                </a>
+                                <a class="dropdown-item" href="index.php?logout=true" data-toggle="modal"
+                                    data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
                                 </a>
                             </div>
                         </li>
@@ -349,6 +389,32 @@ $verpass = $_SESSION['verifyPass'];
 
                 </nav>
                 <!-- End of Topbar -->
+
+                <!-- modal of change logo -->
+                <div class="modal fade" id="setHospitalLogo" tabindex="-1" role="dialog" aria-labelledby="changeLogoModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="changeLogoModalLabel">Change Logo</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="" method="POST" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label for="image">Choose Logo:</label>
+                                        <input type="file" name="fileToUpload" id="image" class="form-control-file" required>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary" name="ChangeLogo">Change Logo</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Begin Page Content -->
                 <div class="px-4" style="color: black;">

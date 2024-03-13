@@ -14,7 +14,7 @@ if ($result)
 {
     if ($stmtselect->num_rows > 0) 
     {
-        $sqlgetuserID = "SELECT userName FROM superAdminAccounts WHERE email = ? AND password = ? AND status = 'Super Admin' LIMIT 1";
+        $sqlgetuserID = "SELECT userName, status FROM superAdminAccounts WHERE email = ? AND password = ? AND status = 'Super Admin' LIMIT 1";
         $getuserID = $con->prepare($sqlgetuserID);
         $getuserID->bind_param("ss", $email, $password);
         $database = $getuserID->execute();
@@ -22,10 +22,11 @@ if ($result)
 
         if ($database && $getuserID->num_rows > 0) 
         {
-            $getuserID->bind_result($userName);
+            $getuserID->bind_result($userName, $status);
             $getuserID->fetch();
 
             $_SESSION['userID'] = $userName;  // Assuming userName is the correct field you want to store
+            $_SESSION['userStatus'] = $status;
 
             date_default_timezone_set('Asia/Manila');
 

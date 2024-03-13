@@ -33,7 +33,7 @@
         $status = $_SESSION['userStatus'];
     
         if ($status === 'Nurse') {
-            header("location: ../../Nurse page/assistanceCard.php");
+            header("location: ../../Nurse Page/Assistance Card Page/assistanceCard.php");
         }
         if ($status === 'Super Admin')
         {

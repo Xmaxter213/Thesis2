@@ -1,4 +1,7 @@
 <?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require '../../vendor/autoload.php';
 require_once('../../dbConnection/connection.php');
 //include('message.php');
 
@@ -37,7 +40,7 @@ else
     $status = $_SESSION['userStatus'];
 
     if ($status === 'Nurse') {
-        header("location: ../../Nurse page/assistanceCard.php");
+        header("location: ../../Nurse Page/Assistance Card Page/assistanceCard.php");
     }
     if ($status === 'Super Admin')
     {
@@ -90,9 +93,16 @@ if (isset($_POST['add'])) {
 
     #Login
     $nurse_email = $_POST['nurse_email'];
-    $nurse_password = $_POST['nurse_password'];
     $account_status = $_POST['Account_Status'];
     $userName = $nurse_first_Name . $nurse_last_Name;
+    $nurse_password = $userName;
+
+    //encrypt Login
+    $enc_nurse_email = encryptthis($nurse_email, $key);
+    $enc_account_status = encryptthis($account_status, $key);
+    $enc_userName = encryptthis($userName, $key);
+    $enc_password = encryptthis($nurse_password, $key);
+
     //$date_Employment = sha1($_POST['date_Employment']);
 
     //Let's get the current website user's assigned ward
@@ -124,10 +134,33 @@ if (isset($_POST['add'])) {
     $query = "INSERT INTO staff_List (nurse_ID, hospital_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) VALUES (NULL, '$hospital_ID', '$enc_nurse_Name', '$nurse_Assigned_Ward', '$enc_nurse_Contract_No', '$enc_nurse_Sex', '$enc_nurse_birth_Date','$shift_Schedule','$employment_Status', '$enc_date_Employment', '$activated')";
     $query_run = mysqli_query($con, $query);
 
-    $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status, code, verifyPassword, hospital_ID) VALUES (NULL, '$nurse_email','$nurse_password', '$userName', '$account_status', '0', '0','$hospital_ID')";
+    $query_Login = "INSERT INTO userLogin (ID, email, password, userName, status, code, verifyPassword, hospital_ID) VALUES (NULL, '$nurse_email','$enc_password', '$enc_userName', '$enc_account_status', '0', '0','$hospital_ID')";
     $query_Login_run = mysqli_query($con, $query_Login);
 
     if ($query_run) {
+
+        $mail = new PHPMailer(true);
+            try {
+                $mail->isSMTP();                                            
+                $mail->Host       = 'smtp.elasticemail.com';                     
+                $mail->SMTPAuth   = true;                                  
+                $mail->Username   = 'j4ishere@gmail.com';                     
+                $mail->Password   = 'A02F3F4222553D746B478EC9E43E48624D90'; 
+                $mail->Port       = 2525;
+
+                $mail->setFrom('j4ishere@gmail.com', 'Helping Hand');
+                $mail->addAddress($nurse_email, 'Recipient Name');
+                $mail->isHTML(true);
+                $mail->Subject = 'Account Creation';
+                $mail->Body    = "Hello {$nurse_full_Name},<br><br>Your Account Have been Created.<br>Email: {$nurse_email} <br>Password: {$nurse_password} <br><br>Thank you for choosing our Helping Hand service!<br><br>Best regards,<br>Helping Hand";
+
+                $mail->send();
+                echo 'Message has been sent';
+            } 
+            catch (Exception $e) {
+                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            }
+
 
         
 
@@ -567,24 +600,9 @@ if (isset($_POST['edit'])) {
                                                 
                                                 <div>
                                                     <label>Nurse's Email</label>
-                                                    <input type="text" name="nurse_email" id="nurse_email" class="form-control" placeholder="Automatically generated" readonly>
+                                                    <input type="email" name="nurse_email" id="nurse_email" class="form-control" placeholder="Nurse Email" >
                                                     
-                                                    <label>Nurse's Password</label>
-                                                    <input type="text" name="nurse_password" id="nurse_password" class="form-control" placeholder="Automatically generated" readonly>
                                                 </div>
-
-                                            <script>
-                                                function updateEmailPassword() {
-                                                    var firstName = document.getElementById('nurse_first_Name').value;
-                                                    var lastName = document.getElementById('nurse_last_Name').value;
-                                                    
-                                                    // Update email field
-                                                    document.getElementById('nurse_email').value = `${firstName.toLowerCase()}${lastName.toLowerCase()}@gmail.com`;
-
-                                                    // Update password field (you can modify this logic as needed)
-                                                    document.getElementById('nurse_password').value = `${firstName.toLowerCase()}${lastName.toLowerCase()}123`; 
-                                                }
-                                            </script>
 
                                             <div>
                                                 <br>

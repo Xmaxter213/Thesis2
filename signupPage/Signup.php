@@ -1,4 +1,8 @@
 <?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+include('../dbConnection/AES encryption.php');
+require '../vendor/autoload.php';
 require_once('../dbConnection/connection.php');
 
 if (isset($_POST['add'])) {
@@ -10,24 +14,61 @@ if (isset($_POST['add'])) {
     $Hospital_Name = $_POST['Hospital_Name'];
     $Subscriber_Email = $_POST['Subscriber_email'];
     $Subscription = $_POST['Subscription_Duration'];
+    $Status = 'Admin';
 
     date_default_timezone_set('Asia/Manila');
     $Creation_Date = date("Y-m-d H:i:s");
 
     $Expiration_Date = date("Y-m-d H:i:s", strtotime("+" . $Subscription . " months", strtotime($Creation_Date)));
 
-    $sqladdHospital = "INSERT INTO Hospital_Table (Subscriber_Name, hospitalName, email, creation_Date, Expiration) VALUES ('$Subscriber_Name', '$Hospital_Name', '$Subscriber_Email', '$Creation_Date', '$Expiration_Date')";
+    //encrypted
+    $enc_Subscriber_Name = encryptthis($Subscriber_Name, $key);
+    $enc_Subscriber_Email = encryptthis($Subscriber_Email, $key);
+    $enc_Status = encryptthis($Status, $key);
+
+    $sqladdHospital = "INSERT INTO Hospital_Table (hospital_Logo, Subscriber_Name, hospitalName, email, creation_Date, Expiration) 
+    VALUES ('default.png', '$enc_Subscriber_Name', '$Hospital_Name', '$enc_Subscriber_Email', '$Creation_Date', '$Expiration_Date')";
     $query_run_addHospital = mysqli_query($con, $sqladdHospital);
 
-    if ($query_run_addHospital) {
+    if ($query_run_addHospital) 
+    {
         $hospital_ID = mysqli_insert_id($con);
         $query = "INSERT INTO userLogin ( email, password, userName, status, code, verifyPassword, hospital_ID) 
-        VALUES ('$Subscriber_Email','$Subscriber_Name', '$Subscriber_Name', 'Admin', '0', '0', '$hospital_ID')";
+        VALUES ('$Subscriber_Email','$enc_Subscriber_Name', '$enc_Subscriber_Name', '$enc_Status', '0', '0', '$hospital_ID')";
         $query_run = mysqli_query($con, $query);
 
         $queryStaff = "INSERT INTO staff_List (hospital_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) 
         VALUES ($hospital_ID, 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', '1')";
         $query_run = mysqli_query($con, $queryStaff);
+
+        $mail = new PHPMailer(true);
+            try {
+                $mail->isSMTP();                                            
+                $mail->Host       = 'smtp.elasticemail.com';                     
+                $mail->SMTPAuth   = true;                                  
+                $mail->Username   = 'j4ishere@gmail.com';                     
+                $mail->Password   = 'A02F3F4222553D746B478EC9E43E48624D90'; 
+                $mail->Port       = 2525;
+
+                $mail->setFrom('j4ishere@gmail.com', 'Helping Hand');
+                $mail->addAddress($Subscriber_Email, 'Recipient Name');
+                $mail->isHTML(true);
+                $mail->Subject = 'Hospital Subscription';
+                $mail->Body    = "Hello {$Hospital_Name},<br><br>We're pleased to inform you that your subscription has been successful .<br><br>Your subscription is up until: 
+                    {$Expiration_Date}.<br><br>Your Account Have been Created.<br>Email: {$Subscriber_Email} <br>Password: {$Subscriber_Name} <br><br>Thank you for choosing our Helping Hand service!<br><br>Best regards,<br>Helping Hand";
+
+                $mail->send();
+                echo 'Message has been sent';
+            } 
+            catch (Exception $e) {
+                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            }
+
+            $_SESSION['selectedHospitalID'] = $hospital_ID;
+            mysqli_close($con);
+            header('Location: ../MainHospital/Login_new.php');
+            exit;
+
     } else {
         echo 'Error inserting hospital: ' . mysqli_error($con);
     }
@@ -38,13 +79,11 @@ if (isset($_POST['add'])) {
 <html lang="en">
 
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-
     <title>Helping Hand - Tables</title>
 
     <!-- Custom fonts for this template -->
@@ -70,110 +109,123 @@ if (isset($_POST['add'])) {
     <!-- For table sorting -->
     <link rel="stylesheet" href="tablesort.css">
 
+    <!-- Additional CSS for the pricing section -->
     <style>
-        .subscription-cards-container {
-        display: flex;
-        justify-content: space-around;
-        flex-wrap: wrap;
-        margin: 20px;
+        body {
+            background: #DCDCDC;
         }
 
-        .subscription-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            text-align: center;
-            background-color: #f8f9fa; /* Light gray background color */
-            width: 250px;
-            margin: 10px;
-            transition: transform 0.3s ease-in-out;
+        .navbar-brand {
+            color: white !important; /* Set the color to white */
+            text-align: center; /* Center the text */
+            width: 100%; /* Take up the full width of the navbar */
         }
 
-        .subscription-card:hover {
-            transform: scale(1.05); /* Hover effect to slightly increase size */
+        .navbar-brand h1 {
+            margin: 0; /* Remove default margin */
         }
 
-        .subscription-card h2 {
-            color: #007bff; /* Blue color for headings */
+
+        .pricing-content {
+            position: relative;
         }
 
-        .subscription-card p {
-            color: #6c757d; /* Gray color for additional information */
+        .pricing_design {
+            position: relative;
+            margin: 0px 15px;
         }
 
-        .subscription-card button {
-            background-color: #28a745; /* Green color for the subscribe button */
-            border: none;
-            color: #fff; /* White text color */
-            padding: 8px 15px;
-            cursor: pointer;
-            transition: background-color 0.3s ease-in-out;
+        /* Add any additional styles needed for the pricing section */
+
+        .pricing_design .single-pricing {
+            background: rgb(28,35,47);
+            padding: 60px 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 40px -10px rgba(0, 64, 128, .2);
+            position: relative;
+            z-index: 1;
         }
 
-        .subscription-card button:hover {
-            background-color: #218838; /* Darker green color on hover */
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 10px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            color: white;
-        }
-
-        .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        @keyframes bubbleAnimation {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            50% {
-                transform: scale(1.5);
-                opacity: 0;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .bubble {
+        .pricing_design .single-pricing:before {
+            content: "";
+            background-color: #fff;
+            width: 100%;
+            height: 100%;
+            border-radius: 18px 18px 190px 18px;
+            border: 1px solid #eee;
             position: absolute;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.5);
-            animation: bubbleAnimation 1s ease-out;
+            bottom: 0;
+            right: 0;
+            z-index: -1;
+        }
+
+        .price-head {}
+
+        .price-head h2 {
+            margin-bottom: 20px;
+            font-size: 26px;
+            font-weight: 600;
+        }
+
+        .price-head h1 {
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 5px;
+        }
+
+        .price-head span {}
+
+        .single-pricing ul {
+            list-style: none;
+            margin-top: 30px;
+        }
+
+        .single-pricing ul li {
+            line-height: 36px;
+        }
+
+        .single-pricing ul li i {
+            background: #554c86;
+            color: #fff;
+            width: 20px;
+            height: 20px;
+            border-radius: 30px;
+            font-size: 11px;
+            text-align: center;
+            line-height: 20px;
+            margin-right: 6px;
+        }
+
+        .pricing-price {}
+
+        .price_btn {
+            background: rgb(28,35,47);
+            padding: 10px 30px;
+            color: #fff;
+            display: inline-block;
+            margin-top: 20px;
+            border-radius: 2px;
+            -webkit-transition: 0.3s;
+            transition: 0.3s;
+        }
+
+        .price_btn:hover {
+            background: #0aa1d6;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .section-title {
+            margin-bottom: 60px;
+        }
+
+        .text-center {
+            text-align: center !important;
         }
     </style>
-    <!-- Bubble animation -->
-    <script>
-        function showBubbleAnimation(event) {
-            const navLink = event.currentTarget;
-            const rect = navLink.getBoundingClientRect();
-            const bubble = document.createElement('span');
-            bubble.classList.add('bubble');
-            bubble.style.top = `${event.clientY - rect.top}px`;
-            bubble.style.left = `${event.clientX - rect.left}px`;
-            navLink.appendChild(bubble);
-            setTimeout(() => {
-                bubble.remove();
-            }, 1000);
-        }
-    </script>
-
 </head>
-
 
 <body>
     <!-- Content Wrapper -->
@@ -181,90 +233,112 @@ if (isset($_POST['add'])) {
         <!-- Main Content -->
         <div id="content">
             <!-- Topbar -->
-            <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow"
-                style="background-color: rgb(28,35,47);">
-                        <!-- Topbar Navbar -->
-                            <ul class="navbar-nav ml-auto">
+            <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow" style="background-color: rgb(28,35,47);">
+                <!-- Topbar Navbar -->
 
+                <a class="navbar-brand" href="#">
+                    <h1 class="m-0">Medical Portal</h1>
+                </a>
+
+                <ul class="navbar-nav ml-auto">
                     <!-- Nav Item - Search Dropdown (Visible Only XS) -->
                     <li class="nav-item dropdown no-arrow d-sm-none">
-                        <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-search fa-fw"></i>
-                        </a>
-                        <!-- Dropdown - Messages -->
-                        <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
-                            aria-labelledby="searchDropdown">
-                            <form class="form-inline mr-auto w-100 navbar-search">
-                                <div class="input-group">
-                                    <input type="text" class="form-control bg-light border-0 small"
-                                        placeholder="Search for..." aria-label="Search"
-                                        aria-describedby="basic-addon2">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-primary" type="button">
-                                            <i class="fas fa-search fa-sm"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+                        <!-- ... -->
                     </li>
 
                     <!-- Nav Item - User Information -->
                     <li class="nav-item">
-                        <a class="nav-link" href="../Online_Help/patient_List_Guide.php" target="_blank">
-                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">
-                                Need Help?
-                            </span>
-                            <i class="bi bi-info-circle"></i>
-                        </a>
+                        <!-- ... -->
                     </li>
                     <li class="nav-item dropdown no-arrow">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-2 d-none d-lg-inline text-gray-600 small"> <?php
-
-                                                                                        ?></span>
-                            <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg" style="filter: invert(1);">
-                        </a>
-                        <!-- Dropdown - User Information -->
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="index.php?logout=true" data-toggle="modal" data-target="#logoutModal">
-                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Logout
-                            </a>
-                        </div>
+                        <!-- ... -->
                     </li>
+                    <li class="nav-item">
+                        <a href="../portal page/index.php" class="nav-link">Have&nbsp;an&nbsp;account?</a>
+                    </li>
+                </ul>
             </nav>
 
             <!-- Subscription Cards Container -->
-            <div class="subscription-cards-container">
-                <div class="subscription-card">
-                    <h2>1 Month Subscription</h2>
-                    <p>Unlock premium features for a month.</p>
-                    <p>$9.99/month</p>
-                    <button class="btn btn-success" onclick="setSubscription(1); showAddHospitalModal();">Subscribe</button>
+            <section id="pricing" class="pricing-content section-padding">
+                <div class="container">
+                    <div class="section-title text-center">
+                        <h2>Pricing Plans</h2>
+                        <p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.</p>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-lg-4 col-sm-6 col-xs-12 wow fadeInUp" data-wow-duration="1s" data-wow-delay="0.1s" data-wow-offset="0" style="visibility: visible; animation-duration: 1s; animation-delay: 0.1s; animation-name: fadeInUp;">
+                            <div class="pricing_design">
+                                <div class="single-pricing">
+                                    <div class="price-head">
+                                        <h2>Starter</h2>
+                                        <h1>$0</h1>
+                                        <span>/Monthly</span>
+                                    </div>
+                                    <ul>
+                                        <li><b>15</b> website</li>
+                                        <li><b>50GB</b> Disk Space</li>
+                                        <li><b>50</b> Email</li>
+                                        <li><b>50GB</b> Bandwidth</li>
+                                        <li><b>10</b> Subdomains</li>
+                                        <li><b>Unlimited</b> Support</li>
+                                    </ul>
+                                    <div class="pricing-price">
+                                        <a class="price_btn" onclick="setSubscription(1); showAddHospitalModal();">Get Started</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-6 col-xs-12 wow fadeInUp" data-wow-duration="1s" data-wow-delay="0.2s" data-wow-offset="0" style="visibility: visible; animation-duration: 1s; animation-delay: 0.2s; animation-name: fadeInUp;">
+                            <div class="pricing_design">
+                                <div class="single-pricing">
+                                    <div class="price-head">
+                                        <h2>Popular</h2>
+                                        <h1>$49</h1>
+                                        <span>/Monthly</span>
+                                    </div>
+                                    <ul>
+                                        <li><b>30</b> website</li>
+                                        <li><b>70GB</b> Disk Space</li>
+                                        <li><b>70</b> Email</li>
+                                        <li><b>70GB</b> Bandwidth</li>
+                                        <li><b>15</b> Subdomains</li>
+                                        <li><b>Unlimited</b> Support</li>
+                                    </ul>
+                                    <div class="pricing-price">
+                                        <a class="price_btn" onclick="setSubscription(3); showAddHospitalModal();">Get Started</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-sm-6 col-xs-12 wow fadeInUp" data-wow-duration="1s" data-wow-delay="0.3s" data-wow-offset="0" style="visibility: visible; animation-duration: 1s; animation-delay: 0.3s; animation-name: fadeInUp;">
+                            <div class="pricing_design">
+                                <div class="single-pricing">
+                                    <div class="price-head">
+                                        <h2>Premium</h2>
+                                        <h1>$99</h1>
+                                        <span>/Monthly</span>
+                                    </div>
+                                    <ul>
+                                        <li><b>40</b> website</li>
+                                        <li><b>90GB</b> Disk Space</li>
+                                        <li><b>90</b> Email</li>
+                                        <li><b>90GB</b> Bandwidth</li>
+                                        <li><b>20</b> Subdomains</li>
+                                        <li><b>Unlimited</b> Support</li>
+                                    </ul>
+                                    <div class="pricing-price">
+                                        <a class="price_btn" onclick="setSubscription(12); showAddHospitalModal();">Get Started</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            
-                <div class="subscription-card">
-                    <h2>3 Months Subscription</h2>
-                    <p>Save more with a quarterly plan.</p>
-                    <p>$24.99/3 months</p>
-                    <button class="btn btn-success" onclick="setSubscription(3); showAddHospitalModal();">Subscribe</button>
-                </div>
-            
-                <div class="subscription-card">
-                    <h2>1 Year Subscription</h2>
-                    <p>Best value for a year of access.</p>
-                    <p>$89.99/year</p>
-                    <button class="btn btn-success" onclick="setSubscription(12); showAddHospitalModal();">Subscribe</button>
-                </div>
-            </div>
+            </section>
 
             <!-- Add Hospital Modal -->
-             <!-- Add hospital modal -->
-             <div class="modal fade" id="addHospital" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+            <div class="modal fade" id="addHospital" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -336,10 +410,11 @@ if (isset($_POST['add'])) {
                     </form>
                 </div>
             </div>
-            
+>
         </div>
     </div>
 
+    <!-- Scripts and Additional JavaScript for the pricing section -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Hide the modal initially
@@ -364,7 +439,6 @@ if (isset($_POST['add'])) {
             alert(message);
         }
     </script>
-
 </body>
 
 </html>

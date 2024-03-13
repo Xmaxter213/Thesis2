@@ -1,6 +1,31 @@
 <?php
 require_once('../dbConnection/connection.php');
 
+if(isset($_SESSION['selectedHospitalID']))
+{
+    $hospital_ID = $_SESSION['selectedHospitalID'];
+
+    $query = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
+    $query_run = mysqli_query($con, $query);
+
+    if($query_run)
+    {
+        $row = mysqli_fetch_assoc($query_run);
+        $expirationDate = new DateTime($row['Expiration']);
+        $currentDate = new DateTime();
+
+        if($expirationDate < $currentDate)
+        {
+            header("location: ../expiredPage/expired.php");
+        }
+    }
+    else
+    {
+        echo "Error executing the query: " . mysqli_error($con);
+    }
+
+    
+}
 if (isset($_SESSION['userID'])) {
     header("Location: ../Nurses Station Page/Assistance Card Page/assistanceCard.php");
 }
@@ -111,6 +136,7 @@ if(isset($_GET['Change_Hospital']))
     
     .bg-login-image {
             background-image: url('<?php echo $logo_path; ?>');
+            border-radius: 50%;
             /* Other background properties like size, position, repeat, etc. can be added here */
         }
     </style>

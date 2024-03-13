@@ -263,7 +263,7 @@ $verpass = $_SESSION['verifyPass'];
     <div class="modal fade" id="setPasswordModal" tabindex="-1" role="dialog" aria-labelledby="setPasswordModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header text-white" style="background-color: rgb(28, 35, 47); justify-content: center;">
                     <h5 class="modal-title" id="setPasswordModalLabel">Set New Password</h5>
                     <?php if ($verpass == 1): ?>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">

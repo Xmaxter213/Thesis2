@@ -89,6 +89,8 @@ if(isset($_GET['Change_Hospital']))
     href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.min.css"
     rel="stylesheet"
     />
+    <!-- Button styles -->
+    <link rel="stylesheet" href="./css/login_button_style.css">
     
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
@@ -100,9 +102,9 @@ if(isset($_GET['Change_Hospital']))
             margin: 0 10px; /* Adjust spacing as needed */
         }
         .form-outline {
-    position: relative;
-    margin-bottom: 1rem; /* Adjust as needed */
-    }
+            position: relative;
+            margin-bottom: 1rem; /* Adjust as needed */
+        }
 
     .form-outline input.form-control {
         padding: 1.25rem 1rem;
@@ -156,11 +158,16 @@ if(isset($_GET['Change_Hospital']))
                     <div class="card-body p-0">
                         <!-- Nested Row within Card Body -->
                         <div class="row">
-                            <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                            <div class="col-lg-6 d-none d-lg-block" style="background-color: rgb(133,135,150);">
+                                <div class="helping-hand-text">
+                                    <h2 class="text-white">Helping Hand</h2>
+                                </div>
+                            </div>
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
                                         <h1 class="h4 text-gray-900 mb-4">Welcome</h1>
+                                        <h6 class="card-subtitle mb-2">Let's get you Logged in</h6>
                                     </div>
                                     <form class="user">
                                         <div class="form-group">
@@ -170,16 +177,16 @@ if(isset($_GET['Change_Hospital']))
                                             <input type="password" class="form-control form-control-user" id="password" placeholder="Password" required>
                                         </div>
 
-                                        <button type="button" name="button" class="btn btn-secondary btn-user btn-block" id="login">Login</button>
-
+                                        <button type="button" name="button" class="buttonStyle" id="login">Login</button>
+                                        <!-- btn btn-secondary btn-user btn-block -->
                                     </form>
                                     <hr>
                                     <div class="text-center">
                                     </div>
                                     <div class="text-center">
-                                        <a class="small" href="?Change_Hospital=1">Change Hospital</a>
+                                        <a class="small menu__link" href="?Change_Hospital=1">Change Hospital</a>
                                         <span class="vertical-line"></span> <!-- Vertical line -->
-                                        <a class="small" href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot password</a>
+                                        <a class="small menu__link" href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot password</a>
                                     </div>
                                 </div>
                             </div>

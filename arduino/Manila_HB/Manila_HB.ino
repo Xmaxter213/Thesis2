@@ -62,8 +62,8 @@ unsigned long u8LCDmilli;
 #define Flex1 35
 #define Flex2 32
 
-const char* ssid = "ZTE_2.4G_Rvv5KV";
-const char* password = "3CbGK2Fb";
+const char* ssid = "ZTE_2.4G_Rvv5KV"; // Change this
+const char* password = "3CbGK2Fb"; // Change this
 
 // 'battery_full', 30x10px
 const unsigned char epd_bitmap_battery_full [] PROGMEM = {
@@ -100,9 +100,9 @@ const unsigned char epd_bitmap_Oxygen__1_ [] PROGMEM = {
 WiFiClient client;
 int status = WL_IDLE_STATUS;
 
-int HTTP_PORT = 80;
+int HTTP_PORT = 80; // Change this
 String HTTP_METHOD = "GET";
-char HOST_NAME[] = "192.168.1.8"; // IPv4
+char HOST_NAME[] = "192.168.1.8"; // IPv4 // Change this
 String PATH_NAME = "/Thesis2/arduino/assistance_Send.php";
 
 bool buttonPressed = false;

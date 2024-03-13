@@ -1,14 +1,13 @@
 <?php
 require_once('../dbConnection/connection.php');
 
-if (isset($_SESSION['selectedHospitalID']))
-{
+if (isset($_SESSION['selectedHospitalID'])) {
     header("location: ../MainHospital/Login_new.php");
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Check if Hospital ID is selected
-    if(isset($_POST['Hospital_Table']) && !empty($_POST['Hospital_Table'])) {
+    if (isset($_POST['Hospital_Table']) && !empty($_POST['Hospital_Table'])) {
         $selectedHospitalID = $_POST['Hospital_Table'];
 
         // Store the selected hospital ID in the session
@@ -40,6 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Custom styles for this template -->
     <link href="../css/sb-admin-2.min.css" rel="stylesheet">
 
+    <!-- For card styles -->
+    <link rel="stylesheet" href="./css/cardStyle.css">
+
     <!-- Your custom styles -->
     <style>
         body {
@@ -62,17 +64,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .navbar-brand {
-            color: white !important; /* Set the color to white */
-            text-align: center; /* Center the text */
-            width: 100%; /* Take up the full width of the navbar */
+            color: white !important;
+            /* Set the color to white */
+            text-align: center;
+            /* Center the text */
+            width: 100%;
+            /* Take up the full width of the navbar */
         }
 
         .navbar-brand h1 {
-            margin: 0; /* Remove default margin */
+            margin: 0;
+            /* Remove default margin */
         }
 
         .navbar-nav {
-            margin-left: auto; /* Push the Admin word to the right */
+            margin-left: auto;
+            /* Push the Admin word to the right */
         }
 
         .nav-link.align-middle {
@@ -158,17 +165,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (mysqli_num_rows($resultHospital) > 0) {
                     while ($row = mysqli_fetch_array($resultHospital)) {
                         $hospitalID = $row["hospital_ID"];
-                ?>
-                        <div class="card" onclick="selectHospital('<?php echo $hospitalID; ?>')">
-                            <?php
-                            // You can adjust the path to the logo based on your setup
-                            $logoPath = '../LOGO FOLDER/' . $row['hospital_Logo'];
-                            ?>
-                            <img src="<?php echo $logoPath; ?>" alt="Hospital Logo">
-                            <h3><?php echo $row["hospitalName"]; ?></h3>
+                        ?>
+                        <div class="ag-courses_item" onclick="selectHospital('<?php echo $hospitalID; ?>')">
+                            <div class="ag-courses-item_link">
+                                <div class="ag-courses-item_bg"></div>
+                                <div class="ag-courses-item_title">
+                                    <?php echo $row["hospitalName"]; ?>
+                                </div>
+                            </div>
                             <!-- You can add more details here if needed -->
                         </div>
-                <?php
+                        <?php
                     }
                 }
                 ?>

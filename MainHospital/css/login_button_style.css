@@ -1,0 +1,80 @@
+.helping-hand-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.helping-hand-text h2 {
+    font-size: 3rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+  .menu__link {
+    color: rgb(78,115,223);
+    line-height: 2;
+    position: relative;
+  }
+  
+  .menu__link::before {
+    content: '';
+    width: 0;
+    height: 2px;
+    border-radius: 2px;
+    background-color: rgb(78,115,223);
+    position: absolute;
+    bottom: -.25rem;
+    left: 50%;
+    transition: width .4s, left .4s;
+  }
+  
+  .menu__link:hover::before {
+    width: 100%;
+    left: 0;
+  }
+
+.buttonStyle {
+    padding: 1.25rem 1rem;
+    border: none;
+    border-radius: 50px;
+    font-weight: bold;
+    letter-spacing: 7px;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: rgb(133, 135, 150);
+    transition: all 500ms;
+    font-size: 15px;
+    width: 90%;
+    height: fit-content;
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    overflow: hidden;
+    outline: 2px solid rgb(133, 135, 150);
+}
+
+.buttonStyle:hover {
+    color: #ffffff;
+    transform: scale(1.1);
+    outline: 2px solid rgb(133, 135, 150);
+    box-shadow: 4px 5px 17px -4px rgb(133, 135, 150);
+}
+
+.buttonStyle::before {
+    content: "";
+    position: absolute;
+    left: -50px;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background-color: rgb(133, 135, 150);
+    transform: skewX(45deg);
+    z-index: -1;
+    transition: width 500ms;
+}
+
+.buttonStyle:hover::before {
+    width: 250%;
+}

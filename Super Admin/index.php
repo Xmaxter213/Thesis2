@@ -5,6 +5,8 @@
     require '../vendor/autoload.php';
     require_once('../dbConnection/connection.php');
 
+    //The functions for the encryption
+    include('../dbConnection/AES encryption.php');
 
     if (isset($_GET['logout'])) {
         $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
@@ -44,7 +46,8 @@
         $Hospital_Name = $_POST['Hospital_Name'];
         $Subscriber_Email = $_POST['Subscriber_email'];
         $Subscription = $_POST['Subscription_Duration'];
-
+        $Status = 'Admin';
+        
         date_default_timezone_set('Asia/Manila');
         $Creation_Date = date("Y-m-d H:i:s");
 

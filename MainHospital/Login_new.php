@@ -152,7 +152,7 @@ if(isset($_GET['Change_Hospital']))
     <div class="modal top fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="exampleModalLabel" data-bs-backdrop='static' aria-hidden="true" data-mdb-keyboard="true">
         <div class="modal-dialog" style="width: 500px;">
             <div class="modal-content text-center">
-                <div class="modal-header h5 text-white bg-primary justify-content-center">
+                <div class="modal-header h5 text-white" style="background-color: rgb(28, 35, 47); justify-content: center;">
                     Password Reset
                 </div>
                 <div class="modal-body px-5">
@@ -163,7 +163,7 @@ if(isset($_GET['Change_Hospital']))
                         <input type="email" id="typeEmail" class="form-control my-3" />
                         <label class="form-label" for="typeEmail">Email input</label>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-user btn-block" id="resetPassButton">Reset password</button>
+                    <button type="button" class="btn btn-secondary bg-primary btn-user btn-block" id="resetPassButton">Reset password</button>
                     <div class="d-flex justify-content-end mt-4">
                         <button type="button" class="btn btn-secondary btn-user " data-bs-dismiss="modal" id="forgotclose">Close</button>
                     </div>
@@ -176,7 +176,7 @@ if(isset($_GET['Change_Hospital']))
     <div class="modal top fade" id="confirmCodeModal" tabindex="-1" aria-labelledby="exampleModalLabel" data-bs-backdrop='static' aria-hidden="true" data-mdb-keyboard="true">
         <div class="modal-dialog" style="width: 500px;">
             <div class="modal-content text-center">
-                <div class="modal-header h5 text-white bg-primary justify-content-center">
+                <div class="modal-header h5 text-white" style="background-color: rgb(28, 35, 47); justify-content: center;">
                     Confirm Code
                 </div>
                 <div class="modal-body px-5">
@@ -187,7 +187,7 @@ if(isset($_GET['Change_Hospital']))
                         <input type="text" id="typeCode" class="form-control my-3" />
                         <label class="form-label" for="typeCode">Code</label>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-user btn-block" id="comfirmCode">Submit</button>
+                    <button type="button" class="btn btn-secondary bg-primary btn-user btn-block" id="comfirmCode">Submit</button>
                     <div class="d-flex justify-content-end mt-4">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="confirmclose">Close</button>
                     </div>
@@ -199,7 +199,7 @@ if(isset($_GET['Change_Hospital']))
     <div class="modal top fade" id="changePasswordModal" tabindex="-1" aria-labelledby="exampleModalLabel" data-bs-backdrop='static' aria-hidden="true" data-mdb-keyboard="true">
         <div class="modal-dialog" style="width: 500px;">
             <div class="modal-content text-center">
-                <div class="modal-header h5 text-white bg-primary justify-content-center">
+                <div class="modal-header h5 text-white" style="background-color: rgb(28, 35, 47); justify-content: center;">
                     Change Password
                 </div>
                 <div class="modal-body px-5">
@@ -211,7 +211,7 @@ if(isset($_GET['Change_Hospital']))
                         <input type="password" id="type2Password" class="form-control my-3" />
                         <label class="form-label" for="type2Password">Confirm Password</label>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-user btn-block" id="submitChangePassword">Submit</button>
+                    <button type="button" class="btn btn-secondary btn-user bg-primary btn-block" id="submitChangePassword">Submit</button>
                     <div class="d-flex justify-content-end mt-4">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="ChangePasswordclose">Close</button>
                     </div>
@@ -297,7 +297,7 @@ if(isset($_GET['Change_Hospital']))
         });
 
         // Handling "Reset password" button click event
-        $('#forgotPasswordModal .btn-primary').click(function(e) {
+        $('#forgotPasswordModal #resetPassButton').click(function(e) {
             var email = $('#typeEmail').val();
 
             // Email validation using regular expression

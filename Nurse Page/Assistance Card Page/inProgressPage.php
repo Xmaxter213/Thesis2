@@ -76,23 +76,6 @@ $verpass = $_SESSION['verifyPass'];
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-    <style>
-        @media (max-width: 768px) {
-            #refresh {
-                padding-left: 10px;
-                padding-right: 10px;
-            }
-        }
-
-        @media (min-width: 768px) {
-            #refresh {
-                padding-left: 10px;
-                padding-right: 50px;
-            }
-        }
-    </style>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -124,32 +107,10 @@ $verpass = $_SESSION['verifyPass'];
     <!-- For Modal -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 
-    <!-- For div refresh -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            setInterval(function() {
-                $("#refreshImmediate").load("assistanceCards.php");
-                refresh();
-            }, 1000);
-        });
-    </script>
-        <script>
-        $(document).ready(function() {
-            setInterval(function() {
-                $("#refreshADL").load("assistanceCardsADL.php");
-                refresh();
-            }, 1000);
-        });
-    </script>
 </head>
 
 <body id="page-top">
-
-
-
-
-
+    
     <!-- Font Awesome -->
     <script src="js/scripts.js"></script>
     <!-- Page Wrapper -->
@@ -182,12 +143,13 @@ $verpass = $_SESSION['verifyPass'];
                                         <span class="fa-regular fa-hand ml-2" style="filter: invert(1);">Helping Hand</span>
                                     </div>
                                     <div>
-                                        <h2 class="my-4" style="filter: invert(1);">Unassigned Page</h2>
+                                        <h2 class="my-4" style="filter: invert(1);">On the Way Page</h2>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
@@ -223,13 +185,13 @@ $verpass = $_SESSION['verifyPass'];
                     <div class="immediate-assistance-section text-center" style="background-color: rgb(28,35,47); color: white; padding-top: 5px; padding-bottom: 5px; margin-bottom: 20px;">
                         <h3 class="font-weight-bold">Immediate Assistance</h3>
                     </div>
-                        <div id="refreshImmediate" class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
+                        <div class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
                             <?php require_once("assistanceCards.php") ?>
                         </div>
                     <div class="immediate-assistance-section text-center" style="background-color: rgb(28,35,47); color: white; padding-top: 5px; padding-bottom: 5px; margin-bottom: 20px;">
                         <h3 class="font-weight-bold">ADL Assistance</h3>
                     </div>
-                    <div id="refreshADL" class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
+                    <div class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
                             <?php require_once("assistanceCardsADL.php") ?>
                         </div>
                 </div>

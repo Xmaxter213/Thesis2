@@ -6,8 +6,9 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
     $bgClasses = $assistance_Status == "Unassigned" ? "bg-danger" : "bg-primary";
     $btnClasses = $assistance_Status == "Unassigned" ? "btn-danger" : "btn-primary";
 
-    // Check if admission status is "On the way"
-    $changeStatusButton = "<button type=\"button\" href=\"#\" class=\"btn btn-secondary\" disabled>Change Status</button>";
+    // Check if admission status is "On the way" 
+    // Added inProgressPage.php once clicked it will be redirected to 'On the Way' Page
+    $changeStatusButton = "<button type=\"button\" href=\"./inProgressPage.php\" class=\"btn btn-secondary\" disabled>Change Status</button>";
 
     if ($assistance_Status != "On The Way") {
         $changeStatusButton = "<button type=\"button\" href=\"#\" class=\"btn btn-info\" data-toggle=\"modal\" data-target=\"#changeStatusModal-{$patient_ID}\">Change Status</button>";

@@ -26,11 +26,13 @@ if (!function_exists('decryptthis')) {
         if (!empty($data)) {
             $encryption_key = base64_decode($key);
             list($encrypted_data, $iv) = array_pad(explode('::', base64_decode($data), 2), 2, null);
+            if ($iv === null) {
+                return "Invalid data format";
+            }
             return openssl_decrypt($encrypted_data, 'aes-256-cbc', $encryption_key, 0, $iv);
         } else {
             return null;
         }
     }
 }
-
 ?>

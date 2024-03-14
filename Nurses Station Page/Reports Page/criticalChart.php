@@ -89,45 +89,41 @@ SUM(CASE WHEN pulse_Rate_Status = 'High Pulse Rate' AND patient_device_ID = 'pat
 SUM(CASE WHEN pulse_Rate >= 100 THEN 1 ELSE 0 END) AS total_high_pulse_rate_count
 FROM 
 (
-SELECT 
-    arduino_Reports.device_ID AS arduino_device_ID, 
-    arduino_Reports.date_Called AS arduino_date_Called, 
-    arduino_Reports.nurse_ID, 
-    MAX(arduino_Reports.patient_ID) AS patient_ID,
-    patient_List.patient_Name,  
-    patient_List.admission_Status, 
-    patient_List.gloves_ID AS patient_gloves_ID, 
-    patient_List.activated, 
-    patient_List.delete_at, 
-    arduino_Reports.device_ID AS patient_device_ID,
-    arduino_Reports.pulse_rate AS pulse_Rate,
-    CASE 
-        WHEN arduino_Reports.pulse_rate >= 100 THEN 'High Pulse Rate'
-        ELSE 'Normal Pulse Rate'
-    END AS pulse_Rate_Status
-FROM 
-    arduino_Reports 
-INNER JOIN 
-    patient_List 
-ON 
-    arduino_Reports.patient_ID = patient_List.patient_ID 
-INNER JOIN 
-    arduino_Device_List 
-ON 
-    patient_List.gloves_ID = arduino_Reports.device_ID 
-WHERE 
-    patient_List.admission_Status = 'Admitted'
-GROUP BY 
-    arduino_Reports.device_ID, 
-    arduino_Reports.date_Called, 
-    arduino_Reports.nurse_ID, 
-    patient_List.patient_Name,  
-    patient_List.admission_Status, 
-    patient_List.gloves_ID, 
-    patient_List.activated, 
-    patient_List.delete_at, 
-    arduino_Reports.device_ID, 
-    arduino_Reports.pulse_rate
+    SELECT 
+        arduino_Reports.device_ID AS arduino_device_ID, 
+        arduino_Reports.date_Called AS arduino_date_Called, 
+        arduino_Reports.nurse_ID, 
+        MAX(arduino_Reports.patient_ID) AS patient_ID,
+        patient_List.patient_Name,  
+        patient_List.admission_Status, 
+        patient_List.gloves_ID AS patient_gloves_ID, 
+        patient_List.activated, 
+        patient_List.delete_at, 
+        arduino_Reports.device_ID AS patient_device_ID,
+        arduino_Reports.pulse_rate AS pulse_Rate,
+        CASE 
+            WHEN arduino_Reports.pulse_rate >= 100 THEN 'High Pulse Rate'
+            ELSE 'Normal Pulse Rate'
+        END AS pulse_Rate_Status
+    FROM 
+        arduino_Reports 
+    INNER JOIN 
+        patient_List 
+    ON 
+        arduino_Reports.patient_ID = patient_List.patient_ID 
+    WHERE 
+        patient_List.admission_Status = 'Admitted'
+    GROUP BY 
+        arduino_Reports.device_ID, 
+        arduino_Reports.date_Called, 
+        arduino_Reports.nurse_ID, 
+        patient_List.patient_Name,  
+        patient_List.admission_Status, 
+        patient_List.gloves_ID, 
+        patient_List.activated, 
+        patient_List.delete_at, 
+        arduino_Reports.device_ID, 
+        arduino_Reports.pulse_rate
 ) AS subquery
 GROUP BY 
 arduino_device_ID, 
@@ -402,19 +398,7 @@ echo '<script>setTimeout(function(){location.reload()}, 20000);</script>';
                         </button>
                     </form>
 
-                    <!-- Topbar Search -->
-                    <form
-                        class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                        <div class="input-group">
-                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
-                                aria-label="Search" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">

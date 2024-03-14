@@ -171,6 +171,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="ag-courses-item_bg"></div>
                                 <div class="ag-courses-item_title">
                                     <?php echo $row["hospitalName"]; ?>
+                                    <?php
+                                    // You can adjust the path to the logo based on your setup
+                                    $logoPath = '../LOGO FOLDER/' . $row['hospital_Logo'];
+                                    ?>
+                                    <img src="<?php echo $logoPath; ?>" alt="Hospital Logo">
                                 </div>
                             </div>
                             <!-- You can add more details here if needed -->

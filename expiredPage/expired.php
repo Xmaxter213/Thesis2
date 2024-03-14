@@ -168,7 +168,7 @@ if(isset($_POST['extend']))
                         <!-- ... -->
                     </li>
                     <li class="nav-item">
-                        <a href="../portal page/index.php" class="nav-link" style="color: white;">Have&nbsp;an&nbsp;account?</a>
+                        <a href="?Change_Hospital=1" class="nav-link" style="color: white;">Have&nbsp;an&nbsp;account?</a>
                     </li>
                 </ul>
             </nav>

@@ -141,6 +141,9 @@ if(isset($_GET['Change_Hospital']))
             border-radius: 50%;
             /* Other background properties like size, position, repeat, etc. can be added here */
         }
+        .bg-login-image-container {
+            padding: 20px; /* Adjust the padding value as needed */
+        }
     </style>
 
 </head>
@@ -157,11 +160,8 @@ if(isset($_GET['Change_Hospital']))
                 <div class="card o-hidden border-0 shadow-lg my-5">
                     <div class="card-body p-0">
                         <!-- Nested Row within Card Body -->
-                        <div class="row">
-                            <div class="col-lg-6 d-none d-lg-block" style="background-color: rgb(133,135,150);">
-                                <div class="helping-hand-text">
-                                    <h2 class="text-white">Helping Hand</h2>
-                                </div>
+                        <div class="row bg-login-image-container">
+                            <div class="col-lg-6 d-none d-lg-block bg-login-image">
                             </div>
                             <div class="col-lg-6">
                                 <div class="p-5">

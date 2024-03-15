@@ -1,4 +1,8 @@
 <?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require '../vendor/autoload.php';
 require_once('../dbConnection/connection.php');
 include('../dbConnection/AES encryption.php');
 
@@ -63,6 +67,7 @@ if(isset($_GET['Change_Hospital']))
 if(isset($_POST['extend']))
 {
     $extension = $_POST['Subscription_Duration'];
+    $amount = $_POST['userAmount'];
 
     $sql = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
     $query_run = mysqli_query($con, $sql);
@@ -86,7 +91,60 @@ if(isset($_POST['extend']))
             $query_update = mysqli_query($con, $sqlupdate);
 
             if ($query_update) {
-              header("location: ../portal page/index.php");
+
+                    $sql = "SELECT hospitalName, Expiration, email FROM Hospital_Table WHERE hospital_ID = ?";
+                    $stmtselect = $con->prepare($sql);
+                    $stmtselect->bind_param("s", $hospital_ID);
+                    $result = $stmtselect->execute();
+                    $stmtselect->store_result();
+
+                    if ($result) 
+                    {
+                        if ($stmtselect->num_rows > 0) 
+                        {
+                                $stmtselect->bind_result($hospitalName, $Expiration, $email);
+                                $stmtselect->fetch();
+
+                                $email = decryptthis($email, $key);
+
+                                $mail = new PHPMailer(true);
+                            try {
+                                $mail->isSMTP();                                            
+                                $mail->Host       = 'smtp.elasticemail.com';                     
+                                $mail->SMTPAuth   = true;                                  
+                                $mail->Username   = 'j4ishere@gmail.com';                     
+                                $mail->Password   = 'A02F3F4222553D746B478EC9E43E48624D90'; 
+                                $mail->Port       = 2525;
+
+                                $mail->setFrom('j4ishere@gmail.com', 'Helping Hand');
+                                $mail->addAddress($email, 'Recipient Name');
+                                $mail->isHTML(true);
+                                $mail->Subject = 'Hospital Subscription';
+                                $mail->Body    = "Hello {$hospitalName},<br><br>We're pleased to inform you that your Subscription has been extended .<br><br>Your subscription is up until: 
+                                    {$Expiration}.<br><br>Thank you for choosing our Helping Hand service!<br><br>Best regards,<br>Helping Hand";
+
+                                $mail->send();
+                            } 
+                            catch (Exception $e) {
+                                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                            }
+
+
+                            date_default_timezone_set('Asia/Manila');
+                            $currentDateTime = date("Y-m-d H:i:s");
+                            // Insert into superAdminLogs
+                            
+                            $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$hospitalName', 'Extended Hospital : $hospitalName Payment : $$amount', '$currentDateTime')";
+                            $query_run_logs = mysqli_query($con, $sqlAddLogs);
+                            header("location: ../portal page/index.php");
+
+                            if(!$query_run_logs)
+                            {
+                                echo 'Error inserting logs: ' . mysqli_error($con);
+                            }
+                        }
+                    }
+              
             } else {
                 echo "Update failed: " . mysqli_error($con);
             }
@@ -229,19 +287,19 @@ if(isset($_POST['extend']))
         </div>
     </div>
 
-    <!-- Extension Modal -->
+<!-- Extension Modal -->
 <div class="modal fade" id="extendModal" tabindex="-1" role="dialog" aria-labelledby="extendModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="extendModalLabel">Extend Subscription</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="hideAddHospitalModal();"></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="hideExtendModal();">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form method="post" action="">
+                <form method="post" action="" onsubmit="return validateAmount();">
                     <!-- Pass the hospital ID to the modal form -->
                     <input type="hidden" name="hospital_ID">
                     <div class="form-group">
@@ -252,23 +310,31 @@ if(isset($_POST['extend']))
 
                             if (mysqli_num_rows($resultDuration) > 0) {
                         ?>
-                            <label for="Subscription_Duration">Subscription Duration</label>
-                            <select id="Subscription_Duration" name="Subscription_Duration" class="form-control">
-                                <?php
-                                    while ($row = mysqli_fetch_array($resultDuration)) {
-                                ?>
-                                        <option value="<?php echo $row["Duration_Month"]; ?>">
-                                            <?php echo $row["Duration_Month"] . " Months"; ?>
-                                        </option>
-                                <?php
-                                    }
-                                ?>
-                            </select>
+                        <label for="Subscription_Duration">Subscription Duration</label>
+                        <select id="Subscription_Duration" name="Subscription_Duration" class="form-control" onchange="fetchPrice(this.value);">
+                            <?php
+                                while ($row = mysqli_fetch_array($resultDuration)) {
+                                    ?>
+                            <option value="<?php echo $row["Duration_Month"]; ?>" data-price="<?php echo $row["price"]; ?>">
+                                <?php echo $row["Duration_Month"] . " Months"; ?>
+                            </option>
+                            <?php
+                                }
+                            ?>
+                        </select>
                         <?php
                             }
                         ?>
                     </div>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="hideAddHospitalModal();">Close</button>
+                    <div class="form-group">
+                        <label>Price</label>
+                        <span id="priceLabel"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="userAmount">Enter Amount</label>
+                        <input type="text" class="form-control" id="userAmount" name="userAmount" required>
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="hideExtendModal();">Close</button>
                     <button type="submit" class="btn btn-primary" name="extend">Extend</button>
                 </form>
             </div>
@@ -277,16 +343,43 @@ if(isset($_POST['extend']))
 </div>
 
 <script>
-    $(document).ready(function(){
+    $(document).ready(function () {
         // Manually trigger the modal when the button is clicked
-        $('#renewButton').click(function(){
+        $('#renewButton').click(function () {
+            // Set the default value of months to 1
+            $('#Subscription_Duration').val('1');
+            // Show the modal
             $('#extendModal').modal('show');
+            // Fetch and display the price for the default duration
+            fetchPrice('1');
         });
     });
-    function hideAddHospitalModal() {
-            // Show the modal using Bootstrap's modal method
-            $('#addHospital').modal('hide');
+
+    function hideExtendModal() {
+        // Hide the modal using Bootstrap's modal method
+        $('#extendModal').modal('hide');
+    }
+
+    function fetchPrice(duration) {
+        // Get the selected option
+        var selectedOption = $("#Subscription_Duration option:selected");
+        // Get the price associated with the selected duration
+        var price = selectedOption.data("price");
+        // Update the price label with the fetched price
+        $('#priceLabel').text("Price: $" + price);
+    }
+
+    function validateAmount() {
+        var userAmount = parseFloat($('#userAmount').val());
+        var selectedOption = $("#Subscription_Duration option:selected");
+        var price = parseFloat(selectedOption.data("price"));
+        
+        if (userAmount !== price) {
+            alert("Please enter an amount equal to the price.");
+            return false;
         }
+        return true;
+    }
 </script>
 
 

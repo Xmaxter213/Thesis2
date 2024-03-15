@@ -120,6 +120,7 @@
     {
         $hospital_ID = $_POST['hospital_ID'];
         $extension = $_POST['Subscription_Duration'];
+        $remarks = $_POST['reasonforExtend'];
 
         $sql = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
         $query_run = mysqli_query($con, $sql);
@@ -143,6 +144,59 @@
                 $query_update = mysqli_query($con, $sqlupdate);
 
                 if ($query_update) {
+
+                    $sql = "SELECT hospitalName, Expiration, email FROM Hospital_Table WHERE hospital_ID = ?";
+                    $stmtselect = $con->prepare($sql);
+                    $stmtselect->bind_param("s", $hospital_ID);
+                    $result = $stmtselect->execute();
+                    $stmtselect->store_result();
+
+                    if ($result) 
+                    {
+                        if ($stmtselect->num_rows > 0) 
+                        {
+                                $stmtselect->bind_result($hospitalName, $Expiration, $email);
+                                $stmtselect->fetch();
+
+                                $email = decryptthis($email, $key);
+
+                                $mail = new PHPMailer(true);
+                            try {
+                                $mail->isSMTP();                                            
+                                $mail->Host       = 'smtp.elasticemail.com';                     
+                                $mail->SMTPAuth   = true;                                  
+                                $mail->Username   = 'j4ishere@gmail.com';                     
+                                $mail->Password   = 'A02F3F4222553D746B478EC9E43E48624D90'; 
+                                $mail->Port       = 2525;
+
+                                $mail->setFrom('j4ishere@gmail.com', 'Helping Hand');
+                                $mail->addAddress($email, 'Recipient Name');
+                                $mail->isHTML(true);
+                                $mail->Subject = 'Hospital Subscription';
+                                $mail->Body    = "Hello {$hospitalName},<br><br>We're pleased to inform you that your Subscription has been extended .<br><br>Your subscription is up until: 
+                                    {$Expiration}.<br><br>Thank you for choosing our Helping Hand service!<br><br>Best regards,<br>Helping Hand";
+
+                                $mail->send();
+                            } 
+                            catch (Exception $e) {
+                                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                            }
+
+
+                            $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
+                            date_default_timezone_set('Asia/Manila');
+                            $currentDateTime = date("Y-m-d H:i:s");
+                            // Insert into superAdminLogs
+                            
+                            $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$userName', 'Extended Hospital : $hospitalName Reason : $remarks', '$currentDateTime')";
+                            $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+                            if(!$query_run_logs)
+                            {
+                                echo 'Error inserting logs: ' . mysqli_error($con);
+                            }
+                        }
+                    }
 
                 } else {
                     echo "Update failed: " . mysqli_error($con);
@@ -469,6 +523,8 @@
                                             foreach($hospitals as $hospital) :
                                                 $currentDate = new DateTime();
                                                 $expirationDate = new DateTime($hospital['Expiration']);
+                                                $dec_email = decryptthis($hospital['email'], $key);
+                                                $dec_name = decryptthis($hospital['Subscriber_Name'], $key);
 
                                                 $interval = $currentDate->diff($expirationDate);
 
@@ -486,9 +542,9 @@
 
                                                 <tr>
                                                     <td><?php echo $hospital['hospital_ID'] ?></td>
-                                                    <td><?php echo $hospital['Subscriber_Name'] ?></td>
+                                                    <td><?php echo $dec_name ?></td>
                                                     <td><?php echo $hospital['hospitalName'] ?></td>
-                                                    <td><?php echo $hospital['email'] ?></td>
+                                                    <td><?php echo $dec_email ?></td>
                                                     <td><?php echo $hospital_status?></td>
                                                     <td>
                                                         <?php
@@ -560,6 +616,10 @@
                                                                                 <?php
                                                                                     }
                                                                                 ?>
+                                                                                <div>
+                                                                                    <label>Remarks : </label>
+                                                                                    <textarea rows="4" cols="50" type="text" name="reasonforExtend"id="reasonforExtend" class="form-control" placeholder="Enter Remarks"></textarea>    
+                                                                                </div>
                                                                             </div>
                                                                             <button type = "submit" class = "btn btn-primary" name = "extend" >extend</button>
                                                                         </form>

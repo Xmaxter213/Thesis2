@@ -8,6 +8,7 @@ require_once('../dbConnection/connection.php');
 if (isset($_POST['add'])) {
     $Subscriber_FirstName = $_POST['Subscriber_first_Name'];
     $Subscriber_LastName = $_POST['Subscriber_last_Name'];
+    $amount = $_POST['Price'];
 
     $Subscriber_Name = $Subscriber_FirstName . $Subscriber_LastName;
 
@@ -39,7 +40,7 @@ if (isset($_POST['add'])) {
         $hospital_ID = mysqli_insert_id($con);
 
         // Insert into superAdminLogs
-        $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$Subscriber_Name', 'New Subscriber', '$currentDateTime')";
+        $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$Subscriber_Name', 'New Subscriber $Subscription month/s Payment of $$amount', '$currentDateTime')";
         $query_run_logs = mysqli_query($con, $sqlAddLogs);
 
         
@@ -411,7 +412,7 @@ if (isset($_POST['add'])) {
                             <br>
                             <div>
                                 <label id="priceLabel">Price: </label>
-                                <input type="number" id="userPrice" name="Price" placeholder="Enter Price">
+                                <input type="number" id="Price" name="Price" placeholder="Enter Price">
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -457,7 +458,7 @@ if (isset($_POST['add'])) {
 
     // Function to validate form input before submission
     function validateForm() {
-        var userEnteredPrice = $("#userPrice").val();
+        var userEnteredPrice = $("#Price").val();
         var subscriptionPrice = $("#Subscription_Duration option:selected").data("price");
 
         // Check if the user-entered price is less than the subscription price

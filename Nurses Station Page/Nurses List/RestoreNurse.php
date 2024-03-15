@@ -707,11 +707,12 @@ if (isset($_POST['nurseRestore'])) {
         $enteredPassword = $_POST['password'];
         $userName = $_SESSION['userID'];
         $nurse_ID = $_POST['nurse_ID']; //One to edit
-    
+        $ID = $_SESSION['idNUM'];
+
         //This is for checking if pw is correct
-        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $query = "SELECT password FROM userLogin WHERE ID = ?";
         $getuserpassword = $con->prepare($query);
-        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->bind_param("s", $ID);
         $getuserpassword->execute();
         $getuserpassword->store_result();
         $getuserpassword->bind_result($verifyPassword);

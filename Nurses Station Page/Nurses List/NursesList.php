@@ -740,7 +740,16 @@ if (isset($_POST['edit'])) {
                                             foreach($nurses as $nurse) :
                                                 $count = $count + 1;
 
-                                                if (isset($dec_nurse_Age)) {
+                                                if ($nurse['nurse_Name'] === 'HOSPITAL OWNER') {
+                                                    $dec_nurse_Name = 'HOSPITAL OWNER';
+                                                    $dec_nurse_Contact_No = 'HOSPITAL OWNER';
+                                                    $dec_nurse_Sex = 'HOSPITAL OWNER';
+                                                    $dec_nurse_birth_Date = 'HOSPITAL OWNER';
+                                                    $birthDate = 'HOSPITAL OWNER';
+                                                    $dec_nurse_Age = 'HOSPITAL OWNER';
+
+                                                    $dec_date_Employment = 'HOSPITAL OWNER';
+                                                } else {
                                                     //Decrypt data from db
                                                     $dec_nurse_Name = decryptthis($nurse['nurse_Name'], $key);
                                                     $dec_nurse_Contact_No = decryptthis($nurse['contact_No'], $key);
@@ -760,8 +769,6 @@ if (isset($_POST['edit'])) {
                                                     }
 
                                                     $dec_date_Employment = decryptthis($nurse['date_Employment'], $key);
-                                                } else {
-                                                    echo "The variable does not exist.";
                                                 }
                                                 
                                             ?>

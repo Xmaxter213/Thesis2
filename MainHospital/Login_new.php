@@ -417,6 +417,16 @@ if(isset($_GET['Change_Hospital']))
     $('#confirmCodeModal #comfirmCode').click(function(e) {
                 var code = $('#typeCode').val(); 
 
+                    if (code === '' ) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Please fill in all fields.',
+                        type: 'error'
+                    });
+                    return;
+                }
+
+
                 document.getElementById("comfirmCode").disabled = true;
                 document.getElementById("confirmclose").disabled = true;
                 e.preventDefault();
@@ -508,9 +518,7 @@ if(isset($_GET['Change_Hospital']))
                         text: 'Password changed successfully.',
                         type: 'success'
                     }).then((result) => {
-                        $('#changePasswordModal').modal('hide');
-                        $('.modal-backdrop').remove(); 
-                        $('body').removeClass('modal-open');
+
                     });
                 },
                 error: function(xhr, status, error) {
@@ -522,9 +530,7 @@ if(isset($_GET['Change_Hospital']))
                     });
                 },
                 complete: function() {
-                    
-                    document.getElementById("submitChangePassword").disabled = false;
-                    document.getElementById("ChangePasswordclose").disabled = false;
+                    location.reload();
                 }
                 });
             });

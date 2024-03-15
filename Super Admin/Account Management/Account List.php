@@ -248,7 +248,48 @@ if (isset($_POST['add'])) {
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Account Management</h6>
                             <br>
-                            <a onclick="showSnackbar('add nurse')" href="AddAccount.php" class="btn btn-primary float-end">Add Account</a>
+
+                            <!-- Trigger the modal with a button -->
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSuperAdminAccountPasswordVerificationModal">Add Account</button>
+
+                            <!-- Add nurse modal -->
+                            <div class="modal fade" id="addSuperAdminAccountPasswordVerificationModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Edit</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="" method="POST">
+                                                <div>
+                                                    <label>User Name</label>
+                                                    <input type="text" name="userName" required pattern ="\S(.*\S)?[A-Za-z]+"  class="form-control" placeholder="Enter User Name" required title="Must only contain letters">
+                                                </div>
+
+                                                <div>
+                                                    <label>Email</label>
+                                                    <input type="text" name="email"  class="form-control" placeholder="Enter Email" r>
+                                                </div>
+                                                <div>
+                                                    <label>Password</label>
+                                                    <input type="password" class="form-control" name="password" placeholder="Enter Password" />
+                                                </div>
+                                                <div>
+                                                    <label>Status</label>
+                                                    <input type="text" class="form-control" name="status" readonly value="Super Admin" />
+                                                </div>
+                                            </div>
+                                        <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button onclick="showSnackbar('add Account')" type = "submit" class = "btn btn-primary" name = "add" >Add</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="card-body">
 
@@ -450,18 +491,10 @@ if (isset($_POST['add'])) {
             var x = document.getElementById("snackbar");
 
             //Change text
-            if (msg.includes('add nurse')) {
-                document.getElementById("snackbar").innerHTML = "Add Account page opening...";
+            if (msg.includes('add super admin')) {
+                document.getElementById("snackbar").innerHTML = "Adding account...";
             } else if (msg.includes('edit nurse')) {
                 document.getElementById("snackbar").innerHTML = "Opening edit page...";
-            } else if (msg.includes('delete nurse')) {
-                document.getElementById("snackbar").innerHTML = "Item is being deleted...";
-            } else if (msg.includes('error')) {
-                document.getElementById("snackbar").innerHTML = "Error.. Please try again.";
-            } else if (msg.includes('redirect to nurses list page')) {
-                document.getElementById("snackbar").innerHTML = "Opening nurses list page...";
-            } else if (msg.includes('redirect to patients list page')) {
-                document.getElementById("snackbar").innerHTML = "Refreshing patients list page...";
             }
 
             // Add the "show" class to DIV

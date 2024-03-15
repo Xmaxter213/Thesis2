@@ -553,7 +553,7 @@ if (isset($_POST['edit'])) {
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel">Edit</h5>
+                                            <h5 class="modal-title" id="exampleModalLabel">Add nurse</h5>
                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
@@ -802,7 +802,7 @@ if (isset($_POST['edit'])) {
                                                             <div class="modal-dialog" role="document">
                                                                 <div class="modal-content">
                                                                     <div class="modal-header">
-                                                                        <h5 class="modal-title" id="exampleModalLabel">Edit</h5>
+                                                                        <h5 class="modal-title" id="exampleModalLabel">Edit nurse</h5>
                                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                             <span aria-hidden="true">&times;</span>
                                                                         </button>

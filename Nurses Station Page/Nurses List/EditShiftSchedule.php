@@ -71,6 +71,9 @@ if(isset($_SESSION['selectedHospitalID']))
     
 }
 
+//This is to make sure that deactivated accounts that are due for deletion are deleted
+include('patientDeleteEntriesDue.php');
+
 if (isset($_POST['add'])) {
     $work_Shift = $_POST['work_Shift'];
     $time_Range = $_POST['time_Range'];

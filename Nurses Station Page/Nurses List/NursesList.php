@@ -686,7 +686,7 @@ if (isset($_POST['edit'])) {
                                     // Prepare the SELECT query using mysqli
                                     $query = "SELECT assigned_Ward FROM staff_List WHERE nurse_ID = ?";
                                     $getNurseAssignedWard = $con->prepare($query);
-                                    $getNurseAssignedWard->bind_param("i", $staff_ID);
+                                    $getNurseAssignedWard->bind_param("s", $staff_ID);
                                     
                                     // Execute the SELECT query
                                     $database = $getNurseAssignedWard->execute();
@@ -699,7 +699,7 @@ if (isset($_POST['edit'])) {
                                     // Close the statement
                                     $getNurseAssignedWard->close();
 
-                                $sql = "SELECT * FROM staff_List WHERE activated = 1";
+                                $sql = "SELECT * FROM staff_List WHERE activated = 1 AND assigned_Ward = '$nurse_Assigned_Ward'";
                                 $result = mysqli_query($con, $sql);
 
                                 //This is for pagination
@@ -747,7 +747,6 @@ if (isset($_POST['edit'])) {
                                                     $dec_nurse_birth_Date = 'HOSPITAL OWNER';
                                                     $birthDate = 'HOSPITAL OWNER';
                                                     $dec_nurse_Age = 'HOSPITAL OWNER';
-
                                                     $dec_date_Employment = 'HOSPITAL OWNER';
                                                 } else {
                                                     //Decrypt data from db

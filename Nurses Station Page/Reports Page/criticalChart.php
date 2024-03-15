@@ -29,50 +29,58 @@ if (isset($_GET['logout'])) {
 // USER LOGGED IN
 if (!isset($_SESSION['userID'])) {
     header("location: ../../MainHospital/login_new.php");
-} 
-else 
-{
+} else {
     $status = $_SESSION['userStatus'];
 
     if ($status === 'Nurse') {
         header("location: ../../Nurse Page/Assistance Card Page/assistanceCard.php");
     }
-    if ($status === 'Super Admin')
-    {
+    if ($status === 'Super Admin') {
         header("location: ../../Super Admin/index.php");
     }
 }
 
 // SELECTED HOSPITAL !EXPIRED
-if(isset($_SESSION['selectedHospitalID']))
-{
+if (isset($_SESSION['selectedHospitalID'])) {
     $hospital_ID = $_SESSION['selectedHospitalID'];
 
     $query = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
     $query_run = mysqli_query($con, $query);
 
-    if($query_run)
-    {
+    if ($query_run) {
         $row = mysqli_fetch_assoc($query_run);
         $expirationDate = new DateTime($row['Expiration']);
         $currentDate = new DateTime();
 
-        if($expirationDate < $currentDate)
-        {
+        if ($expirationDate < $currentDate) {
             header("location: ../../expiredPage/expired.php");
         }
-    }
-    else
-    {
+    } else {
         echo "Error executing the query: " . mysqli_error($con);
     }
 
-    
+
 }
 
-$dataNames = array();
+if (isset($_POST["daily"]) || isset($_POST["weekly"]) || isset($_POST["monthly"]) || isset($_POST["yearly"])) {
+    $selectedRange = "";
 
-$sql = "SELECT 
+    if (isset($_POST['daily'])) {
+        $selectedRange = "arduino_Reports.date_Called >= now()";
+    }
+    if (isset($_POST['weekly'])) {
+        $selectedRange = "arduino_Reports.date_Called > date_sub(now(), INTERVAL 1 week)";
+    }
+    if (isset($_POST['monthly'])) {
+        $selectedRange = "arduino_Reports.date_Called > date_sub(now(), INTERVAL 1 month)";
+    }
+    if (isset($_POST['yearly'])) {
+        $selectedRange = "arduino_Reports.date_Called > date_sub(now(), INTERVAL 1 year)";
+    }
+
+    $dataNames = array();
+
+    $sql = "SELECT 
 arduino_device_ID,
 MAX(arduino_date_Called) AS arduino_date_Called,
 MAX(nurse_ID) AS nurse_ID,
@@ -112,7 +120,7 @@ FROM
     ON 
         arduino_Reports.patient_ID = patient_List.patient_ID 
     WHERE 
-        patient_List.admission_Status = 'Admitted'
+        patient_List.admission_Status = 'Admitted' AND $selectedRange
     GROUP BY 
         arduino_Reports.device_ID, 
         arduino_Reports.date_Called, 
@@ -129,24 +137,28 @@ GROUP BY
 arduino_device_ID, 
 patient_device_ID";
 
-$result = mysqli_query($con, $sql);
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $patientName = decryptthis($row["patient_Name"], $key);
+    $result = mysqli_query($con, $sql);
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $patientName = decryptthis($row["patient_Name"], $key);
 
-        array_push(
-            $dataNames,
-            array(
-                "label" => $patientName,
-                "y" => $row['total_high_pulse_rate_count'],
-                "additionalData" => $row['arduino_date_Called'],
-                "additionalData2" => $row['pulse_Rate']
-            )
-        );
+            array_push(
+                $dataNames,
+                array(
+                    "label" => $patientName,
+                    "y" => $row['total_high_pulse_rate_count'],
+                    "additionalData" => $row['arduino_date_Called'],
+                    "additionalData2" => $row['pulse_Rate']
+                )
+            );
 
+        }
     }
+
+
 }
-echo '<script>setTimeout(function(){location.reload()}, 20000);</script>';
+
+// echo '<script>setTimeout(function(){location.reload()}, 20000);</script>';
 ?>
 
 <!DOCTYPE html>
@@ -445,7 +457,8 @@ echo '<script>setTimeout(function(){location.reload()}, 20000);</script>';
 
                                     ?>
                                 </span>
-                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg" style="filter: invert(1);">
+                                <img class="img-profile" src="../Assistance Card Page/./Images/logout.svg"
+                                    style="filter: invert(1);">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -479,6 +492,21 @@ echo '<script>setTimeout(function(){location.reload()}, 20000);</script>';
                         <div class="col-auto">
                             <a href="./criticalChart.php" class="btn btn-secondary active">Critical Pulse Rate
                                 Reports</a>
+                        </div>
+                        <div class="dropdown col-auto">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false">
+                                Choose Date
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <form id="dateSearch" method="POST">
+                                    <button class="dropdown-item" type="submit" name="daily">Daily</button>
+                                    <button class="dropdown-item" type="submit" name="weekly">Weekly</button>
+                                    <button class="dropdown-item" type="submit" name="monthly">Monthly</button>
+                                    <button class="dropdown-item" type="submit" name="yearly">Yearly</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
 

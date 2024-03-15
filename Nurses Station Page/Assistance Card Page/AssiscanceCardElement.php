@@ -1,6 +1,6 @@
 <?php
 #bg-primary blue, bg-warning yellow, bg-success green, bg-danger red
-function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $reason_Admission, $admission_Status, $nurse_ID, $assistance_Status, $gloves_ID, $nurse_Name, $contact_No, $assigned_Ward)
+function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $reason_Admission, $admission_Status, $nurse_ID, $assistance_Status, $gloves_ID, $nurse_name, $contact_No, $assigned_Ward)
 {
     $cardClasses = $assistance_Status == "Unassigned" ? "rgba(220,53,69, 0.25)" : "rgba(14,202,240, 0.25)";
     $bgClasses = $assistance_Status == "Unassigned" ? "bg-danger" : "bg-primary";
@@ -31,7 +31,7 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
                             <h6 class=\"font-weight-bold\">Age: <span class=\"font-weight-normal\">$birth_Date</h6>
                             <h6 class=\"font-weight-bold\">Reason for Admission: <span class=\"font-weight-normal text-justify\">$reason_Admission</span></h6>
                             <h6 class=\"font-weight-bold\">Assistance Status: <span class=\"font-weight-normal\">$assistance_Status</span></h6>
-                            <h6 class=\"font-weight-bold\">Nurse Name: <span class=\"font-weight-normal\">$nurse_Name</span></h6>
+                            <h6 class=\"font-weight-bold\">Nurse Name: <span class=\"font-weight-normal\">$nurse_name</span></h6>
                             <h6 class=\"font-weight-bold\">Contact Number: <span class=\"font-weight-normal\">$contact_No</span></h6>
                             <h6 class=\"font-weight-bold\">Nurse Assigned Ward: <span class=\"font-weight-normal\">$assigned_Ward</span></h6>
                         </div>

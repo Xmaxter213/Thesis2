@@ -217,12 +217,12 @@ $verpass = $_SESSION['verifyPass'];
             refreshImmediate = setInterval(function () {
                 $("#refreshImmediate").load("./assistanceCards.php");
                 refresh();
-            }, 1000);
+            }, 2000);
 
             refreshADL = setInterval(function () {
                 $("#refreshADL").load("./assistanceCardsADL.php");
                 refresh();
-            }, 1000);
+            }, 2000);
         });
 
         // Function to turn off refresh for Immediate Assistance
@@ -809,7 +809,6 @@ $verpass = $_SESSION['verifyPass'];
                     // });
                     
                 });
-            });
         </script>
 
 

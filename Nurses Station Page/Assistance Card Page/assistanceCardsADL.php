@@ -74,6 +74,7 @@ if ($result->num_rows > 0) {
         $dec_nurse_birth_Date = decryptthis($row['birth_Date'], $key);
         $admissionReason = decryptthis($row['reason_Admission'], $key);
         $nurse_contact = decryptthis($row['contact_No'], $key);
+        $nurse_name = "";
 
         //get age from date or birthdate
         $birthDate = explode("-", $dec_nurse_birth_Date);
@@ -83,6 +84,35 @@ if ($result->num_rows > 0) {
 
         if ($patient_Age == -1) {
             $patient_Age = 0;
+        }
+
+        if (isset($row['nurse_ID2']) && $row['nurse_ID2'] != NULL) {
+            $nurseNotAdmin = $row['nurse_ID2'];
+            $getNameandPhoneQuery = "SELECT 
+                staff_List.nurse_Name, 
+                staff_List.contact_No 
+                FROM 
+                staff_List 
+                INNER JOIN 
+                arduino_Reports ON staff_List.nurse_ID = arduino_Reports.nurse_ID
+                WHERE 
+                staff_List.nurse_ID = ?";
+
+            $stmtnurse = $con->prepare($getNameandPhoneQuery);
+            if ($stmtnurse) {
+                $stmtnurse->bind_param("d", $row['nurse_ID2']);
+                $stmtnurse->execute();
+                $result2 = $stmtnurse->get_result();
+                if ($result2->num_rows > 0) {
+                    $row2 = $result2->fetch_assoc();
+                    $nurse_contact = decryptthis($row2['contact_No'], $key);
+                    $nurse_name = decryptthis($row2['nurse_Name'], $key);
+                }
+                $stmtnurse->close(); // Close the statement
+            } else {
+                // Handle prepare error
+                error_log("Exception: " . $ex->getMessage());
+            }
         }
 
         if ($row['assistance_Status'] == "Unassigned" && $smsSetting == 'on') {
@@ -98,9 +128,10 @@ if ($result->num_rows > 0) {
             }
         }
 
-        assistanceCard($row['patient_ID'], $dec_patient_Name, $row['room_Number'], $patient_Age, $admissionReason, $row['admission_Status'], $row['nurse_ID'], $row['assistance_Status'], $row['gloves_ID'], $nurse_contact, $row['assigned_Ward']);
+        assistanceCard($row['patient_ID'], $dec_patient_Name, $row['room_Number'], $patient_Age, $admissionReason, $row['admission_Status'], $row['nurse_ID'], $row['assistance_Status'], $row['gloves_ID'], $nurse_name, $nurse_contact, $row['assigned_Ward']);
     }
 } else {
     echo "<h2>No Requests</h2>";
 }
+
 ?>

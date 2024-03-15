@@ -1,5 +1,6 @@
 <?php
 require_once('../../dbConnection/connection.php');
+require_once('./getWard.php');
 //include('message.php');http://localhost/thesis2/Nurses%20Station%20Page/Nurses%20List/NursesList.php
 
 //The functions for the encryption
@@ -29,69 +30,57 @@ if (isset($_GET['logout'])) {
 // USER LOGGED IN
 if (!isset($_SESSION['userID'])) {
     header("location: ../../MainHospital/login_new.php");
-} 
-else 
-{
+} else {
     $status = $_SESSION['userStatus'];
 
     if ($status === 'Nurse') {
         header("location: ../../Nurse Page/Assistance Card Page/assistanceCard.php");
     }
-    if ($status === 'Super Admin')
-    {
+    if ($status === 'Super Admin') {
         header("location: ../../Super Admin/index.php");
     }
 }
 
 // SELECTED HOSPITAL !EXPIRED
-if(isset($_SESSION['selectedHospitalID']))
-{
+if (isset($_SESSION['selectedHospitalID'])) {
     $hospital_ID = $_SESSION['selectedHospitalID'];
 
     $query = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
     $query_run = mysqli_query($con, $query);
 
-    if($query_run)
-    {
+    if ($query_run) {
         $row = mysqli_fetch_assoc($query_run);
         $expirationDate = new DateTime($row['Expiration']);
         $currentDate = new DateTime();
 
-        if($expirationDate < $currentDate)
-        {
+        if ($expirationDate < $currentDate) {
             header("location: ../../expiredPage/expired.php");
         }
-    }
-    else
-    {
+    } else {
         echo "Error executing the query: " . mysqli_error($con);
     }
 
-    
+
 }
-//This is to make sure that deactivated accounts that are due for deletion are deleted
 
-// $patient_ID = $_SESSION['idNUM'];
+$name = isset($_SESSION['idNUM']) ? $_SESSION['idNUM'] : null;
+$assignedWard = $_SESSION['assignedWard'];
 
-// // Prepare the SELECT query using mysqli
-// $query = "SELECT assigned_Ward FROM patient_List WHERE ";
-// $getPatientAssignedWard = $con->prepare($query);
-// $getPatientAssignedWard->bind_param("i", $patient_ID);
+if (isset($_POST["daily"]) || isset($_POST["weekly"]) || isset($_POST["monthly"]) || isset($_POST["yearly"])) {
+    $selectedRange = "";
 
-// // Execute the SELECT query
-// $database = $getPatientAssignedWard->execute();
-
-// // Store and fetch the result
-// $getPatientAssignedWard->store_result();
-// $getPatientAssignedWard->bind_result($patient_Assigned_Ward);
-// $getPatientAssignedWard->fetch();
-
-// // Close the statement
-// $getPatientAssignedWard->close();
-
-if (isset($_POST["searchward"])) {
-
-    $selectedWard = $_POST["ward"];
+    if (isset($_POST['daily'])) {
+        $selectedRange = "ar.`date_Called` >= now()";
+    }
+    if (isset($_POST['weekly'])) {
+        $selectedRange = "ar.`date_Called` > date_sub(now(), INTERVAL 1 week)";
+    }
+    if (isset($_POST['monthly'])) {
+        $selectedRange = "ar.`date_Called` > date_sub(now(), INTERVAL 1 month)";
+    }
+    if (isset($_POST['yearly'])) {
+        $selectedRange = "ar.`date_Called` > date_sub(now(), INTERVAL 1 year)";
+    }
 
     $immediate_Counts = 0;
     $ADL_Counts = 0;
@@ -106,46 +95,40 @@ if (isset($_POST["searchward"])) {
     $timeArray2 = array();
 
     // Query for overall response rates
-    $sql = "WITH ward_list AS (
-        SELECT DISTINCT assigned_Ward
-        FROM patient_List
-    ),
-    arduino_sums AS (
-        SELECT 
-            SUM(CASE WHEN assistance_Type = 'IMMEDIATE' THEN 1 ELSE 0 END) AS immediate_count,
-            SUM(CASE WHEN assistance_Type = 'ADL' THEN 1 ELSE 0 END) AS adl_count
-        FROM 
-            arduino_Reports
-    ),
-    shift_sums AS (
-        SELECT 
-            SUM(CASE WHEN `shift_Schedule` = 'Graveyard Shift' THEN 1 ELSE 0 END) AS `Total_Graveyard_Shift_Count`,
-            SUM(CASE WHEN `shift_Schedule` = 'Morning Shift' THEN 1 ELSE 0 END) AS `Total_Morning_Shift_Count`,
-            SUM(CASE WHEN `shift_Schedule` = 'Night Shift' THEN 1 ELSE 0 END) AS `Total_Night_Shift_Count`
-        FROM 
-            staff_List
-    )
+    $sql = "WITH arduino_sums AS (
     SELECT 
-        pl.`patient_ID`, 
-        pl.`patient_Name`,
-        SUM(CASE WHEN ar.`assistance_Type` = 'ADL' THEN TIMESTAMPDIFF(SECOND, ar.`date_Called`, ar.`Nurse_Assigned_Status`) ELSE 0 END) AS `Total_Time_ADL`,
-        SUM(CASE WHEN ar.`assistance_Type` = 'IMMEDIATE' THEN TIMESTAMPDIFF(SECOND, ar.`date_Called`, ar.`Nurse_Assigned_Status`) ELSE 0 END) AS `Total_Time_IMMEDIATE`,
-        (SELECT immediate_count FROM arduino_sums) AS immediate_count,
-        (SELECT adl_count FROM arduino_sums) AS adl_count,
-        (SELECT Total_Graveyard_Shift_Count FROM shift_sums) AS Total_Graveyard_Shift_Count,
-        (SELECT Total_Morning_Shift_Count FROM shift_sums) AS Total_Morning_Shift_Count,
-        (SELECT Total_Night_Shift_Count FROM shift_sums) AS Total_Night_Shift_Count
+        SUM(CASE WHEN assistance_Type = 'IMMEDIATE' THEN 1 ELSE 0 END) AS immediate_count,
+        SUM(CASE WHEN assistance_Type = 'ADL' THEN 1 ELSE 0 END) AS adl_count
     FROM 
-        `arduino_Reports` AS ar
-    INNER JOIN 
-        `patient_List` AS pl ON ar.`patient_ID` = pl.`patient_ID`
-    INNER JOIN
-        ward_list ON pl.assigned_Ward = ward_list.assigned_Ward
-    WHERe pl.assigned_Ward = '$selectedWard'
-    GROUP BY
-        pl.`patient_ID`, 
-        pl.`patient_Name`;
-    ";
+        arduino_Reports
+),
+shift_sums AS (
+    SELECT 
+        SUM(CASE WHEN `shift_Schedule` = 'Graveyard Shift' THEN 1 ELSE 0 END) AS `Total_Graveyard_Shift_Count`,
+        SUM(CASE WHEN `shift_Schedule` = 'Morning Shift' THEN 1 ELSE 0 END) AS `Total_Morning_Shift_Count`,
+        SUM(CASE WHEN `shift_Schedule` = 'Night Shift' THEN 1 ELSE 0 END) AS `Total_Night_Shift_Count`
+    FROM 
+        staff_List
+)
+SELECT 
+    pl.`patient_ID`, 
+    pl.`patient_Name`,
+    SUM(CASE WHEN ar.`assistance_Type` = 'ADL' THEN TIMESTAMPDIFF(SECOND, ar.`date_Called`, ar.`Nurse_Assigned_Status`) ELSE 0 END) AS `Total_Time_ADL`,
+    SUM(CASE WHEN ar.`assistance_Type` = 'IMMEDIATE' THEN TIMESTAMPDIFF(SECOND, ar.`date_Called`, ar.`Nurse_Assigned_Status`) ELSE 0 END) AS `Total_Time_IMMEDIATE`,
+    (SELECT immediate_count FROM arduino_sums) AS immediate_count,
+    (SELECT adl_count FROM arduino_sums) AS adl_count,
+    (SELECT Total_Graveyard_Shift_Count FROM shift_sums) AS Total_Graveyard_Shift_Count,
+    (SELECT Total_Morning_Shift_Count FROM shift_sums) AS Total_Morning_Shift_Count,
+    (SELECT Total_Night_Shift_Count FROM shift_sums) AS Total_Night_Shift_Count
+FROM 
+    `arduino_Reports` AS ar
+INNER JOIN 
+    `patient_List` AS pl ON ar.`patient_ID` = pl.`patient_ID`
+WHERE $selectedRange
+GROUP BY
+    pl.`patient_ID`, 
+    pl.`patient_Name`
+";
 
     // Add WHERE clause to calculate for the $nurse_Assigned_Ward
 
@@ -176,10 +159,9 @@ if (isset($_POST["searchward"])) {
 
 }
 
-$ward_list_query = "SELECT DISTINCT assigned_Ward FROM patient_List";
 
 
-echo '<script>setTimeout(function(){location.reload()}, 20000);</script>';
+// echo '<script>setTimeout(function(){location.reload()}, 20000);</script>';
 ?>
 
 <!DOCTYPE html>
@@ -527,32 +509,14 @@ echo '<script>setTimeout(function(){location.reload()}, 20000);</script>';
                             <button class="btn btn-outline-secondary dropdown-toggle" type="button"
                                 id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false">
-                                Choose Ward
+                                Choose Date
                             </button>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <form id="wardSearch" method="POST" action="">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control search-input" placeholder="" name="ward"
-                                            id="searchInput">
-                                        <div class="input-group-append">
-                                            <button type="submit" class="btn btn-outline-secondary" name="searchward"
-                                                id="searchButton">Enter</button>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown-divider"></div>
-                                    <div class="dropdown-item ward-item-label">Select a Ward:</div>
-                                    <div class="dropdown-menu-scroll">
-                                        <?php
-                                        // Loop through each value of the assigned_Ward column
-                                        $ward_list_result = mysqli_query($con, $ward_list_query);
-                                        if ($ward_list_result->num_rows > 0) {
-                                            while ($ward_row = $ward_list_result->fetch_assoc()) {
-                                                $ward = $ward_row["assigned_Ward"];
-                                                echo '<a class="dropdown-item ward-item" href="#" data-value="' . $ward . '">' . $ward . '</a>';
-                                            }
-                                        }
-                                        ?>
-                                    </div>
+                                <form id="dateSearch" method="POST">
+                                    <button class="dropdown-item" type="submit" name="daily">Daily</button>
+                                    <button class="dropdown-item" type="submit" name="weekly">Weekly</button>
+                                    <button class="dropdown-item" type="submit" name="monthly">Monthly</button>
+                                    <button class="dropdown-item" type="submit" name="yearly">Yearly</button>
                                 </form>
                             </div>
                         </div>

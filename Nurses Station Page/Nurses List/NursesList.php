@@ -385,7 +385,7 @@ if (isset($_POST['edit'])) {
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to assistance page'); showBubbleAnimation(event);" class="nav-link"
+                <a onclick="showSnackbar('add nurse'); showBubbleAnimation(event);" class="nav-link"
                     href="../Assistance Card Page/assistanceCard.php">
                     <i class="bi bi-wallet2"></i>
                     <span>Assistance Cards</span>
@@ -1146,7 +1146,7 @@ if (isset($_POST['edit'])) {
     <!-- button onclick="showSnackbar('added')">Show Snackbar</button> -->
 
     <!-- The actual snackbar -->
-    <div id="snackbar">Some text some message..</div>
+    <!-- <div id="snackbar">Some text some message..</div> -->
 
     <!--GARBAGE -->
     <script>

@@ -505,7 +505,7 @@ include('patientDeleteEntriesDue.php');
     <!-- button onclick="showSnackbar('added')">Show Snackbar</button> -->
 
     <!-- The actual snackbar -->
-    <div id="snackbar">Some text some message..</div>
+    <!-- <div id="snackbar">Some text some message..</div> -->
 
     <!--GARBAGE -->
     <script>

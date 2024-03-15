@@ -261,7 +261,7 @@ if ($totalSeconds < 60) {
     }
 }
 
-echo '<script>setTimeout(function(){location.reload()}, 20000);</script>';
+// echo '<script>setTimeout(function(){location.reload()}, 20000);</script>';
 ?>
 
 <!DOCTYPE html>

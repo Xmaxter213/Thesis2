@@ -3,6 +3,9 @@ require_once('../../dbConnection/connection.php');
 
 $hospital_ID = $_SESSION['selectedHospitalID'];
 
+//The functions for the encryption
+include('../../dbConnection/AES encryption.php');
+
 // LOGOUT
 if (isset($_GET['logout'])) {
     $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
@@ -839,13 +842,12 @@ if (isset($_POST['delete'])) {
 <?php
     if (isset($_POST['verifyAddShiftSchedule'])) {
         $enteredPassword = $_POST['password'];
-    
-        $userName = $_SESSION['userID'];
+        $ID = $_SESSION['idNUM'];
     
         //This is for checking if pw is correct
-        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $query = "SELECT password FROM userLogin WHERE ID = ?";
         $getuserpassword = $con->prepare($query);
-        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->bind_param("s", $ID);
         $getuserpassword->execute();
         $getuserpassword->store_result();
         $getuserpassword->bind_result($verifyPassword);
@@ -854,8 +856,6 @@ if (isset($_POST['delete'])) {
 
         $verifyPassword = decryptthis($verifyPassword, $key);
 
-
-        
         if ($enteredPassword === $verifyPassword) {
             echo "<script type='text/javascript'>
             $(document).ready(function(){
@@ -888,12 +888,13 @@ if (isset($_POST['delete'])) {
         $enteredPassword = $_POST['password'];
         $userName = $_SESSION['userID'];
         $shift_Schedule_ID = $_POST['ID']; //One to edit
+        $ID = $_SESSION['idNUM'];
 
         $testing = 1;
         //This is for checking if pw is correct
-        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $query = "SELECT password FROM userLogin WHERE ID = ?";
         $getuserpassword = $con->prepare($query);
-        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->bind_param("s", $ID);
         $getuserpassword->execute();
         $getuserpassword->store_result();
         $getuserpassword->bind_result($verifyPassword);
@@ -920,12 +921,13 @@ if (isset($_POST['delete'])) {
         $enteredPassword = $_POST['password'];
         $userName = $_SESSION['userID'];
         $shift_Schedule_ID = $_POST['ID']; //One to delete
+        $ID = $_SESSION['idNUM'];
 
         $testing = 1;
         //This is for checking if pw is correct
-        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $query = "SELECT password FROM userLogin WHERE ID = ?";
         $getuserpassword = $con->prepare($query);
-        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->bind_param("s", $ID);
         $getuserpassword->execute();
         $getuserpassword->store_result();
         $getuserpassword->bind_result($verifyPassword);

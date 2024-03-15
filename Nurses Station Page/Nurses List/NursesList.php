@@ -740,25 +740,30 @@ if (isset($_POST['edit'])) {
                                             foreach($nurses as $nurse) :
                                                 $count = $count + 1;
 
-                                                //Decrypt data from db
-                                                $dec_nurse_Name = decryptthis($nurse['nurse_Name'], $key);
-                                                $dec_nurse_Contact_No = decryptthis($nurse['contact_No'], $key);
-                                                $dec_nurse_Sex = decryptthis($nurse['nurse_Sex'], $key);
-                                                $dec_nurse_birth_Date = decryptthis($nurse['nurse_birth_Date'], $key);
-                                                //date in mm/dd/yyyy format; or it can be in other formats as well
-                                                $birthDate = $dec_nurse_birth_Date;
-                                                //explode the date to get month, day and year
-                                                $birthDate = explode("-", $birthDate);
-                                                //get age from date or birthdate
-                                                $dec_nurse_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
-                                                    ? ((date("Y") - $birthDate[0]) - 1)
-                                                    : (date("Y") - $birthDate[0]));
+                                                if (isset($dec_nurse_Age)) {
+                                                    //Decrypt data from db
+                                                    $dec_nurse_Name = decryptthis($nurse['nurse_Name'], $key);
+                                                    $dec_nurse_Contact_No = decryptthis($nurse['contact_No'], $key);
+                                                    $dec_nurse_Sex = decryptthis($nurse['nurse_Sex'], $key);
+                                                    $dec_nurse_birth_Date = decryptthis($nurse['nurse_birth_Date'], $key);
+                                                    //date in mm/dd/yyyy format; or it can be in other formats as well
+                                                    $birthDate = $dec_nurse_birth_Date;
+                                                    //explode the date to get month, day and year
+                                                    $birthDate = explode("-", $birthDate);
+                                                    //get age from date or birthdate
+                                                    $dec_nurse_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
+                                                        ? ((date("Y") - $birthDate[0]) - 1)
+                                                        : (date("Y") - $birthDate[0]));
 
-                                                if ($dec_nurse_Age == -1) {
-                                                    $dec_nurse_Age = 0;
+                                                    if ($dec_nurse_Age == -1) {
+                                                        $dec_nurse_Age = 0;
+                                                    }
+
+                                                    $dec_date_Employment = decryptthis($nurse['date_Employment'], $key);
+                                                } else {
+                                                    echo "The variable does not exist.";
                                                 }
-
-                                                $dec_date_Employment = decryptthis($nurse['date_Employment'], $key);
+                                                
                                             ?>
 
                                                 <tr>
@@ -1230,8 +1235,8 @@ if (isset($_POST['edit'])) {
 <?php
     if (isset($_POST['verifyAddNurse'])) {
         $enteredPassword = $_POST['password'];
-    
         $ID = $_SESSION['idNUM'];
+        $userName = $_SESSION['userID'];
     
         //This is for checking if pw is correct
         $query = "SELECT password FROM userLogin WHERE ID = ?";

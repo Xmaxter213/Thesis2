@@ -91,6 +91,9 @@ $verpass = $_SESSION['verifyPass'];
                 padding-right: 50px;
             }
         }
+        .close {
+    color: #ffffff !important; /* White color */
+}
     </style>
 
     <meta charset="utf-8">
@@ -268,7 +271,7 @@ $verpass = $_SESSION['verifyPass'];
                 <div class="modal-header text-white" style="background-color: rgb(28, 35, 47); justify-content: center;">
                     <h5 class="modal-title" id="setPasswordModalLabel">Set New Password</h5>
                     <?php if ($verpass == 1): ?>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="xPass">
                         <span aria-hidden="true">&times;</span>
                     </button>
                     <?php endif; ?>
@@ -299,7 +302,7 @@ $verpass = $_SESSION['verifyPass'];
                 </div>
                 <div class="modal-footer">
                     <?php if ($verpass == 1): ?>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closePass">Cancel</button>
                     <?php endif; ?>
                     <button type="button" class="btn btn-primary" id="savePassword">Save</button>
                 </div>
@@ -426,21 +429,55 @@ $verpass = $_SESSION['verifyPass'];
 
                 // Log a message before sending AJAX request
                 console.log("Sending AJAX request...");
+                document.getElementById("closePass").disabled = true; 
+                document.getElementById("savePassword").disabled = true; 
+                document.getElementById("xPass").disabled = true;
 
                 $.ajax({
-                    type: "POST",
+                    type: 'POST',
                     url: "change_First_Pass.php",
-                    data: { password: password },
+                    data: {
+                        password: password 
+                    },
                     success: function(response) {
-                        console.log("AJAX request successful:", response);
-                        $('#setPasswordModal').modal('hide');
-                        showSnackbar("Password changed successfully");
+                        
+                        Swal.fire({
+                            title: 'Success',
+                            text: 'Password changed successfully.',
+                            type: 'success'
+                        }).then((result) => {
+
+                        });
                     },
                     error: function(xhr, status, error) {
-                        console.error("AJAX request failed:", error);
+                        console.error(xhr.responseText);
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'An error occurred while processing your request.',
+                            type: 'error'
+                        });
+                    },
+                    complete: function() {
+                        location.reload();
                     }
+                    });
                 });
-            });
+
+
+                // $.ajax({
+                //     type: "POST",
+                //     url: "change_First_Pass.php",
+                //     data: { password: password },
+                //     success: function(response) {
+                //         console.log("AJAX request successful:", response);
+                //         $('#setPasswordModal').modal('hide');
+                //         showSnackbar("Password changed successfully");
+                //         location.reload();
+                //     },
+                //     error: function(xhr, status, error) {
+                //         console.error("AJAX request failed:", error);
+                //     }
+                // });
         });
     </script>
 
@@ -449,6 +486,7 @@ $verpass = $_SESSION['verifyPass'];
     <!-- For modal -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
 </body>

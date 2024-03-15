@@ -229,27 +229,33 @@
 
         <main>
             <section id="getting-started">
-                <h2>Step 1</h2>
-                <p>Step one Contents:
-                </p>
+                <h2>SIGN UP PAGE</h2>
+                <img src="./guideImages/Login/Step 0.png"><br><br>
+                <h5>User Can Choose what plan to start with 1 month, 3 months and 1 year</h5>
+                <hr><br>
+                <h5>Filling the fields</h5>
+                <ul>
+                    <img src="./guideImages/Login/Step 01.png">
+                    <br><li>NOTE : It is very important to fill in the email field.</li><br>
+                    <img src="./guideImages/Login/Step 02.png">
+                    <li>After Signing up you can check your email for your user login credentials</li><br>
+                </ul>
             </section>
 
             <section id="features">
-                <h2>Step 2</h2>
-                <p>Step two Contents:</p>
-            </section>
-
-            <section id="faq">
-                <h2>Step 3</h2>
-                <p>Step three Contents:</p>
-            </section>
-
-            <section id="contact">
-                <h2>Step 4</h2>
-                <p>Step four Contents:</p>
+                <h2>LOG IN PAGE - PORTAL</h2>
+                <img src="./guideImages/Login/Step 1.png"><br>
+                <br><br><h5>Once Registered you can choose the domain or hospital you belong to</h5>
+                <hr><br>
+                <ul>
+                    <img src="./guideImages/Login/Step 2.png">
+                    <br><li>After Clicking the domain or the hospital you will be redirected to the login page Kindly Enter the details from the email sent upon registering</li><br>
+                    <img src="./guideImages/Login/last step.png">
+                    <br><li>Once you see the check Icon and the word successful you are good to go</li>
+                </ul>
             </section>
         </main>
-    </div>
+</div>
     <!-- End of Main Content -->
 
 

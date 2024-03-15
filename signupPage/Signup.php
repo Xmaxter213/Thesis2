@@ -77,7 +77,7 @@ if (isset($_POST['add'])) {
 
             $_SESSION['selectedHospitalID'] = $hospital_ID;
             mysqli_close($con);
-            header('Location: ../MainHospital/Login_new.php');
+            header('Location: ../MainHospital/login_new.php');
             exit;
 
     } else {
@@ -245,29 +245,46 @@ if (isset($_POST['add'])) {
         <div id="content">
             <!-- Topbar -->
             <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow" style="background-color: rgb(28,35,47);">
-                <!-- Topbar Navbar -->
+                <!-- Need Help Link -->
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../Nurses Station Page/Online_Help/online_Help.php" target="_blank">
+                            <span class="nav-link">
+                                Need&nbsp;Help?
+                            </span>
+                            <i class="bi bi-info-circle"></i>
+                        </a>
+                    </li>
+                </ul>
 
+                <!-- Medical Portal Brand -->
                 <a class="navbar-brand" href="#">
                     <h1 class="m-0">Medical Portal</h1>
                 </a>
 
-                <ul class="navbar-nav ml-auto">
-                    <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-                    <li class="nav-item dropdown no-arrow d-sm-none">
-                        <!-- ... -->
-                    </li>
+                <!-- Navbar Toggler -->
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+                    aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-                    <!-- Nav Item - User Information -->
-                    <li class="nav-item">
-                        <!-- ... -->
-                    </li>
-                    <li class="nav-item dropdown no-arrow">
-                        <!-- ... -->
-                    </li>
-                    <li class="nav-item">
+                <!-- Navbar Menu Items -->
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav ml-auto">
+                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+                        <li class="nav-item dropdown no-arrow">
+                            <!-- ... Your search dropdown code ... -->
+                        </li>
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item">
+                            <!-- ... Your user information code ... -->
+                        </li>
+                        <!-- Admin Word -->
+                        <li class="nav-item">
                         <a href="../portal page/index.php" class="nav-link">Have&nbsp;an&nbsp;account?</a>
-                    </li>
-                </ul>
+                        </li>
+                    </ul>
+                </div>
             </nav>
 
             <!-- Subscription Cards Container -->

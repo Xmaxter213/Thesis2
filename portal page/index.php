@@ -2,7 +2,7 @@
 require_once('../dbConnection/connection.php');
 
 if (isset($_SESSION['selectedHospitalID'])) {
-    header("location: ../MainHospital/Login_new.php");
+    header("location: ../MainHospital/login_new.php");
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -41,6 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- For card styles -->
     <link rel="stylesheet" href="./css/cardStyle.css">
+    <!-- Bootstrap Icons CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+
 
     <!-- Your custom styles -->
     <style>
@@ -129,32 +132,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div id="content">
             <!-- Topbar -->
             <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow">
-                <!-- Centered Medical Portal -->
+                <!-- Need Help Link -->
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../Nurses Station Page/Online_Help/online_Help.php" target="_blank">
+                            <span class="nav-link">
+                                Need&nbsp;Help?
+                            </span>
+                            <i class="bi bi-info-circle"></i>
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Medical Portal Brand -->
                 <a class="navbar-brand" href="#">
                     <h1 class="m-0">Medical Portal</h1>
                 </a>
-                <!-- Topbar Navbar -->
-                <ul class="navbar-nav ml-auto">
-                    <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-                    <li class="nav-item dropdown no-arrow">
-                        <!-- ... Your search dropdown code ... -->
-                    </li>
-                    <!-- Nav Item - User Information -->
-                    <li class="nav-item">
-                        <!-- ... Your user information code ... -->
-                    </li>
-                    <!-- Admin Word -->
-                    <li class="nav-item">
-                        <a href="../signupPage/Signup.php" class="nav-link">Sign<span>-</span>Up</a>
-                    </li>
-                    <li class="nav-item">
-                        <span class="nav-link align-middle">|</span>
-                    </li>
-                    <li class="nav-item">
-                        <a href="../Super Admin/Login_new.php" class="nav-link">Admin</a>
-                    </li>
-                </ul>
+
+                <!-- Navbar Toggler -->
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+                    aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Navbar Menu Items -->
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav ml-auto">
+                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+                        <li class="nav-item dropdown no-arrow">
+                            <!-- ... Your search dropdown code ... -->
+                        </li>
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item">
+                            <!-- ... Your user information code ... -->
+                        </li>
+                        <!-- Admin Word -->
+                        <li class="nav-item">
+                            <a href="../signupPage/Signup.php" class="nav-link">Sign<span>-</span>Up</a>
+                        </li>
+                        <li class="nav-item">
+                            <span class="nav-link align-middle">|</span>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../Super Admin/Login_new.php" class="nav-link">Admin</a>
+                        </li>
+                    </ul>
+                </div>
             </nav>
+
 
             <div class="card-container">
 

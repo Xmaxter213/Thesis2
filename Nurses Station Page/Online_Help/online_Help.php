@@ -245,7 +245,7 @@
                             width="100%" height="225">
                         <div class="card-body">
                             <h4>Glove Guide</h4>
-                            <p class="card-text">A guide to show how to use the glove step by step</p>
+                            <p class="card-text">A guide to show how to use the glove step by step</p><br>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group">
                                     <a href="./glove_Guide.php" class="btn btn-sm btn-outline-secondary">View Guide</a>
@@ -256,16 +256,11 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card mb-4 shadow-sm">
-                        <svg class="bd-placeholder-img card-img-top" width="100%" height="225"
-                            xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false"
-                            role="img" aria-label="Placeholder: Thumbnail">
-                            <title>Placeholder</title>
-                            <rect fill="#55595c" width="100%" height="100%"></rect><text fill="#eceeef" dy=".3em"
-                                x="50%" y="50%">Thumbnail</text>
-                        </svg>
+                        <img src="./Images/login.png" alt="Your Image" class="bd-placeholder-img card-img-top"
+                            width="100%" height="225">
                         <div class="card-body">
-                            <h4>Login</h4>
-                            <p class="card-text">This tackles down the step by step guide for logging in to the web application, portal page login, password recovery and many other things.</p>
+                            <h4>Register - Login</h4>
+                            <p class="card-text">A guide For Creating/Subscribing hospital and Logging Into your hospital Account</p><br>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group">
                                     <a href="./loginGuide.php" class="btn btn-sm btn-outline-secondary">View Guide</a>

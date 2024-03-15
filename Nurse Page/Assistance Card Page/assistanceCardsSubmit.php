@@ -38,11 +38,12 @@ $sql = "SELECT
             AND staff_List.nurse_ID = ?
             AND patient_List.assistance_Status = 'On the way'
             AND patient_List.admission_Status = 'Admitted'
+            AND arduino_Reports.nurse_ID = ?
             AND (arduino_Reports.assistance_Type = 'IMMEDIATE' AND arduino_Reports.Assitance_Finished IS NULL)";
 
 
 $stmt = $con->prepare($sql);
-$stmt->bind_param("sd", $assignedWard, $name);
+$stmt->bind_param("sdd", $assignedWard, $name, $name);
 $stmt->execute();
 $result = $stmt->get_result();
 if ($result->num_rows > 0) {

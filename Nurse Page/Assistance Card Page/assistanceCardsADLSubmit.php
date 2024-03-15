@@ -32,17 +32,18 @@ $sql = "SELECT
             staff_List ON patient_List.assigned_Ward = staff_List.assigned_Ward
         LEFT JOIN
             arduino_Reports ON patient_List.gloves_ID = arduino_Reports.device_ID
-        WHERE 
+            WHERE 
             patient_List.activated = 1 
             AND patient_List.assigned_Ward = ?
             AND staff_List.nurse_ID = ?
             AND patient_List.assistance_Status = 'On the way'
             AND patient_List.admission_Status = 'Admitted'
-            AND (arduino_Reports.assistance_Type = 'ADL' AND arduino_Reports.Assitance_Finished IS NULL)";
+            AND arduino_Reports.nurse_ID = ?
+            AND (arduino_Reports.assistance_Type = 'IMMEDIATE' AND arduino_Reports.Assitance_Finished IS NULL)";
 
 
 $stmt = $con->prepare($sql);
-$stmt->bind_param("sd", $assignedWard, $name);
+$stmt->bind_param("sdd", $assignedWard, $name, $name);
 $stmt->execute();
 $result = $stmt->get_result();
 if ($result->num_rows > 0) {

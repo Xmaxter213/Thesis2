@@ -191,10 +191,10 @@ $verpass = $_SESSION['verifyPass'];
                                     </div>
                                     <div class="ml-auto"> <!-- Add this div to move the button to the right -->
                                         <a href="./assistanceCard.php">
-                                            <button type="button" class="btn btn-outline-light btn-lg mr-3">Unassigned</button>
+                                            <button type="button" class="btn btn-outline-light btn-lg <?php echo basename($_SERVER['PHP_SELF']) == 'assistanceCard.php' ? 'active' : ''; ?> mr-3">Unassigned</button>
                                         </a>
                                         <a href="./inProgressPage.php">
-                                            <button type="button" class="btn btn-outline-light btn-lg">On The Way</button>
+                                            <button type="button" class="btn btn-outline-light btn-lg <?php echo basename($_SERVER['PHP_SELF']) == 'inProgressPage.php' ? 'active' : ''; ?>">On The Way</button>
                                         </a>
                                     </div>
                                 </div>

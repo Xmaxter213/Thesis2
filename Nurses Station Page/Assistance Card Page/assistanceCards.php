@@ -45,7 +45,8 @@ patient_List.birth_Date,
 patient_List.reason_Admission, 
 patient_List.admission_Status, 
 patient_List.assistance_Status, 
-patient_List.gloves_ID 
+patient_List.gloves_ID,
+arduino_Reports.critical_sensors
 FROM 
 patient_List 
 INNER JOIN 
@@ -75,6 +76,8 @@ if ($result->num_rows > 0) {
         $admissionReason = decryptthis($row['reason_Admission'], $key);
         $nurse_contact = decryptthis($row['contact_No'], $key);
 
+        $critical = $row['critical_sensors'];
+
         //get age from date or birthdate
         $birthDate = explode("-", $dec_nurse_birth_Date);
         $patient_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
@@ -87,7 +90,7 @@ if ($result->num_rows > 0) {
 
         if ($row['assistance_Status'] == "Unassigned" && $smsSetting == 'on') {
             try {
-                $message = "Patient: " . $dec_patient_Name . " needs help at room: " . $row['room_Number'];
+                $message = "Patient: " . $dec_patient_Name . " needs help at room: " . $row['room_Number'] . " Critical: " . $critical;
                 $phoneNumber = $nurse_contact;
 
                 if ($message != null && $phoneNumber != null) {

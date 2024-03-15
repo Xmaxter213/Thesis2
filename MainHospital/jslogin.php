@@ -23,19 +23,29 @@ if ($result)
         $dec_userName = decryptthis($userName, $key);
         $dec_userStatus = decryptthis($userStatus, $key);
 
-        $_SESSION['userID'] = $dec_userName;  // Assuming userName is the correct field you want to store
-        $_SESSION['idNUM'] = $ID;
-        $_SESSION['verifyPass'] =$verifyPassword;
-        $_SESSION['userStatus'] = $dec_userStatus;
+        if($input_password === $password)
+        {
+            $_SESSION['userID'] = $dec_userName;  // Assuming userName is the correct field you want to store
+            $_SESSION['idNUM'] = $ID;
+            $_SESSION['verifyPass'] =$verifyPassword;
+            $_SESSION['userStatus'] = $dec_userStatus;
 
-        date_default_timezone_set('Asia/Manila');
+            date_default_timezone_set('Asia/Manila');
 
-        $currentDateTime = date("Y-m-d H:i:s");
+            $currentDateTime = date("Y-m-d H:i:s");
 
-        // Insert into superAdminLogs
-        $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$dec_userName', 'Login', '$currentDateTime', '$hospital_ID')";
-        $query_run_logs = mysqli_query($con, $sqlAddLogs);
-        echo 'Successfully';
+            // Insert into superAdminLogs
+            $sqlAddLogs = "INSERT INTO NurseStationLogs (User, Action, Date_Time, hospital_ID) VALUES ('$dec_userName', 'Login', '$currentDateTime', '$hospital_ID')";
+            $query_run_logs = mysqli_query($con, $sqlAddLogs);
+            echo 'Successfully';
+
+        }
+        else
+        {
+            echo'Wrong Password';
+        }
+
+        
         
     } 
     else 

@@ -93,6 +93,15 @@
             color: black;
             font-weight: 350;
         }
+
+        .info {
+            height: 450px;
+            width: 400px;
+        }
+
+        .shift {
+            width: 400px;
+        }
     </style>
     <!-- Bubble animation -->
     <script>
@@ -229,14 +238,74 @@
 
         <main>
             <section id="getting-started">
-                <h2>Step 1</h2>
-                <p>Step one Contents:
-                </p>
+                <h2>Nurses list Main Page</h2>
+                <img src="./guideImages/nurses.png"><br>
+                <h5>From the left panel, navigate to "Nurses List" page.</h5>
+                <hr>
+                <h5>Adding Nurse</h5>
+                <ul>
+                    <img src="./guideImages/add.png">
+                    <li>Click the "Add" button.</li><br>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/info.png" class="info">
+                    <li>Input the necessary nurse information</li>
+                    <li>Click the "Add" button</li>
+                    <hr>
+
+                    <h5>Editing Nurse</h5>
+                    <img src="./guideImages/dateemploy.png">
+                    <li>Click the "Edit" button</li><br>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/editinfo.png" class="info">
+                    <li>Update details needed</li>
+                    <li>Click the "Save" button</li>
+                    <hr>
+
+                    <h5>Delete Nurse</h5>
+                    <img src="./guideImages/delete.png">
+                    <li>Click the "Delete" button</li><br>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/reasondelete.png">
+                    <li>Select a reason for deletion from the radio button options</li>
+                    <li>Press the "Delete" button</li>
+                </ul>
             </section>
 
             <section id="features">
-                <h2>Step 2</h2>
-                <p>Step two Contents:</p>
+                <h2>Nurses List - Shift Schedules List Page</h2>
+                <img src="./guideImages/shiftmain.png"><br>
+                <h5>Navigate to the "Shift Schedules List" tab</h5>
+                <hr>
+                <ul>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/shiftedit.png">
+                    <li>Input the needed data</li>
+                    <li>Click the "Add" button</li><br>
+                    <hr>
+
+                    <h5>Edit Shift Schedule</h5>
+                    <img src="./guideImages/shiftsched.png" class="shift">
+                    <li>Click the "Edit" button</li><br>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/editinfo.png" class="info">
+                    <li>Update details needed</li>
+                    <li>Click the "Save" button</li>
+                    <hr>
+
+                    <h5>Delete Nurse</h5>
+                    <img src="./guideImages/delete.png">
+                    <li>Click the "Delete" button</li><br>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/reasondelete.png">
+                    <li>Select a reason for deletion from the radio button options</li>
+                    <li>Press the "Delete" button</li>
+                </ul>
             </section>
 
             <section id="faq">

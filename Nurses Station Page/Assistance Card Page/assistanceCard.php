@@ -59,18 +59,17 @@ if (isset($_SESSION['selectedHospitalID'])) {
 
 }
 
-if(isset($_POST['ChangeLogo']))
-{
+if (isset($_POST['ChangeLogo'])) {
     $fileToUpload = $_FILES["fileToUpload"]['name']; //Returns array, "name" is to get the file's name
     $target_dir = "../../LOGO FOLDER/"; // Target directory where file will be saved
     $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]); // Path of the file in the target directory
     $uploadOk = 1; // Flag to check if the upload process should proceed
 
     // Check if image file is an actual image or fake image
-    if(isset($_POST["submit"])) {
+    if (isset($_POST["submit"])) {
         // echo "<script>alert('File content: " . $fileToUpload . "');</script>";
         $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
-        if($check !== false) {
+        if ($check !== false) {
             echo "File is an image - " . $check["mime"] . ".";
             $uploadOk = 1;
         } else {
@@ -82,7 +81,7 @@ if(isset($_POST['ChangeLogo']))
     // Check if $uploadOk is set to 0 by an error
     if ($uploadOk == 0) {
         echo "Sorry, your file was not uploaded.";
-    // if everything is ok, try to upload file
+        // if everything is ok, try to upload file
     } else {
         // Move the uploaded file to the new location
         if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
@@ -204,20 +203,31 @@ $verpass = $_SESSION['verifyPass'];
     <!-- for div refresh -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <script>
+
+        var refreshImmediate;
+        var refreshADL;
+
         $(document).ready(function () {
-            setInterval(function () {
+            refreshImmediate = setInterval(function () {
                 $("#refreshImmediate").load("./assistanceCards.php");
                 refresh();
-            }, 15000);
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            setInterval(function () {
+            }, 1000);
+
+            refreshADL = setInterval(function () {
                 $("#refreshADL").load("./assistanceCardsADL.php");
                 refresh();
-            }, 15000);
+            }, 1000);
         });
+
+        // Function to turn off refresh for Immediate Assistance
+        function turnOffRefreshImmediate() {
+            clearInterval(refreshImmediate);
+        }
+
+        // Function to turn off refresh for ADL Assistance
+        function turnOffRefreshADL() {
+            clearInterval(refreshADL);
+        }
     </script>
 
     <!-- Bubble animation -->
@@ -377,7 +387,8 @@ $verpass = $_SESSION['verifyPass'];
                 <!-- End of Topbar -->
 
                 <!-- modal of change logo -->
-                <div class="modal fade" id="setHospitalLogo" tabindex="-1" role="dialog" aria-labelledby="changeLogoModalLabel" aria-hidden="true">
+                <div class="modal fade" id="setHospitalLogo" tabindex="-1" role="dialog"
+                    aria-labelledby="changeLogoModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -390,11 +401,14 @@ $verpass = $_SESSION['verifyPass'];
                                 <form action="" method="POST" enctype="multipart/form-data">
                                     <div class="form-group">
                                         <label for="image">Choose Logo:</label>
-                                        <input type="file" name="fileToUpload" id="image" class="form-control-file" required>
+                                        <input type="file" name="fileToUpload" id="image" class="form-control-file"
+                                            required>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        <button type="submit" class="btn btn-primary" name="ChangeLogo">Change Logo</button>
+                                        <button type="button" class="btn btn-secondary"
+                                            data-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary" name="ChangeLogo">Change
+                                            Logo</button>
                                     </div>
                                 </form>
                             </div>
@@ -486,7 +500,8 @@ $verpass = $_SESSION['verifyPass'];
             aria-labelledby="setPasswordModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header text-white" style="background-color: rgb(28, 35, 47); justify-content: center;">
+                    <div class="modal-header text-white"
+                        style="background-color: rgb(28, 35, 47); justify-content: center;">
                         <h5 class="modal-title" id="setPasswordModalLabel">Set New Password</h5>
                         <?php if ($verpass == 1): ?>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">

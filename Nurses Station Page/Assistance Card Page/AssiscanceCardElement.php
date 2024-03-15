@@ -1,6 +1,6 @@
 <?php
 #bg-primary blue, bg-warning yellow, bg-success green, bg-danger red
-function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $reason_Admission, $admission_Status, $nurse_ID, $assistance_Status, $gloves_ID, $contact_No, $assigned_Ward)
+function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $reason_Admission, $admission_Status, $nurse_ID, $assistance_Status, $gloves_ID, $nurse_Name, $contact_No, $assigned_Ward)
 {
     $cardClasses = $assistance_Status == "Unassigned" ? "rgba(220,53,69, 0.25)" : "rgba(14,202,240, 0.25)";
     $bgClasses = $assistance_Status == "Unassigned" ? "bg-danger" : "bg-primary";
@@ -14,7 +14,7 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
             <h5 class=\"font-weight-bold\">Patient Name: <span class=\"font-weight-normal\">$patient_Name</span> <span class=\"badge $bgClasses text-white\">$assistance_Status</span></h5>
             <h5 class=\"font-weight-bold\">Room #: $room_Number</h5>
             <br>
-            <button type=\"button\" href=\"#\" class=\"btn $btnClasses\" data-toggle=\"modal\" data-target=\"#view-{$patient_ID}\">View Details</button>
+            <button type=\"button\" href=\"#\" class=\"btn $btnClasses\" data-toggle=\"modal\" data-target=\"#view-{$patient_ID}\" onclick=\"turnOffRefreshImmediate(); turnOffRefreshADL();\">View Details</button>
 
             <div class=\"modal fade\" tabindex=\"-1\" id=\"view-{$patient_ID}\" role=\"dialog\" aria-labelledby=\"viewModalLabel\" aria-hidden=\"true\">
                 <div class=\"modal-dialog\" role=\"document\">
@@ -31,6 +31,7 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
                             <h6 class=\"font-weight-bold\">Age: <span class=\"font-weight-normal\">$birth_Date</h6>
                             <h6 class=\"font-weight-bold\">Reason for Admission: <span class=\"font-weight-normal text-justify\">$reason_Admission</span></h6>
                             <h6 class=\"font-weight-bold\">Assistance Status: <span class=\"font-weight-normal\">$assistance_Status</span></h6>
+                            <h6 class=\"font-weight-bold\">Nurse Name: <span class=\"font-weight-normal\">$nurse_Name</span></h6>
                             <h6 class=\"font-weight-bold\">Contact Number: <span class=\"font-weight-normal\">$contact_No</span></h6>
                             <h6 class=\"font-weight-bold\">Nurse Assigned Ward: <span class=\"font-weight-normal\">$assigned_Ward</span></h6>
                         </div>
@@ -56,11 +57,11 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
             url: 'statusChange.php',
             method: 'POST',
             data: { patientID: patientID },
-            success: function(response) {
+            success: function (response) {
                 // Handle response if needed
                 console.log(response);
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 // Handle error if needed
                 console.error(xhr.responseText);
             }
@@ -82,13 +83,13 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
             url: 'submitAssistance.php',
             method: 'POST',
             data: { patientID: patientID, remarks: remarks },
-            success: function(response) {
+            success: function (response) {
                 // Handle response if needed
                 console.log(response);
                 // Reload the page after successful submission
                 location.reload();
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 // Handle error if needed
                 console.error(xhr.responseText);
             }

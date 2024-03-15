@@ -852,6 +852,8 @@ if (isset($_POST['delete'])) {
         $getuserpassword->fetch();
         $getuserpassword->close();
 
+        $verifyPassword = decryptthis($verifyPassword, $key);
+
 
         
         if ($enteredPassword === $verifyPassword) {
@@ -898,6 +900,8 @@ if (isset($_POST['delete'])) {
         $getuserpassword->fetch();
         $getuserpassword->close();
 
+        $verifyPassword = decryptthis($verifyPassword, $key);
+
         if ($enteredPassword === $verifyPassword) {
             // echo "<script>alert('$shift_Schedule_ID');</script>";
             
@@ -927,6 +931,8 @@ if (isset($_POST['delete'])) {
         $getuserpassword->bind_result($verifyPassword);
         $getuserpassword->fetch();
         $getuserpassword->close();
+
+        $verifyPassword = decryptthis($verifyPassword, $key);
 
         if ($enteredPassword === $verifyPassword) {
             // echo "<script>alert('$nurse_ID');</script>";

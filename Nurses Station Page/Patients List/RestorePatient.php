@@ -715,6 +715,9 @@ if (isset($_POST['patientRestore'])) {
         $getuserpassword->close();
 
 
+        $verifyPassword = decryptthis($verifyPassword, $key);
+
+
         
         if ($enteredPassword === $verifyPassword) {
             echo "<script type='text/javascript'>

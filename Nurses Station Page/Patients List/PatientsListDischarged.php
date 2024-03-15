@@ -1209,6 +1209,8 @@ if (isset($_POST['edit'])) {
         $getuserpassword->fetch();
         $getuserpassword->close();
 
+        $verifyPassword = decryptthis($verifyPassword, $key);
+
         if ($enteredPassword === $verifyPassword) {
             // echo "<script>alert('$nurse_ID');</script>";
             
@@ -1237,6 +1239,8 @@ if (isset($_POST['edit'])) {
         $getuserpassword->bind_result($verifyPassword);
         $getuserpassword->fetch();
         $getuserpassword->close();
+
+        $verifyPassword = decryptthis($verifyPassword, $key);
 
         if ($enteredPassword === $verifyPassword) {
             // echo "<script>alert('$nurse_ID');</script>";
@@ -1267,6 +1271,8 @@ if (isset($_POST['edit'])) {
         $getuserpassword->fetch();
         $getuserpassword->close();
 
+        $verifyPassword = decryptthis($verifyPassword, $key);
+
         if ($enteredPassword === $verifyPassword) {
             // echo "<script>alert('$nurse_ID');</script>";
             
@@ -1295,6 +1301,8 @@ if (isset($_POST['edit'])) {
         $getuserpassword->bind_result($verifyPassword);
         $getuserpassword->fetch();
         $getuserpassword->close();
+
+        $verifyPassword = decryptthis($verifyPassword, $key);
 
         if ($enteredPassword === $verifyPassword) {
             // echo "<script>alert('$nurse_ID');</script>";

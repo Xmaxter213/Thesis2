@@ -718,6 +718,8 @@ if (isset($_POST['nurseRestore'])) {
         $getuserpassword->fetch();
         $getuserpassword->close();
 
+        $verifyPassword = decryptthis($verifyPassword, $key);
+
 
         
         if ($enteredPassword === $verifyPassword) {

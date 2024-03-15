@@ -32,7 +32,17 @@ if (isset($_POST['add'])) {
 
     if ($query_run_addHospital) 
     {
+        date_default_timezone_set('Asia/Manila');
+
+        $currentDateTime = date("Y-m-d H:i:s");
+
         $hospital_ID = mysqli_insert_id($con);
+
+        // Insert into superAdminLogs
+        $sqlAddLogs = "INSERT INTO superAdminLogs (User, Action, Date_Time) VALUES ('$Subscriber_Name', 'New Subscriber', '$currentDateTime')";
+        $query_run_logs = mysqli_query($con, $sqlAddLogs);
+
+        
         $query = "INSERT INTO userLogin ( email, password, userName, status, code, verifyPassword, hospital_ID) 
         VALUES ('$Subscriber_Email','$enc_Subscriber_Name', '$enc_Subscriber_Name', '$enc_Status', '0', '0', '$hospital_ID')";
         $query_run = mysqli_query($con, $query);
@@ -271,9 +281,8 @@ if (isset($_POST['add'])) {
                             <div class="pricing_design">
                                 <div class="single-pricing">
                                     <div class="price-head">
-                                        <h2>Starter</h2>
-                                        <h1>$0</h1>
-                                        <span>/Monthly</span>
+                                        <h2>1 Month</h2>
+                                        <h1>$30</h1>
                                     </div>
                                     <ul>
                                         <li><b>15</b> website</li>
@@ -293,9 +302,8 @@ if (isset($_POST['add'])) {
                             <div class="pricing_design">
                                 <div class="single-pricing">
                                     <div class="price-head">
-                                        <h2>Popular</h2>
-                                        <h1>$49</h1>
-                                        <span>/Monthly</span>
+                                        <h2>3 Months</h2>
+                                        <h1>$35</h1>
                                     </div>
                                     <ul>
                                         <li><b>30</b> website</li>
@@ -315,9 +323,8 @@ if (isset($_POST['add'])) {
                             <div class="pricing_design">
                                 <div class="single-pricing">
                                     <div class="price-head">
-                                        <h2>Premium</h2>
-                                        <h1>$99</h1>
-                                        <span>/Monthly</span>
+                                        <h2>1 Year</h2>
+                                        <h1>$80</h1>
                                     </div>
                                     <ul>
                                         <li><b>40</b> website</li>
@@ -346,7 +353,7 @@ if (isset($_POST['add'])) {
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="hideAddHospitalModal();">x</button>
                     </div>
                     <div class="modal-body">
-                        <form action="" method="POST">
+                        <form action="" method="POST" onsubmit="return validateForm();">
                             <div>
                                 <label>Subscriber's First Name</label>
                                 <input type="text" name="Subscriber_first_Name" id="Subscriber_first_Name" required
@@ -384,24 +391,28 @@ if (isset($_POST['add'])) {
 
                                 if (mysqli_num_rows($resultDuration) > 0) {
                                     ?>
-                                <label>Subscription Duration</label>
-                                <select id="Subscription_Duration" name="Subscription_Duration">
-                                    <?php
-                                    while ($row = mysqli_fetch_array($resultDuration)) {
+                                    <label>Subscription Duration</label>
+                                    <select id="Subscription_Duration" name="Subscription_Duration" onchange="fetchPrice(this.value)">
+                                        <?php
+                                        while ($row = mysqli_fetch_array($resultDuration)) {
+                                            ?>
+                                            <option value="<?php echo $row["Duration_Month"]; ?>" data-price="<?php echo $row["price"]; ?>">
+                                                <?php echo $row["Duration_Month"] . " Months"; ?>
+                                            </option>
+                                            <?php
+                                        }
                                         ?>
-                                    <option value="<?php echo $row["Duration_Month"]; ?>">
-                                        <?php echo $row["Duration_Month"] . " Months"; ?>
-                                    </option>
-                                    <?php
-                                    }
-                                    ?>
-                                </select>
+                                    </select>
                                 <?php
                                 }
                                 ?>
                             </div>
 
                             <br>
+                            <div>
+                                <label id="priceLabel">Price: </label>
+                                <input type="number" id="userPrice" name="Price" placeholder="Enter Price">
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="hideAddHospitalModal();">Close</button>
@@ -416,28 +427,46 @@ if (isset($_POST['add'])) {
 
     <!-- Scripts and Additional JavaScript for the pricing section -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Hide the modal initially
-            $('#addHospital').modal('hide');
-        });
-
         function setSubscription(duration) {
-            document.getElementById('Subscription_Duration').value = duration;
-        }
+        document.getElementById('Subscription_Duration').value = duration;
+        var duration = $("#Subscription_Duration").val();
+        fetchPrice(duration);
 
-        function showAddHospitalModal() {
-            // Show the modal using Bootstrap's modal method
-            $('#addHospital').modal('show');
-        }
+        // Proceed with showing the modal
+        showAddHospitalModal();
+    }
 
-        function hideAddHospitalModal() {
-            // Show the modal using Bootstrap's modal method
-            $('#addHospital').modal('hide');
-        }
+    function showAddHospitalModal() {
+        // Show the modal using Bootstrap's modal method
+        $('#addHospital').modal('show');
+    }
 
-        function showSnackbar(message) {
-            alert(message);
+    function hideAddHospitalModal() {
+        // Show the modal using Bootstrap's modal method
+        $('#addHospital').modal('hide');
+    }
+
+    function fetchPrice(duration) {
+        // Get the selected option
+        var selectedOption = $("#Subscription_Duration option:selected");
+        // Get the price associated with the selected duration
+        var price = selectedOption.data("price");
+        // Update the price label with the fetched price
+        $('#priceLabel').text("Price: $" + price);
+    }
+
+    // Function to validate form input before submission
+    function validateForm() {
+        var userEnteredPrice = $("#userPrice").val();
+        var subscriptionPrice = $("#Subscription_Duration option:selected").data("price");
+
+        // Check if the user-entered price is less than the subscription price
+        if (userEnteredPrice < subscriptionPrice) {
+            alert("Please enter an amount equal to or greater than $" + subscriptionPrice);
+            return false; // Prevent form submission
         }
+        return true; // Allow form submission
+    }
     </script>
 </body>
 

@@ -71,7 +71,7 @@ if(isset($_SESSION['selectedHospitalID']))
 }
 
 if (isset($_POST['search'])) {
-    
+
     $selected_patient_ID = $_POST['selected_patient_ID'];
 
     $individualPatients = array();
@@ -807,23 +807,6 @@ echo '<script>setTimeout(function(){location.reload()}, 20000);</script>';
 
                             </div>
                         </div>
-                        <div class="dropdown col-auto">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false">
-                                Choose Date
-                            </button>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <form id="dateSearch" method="POST">
-                                    <button class="dropdown-item" type="submit" name="daily">Daily</button>
-                                    <button class="dropdown-item" type="submit" name="weekly">Weekly</button>
-                                    <button class="dropdown-item" type="submit" name="monthly">Monthly</button>
-                                    <button class="dropdown-item" type="submit" name="yearly">Yearly</button>
-                                </form>
-                            </div>
-                        </div>
-
-
                     </div>
                     <div class="card shadow mb-3">
                         <div class="card-body">

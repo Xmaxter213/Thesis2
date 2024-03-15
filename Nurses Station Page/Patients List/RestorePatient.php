@@ -702,12 +702,13 @@ if (isset($_POST['patientRestore'])) {
     if (isset($_POST['verifyRestorePatient'])) {
         $enteredPassword = $_POST['password'];
         $userName = $_SESSION['userID'];
+        $ID = $_SESSION['idNUM'];
         $patient_ID = $_POST['patient_ID']; //One to edit
     
         //This is for checking if pw is correct
-        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $query = "SELECT password FROM userLogin WHERE ID = ?";
         $getuserpassword = $con->prepare($query);
-        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->bind_param("s", $ID);
         $getuserpassword->execute();
         $getuserpassword->store_result();
         $getuserpassword->bind_result($verifyPassword);

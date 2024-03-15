@@ -1426,13 +1426,13 @@ if (isset($_POST['edit'])) {
     
     if (isset($_POST['verifyAddPatient'])) {
         $enteredPassword = $_POST['password'];
-    
+        $ID = $_SESSION['idNUM'];
         $userName = $_SESSION['userID'];
     
         //This is for checking if pw is correct
-        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $query = "SELECT password FROM userLogin WHERE ID = ?";
         $getuserpassword = $con->prepare($query);
-        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->bind_param("s", $ID);
         $getuserpassword->execute();
         $getuserpassword->store_result();
         $getuserpassword->bind_result($verifyPassword);
@@ -1471,13 +1471,14 @@ if (isset($_POST['edit'])) {
 
     if (isset($_POST['verifyReferPatient'])) {
         $enteredPassword = $_POST['password'];
+        $ID = $_SESSION['idNUM'];
         $userName = $_SESSION['userID'];
         $patient_ID = $_POST['patient_ID']; //One to edit
 
         //This is for checking if pw is correct
-        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $query = "SELECT password FROM userLogin WHERE ID = ?";
         $getuserpassword = $con->prepare($query);
-        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->bind_param("s", $ID);
         $getuserpassword->execute();
         $getuserpassword->store_result();
         $getuserpassword->bind_result($verifyPassword);
@@ -1503,12 +1504,13 @@ if (isset($_POST['edit'])) {
     if (isset($_POST['verifyEditPatient'])) {
         $enteredPassword = $_POST['password'];
         $userName = $_SESSION['userID'];
+        $ID = $_SESSION['idNUM'];
         $patient_ID = $_POST['patient_ID']; //One to edit
 
         //This is for checking if pw is correct
-        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $query = "SELECT password FROM userLogin WHERE ID = ?";
         $getuserpassword = $con->prepare($query);
-        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->bind_param("s", $ID);
         $getuserpassword->execute();
         $getuserpassword->store_result();
         $getuserpassword->bind_result($verifyPassword);
@@ -1534,12 +1536,13 @@ if (isset($_POST['edit'])) {
     if (isset($_POST['verifyDeletePatient'])) {
         $enteredPassword = $_POST['password'];
         $userName = $_SESSION['userID'];
+        $ID = $_SESSION['idNUM'];
         $patient_ID = $_POST['patient_ID']; //One to delete
 
         //This is for checking if pw is correct
-        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $query = "SELECT password FROM userLogin WHERE ID = ?";
         $getuserpassword = $con->prepare($query);
-        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->bind_param("s", $ID);
         $getuserpassword->execute();
         $getuserpassword->store_result();
         $getuserpassword->bind_result($verifyPassword);
@@ -1565,12 +1568,13 @@ if (isset($_POST['edit'])) {
     if (isset($_POST['verifyDischargePatient'])) {
         $enteredPassword = $_POST['password'];
         $userName = $_SESSION['userID'];
+        $ID = $_SESSION['idNUM'];
         $patient_ID = $_POST['patient_ID']; //One to delete
 
         //This is for checking if pw is correct
-        $query = "SELECT password FROM userLogin WHERE userName = ?";
+        $query = "SELECT password FROM userLogin WHERE ID = ?";
         $getuserpassword = $con->prepare($query);
-        $getuserpassword->bind_param("s", $userName);
+        $getuserpassword->bind_param("s", $ID);
         $getuserpassword->execute();
         $getuserpassword->store_result();
         $getuserpassword->bind_result($verifyPassword);

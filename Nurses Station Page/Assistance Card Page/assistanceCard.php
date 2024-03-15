@@ -104,6 +104,12 @@ $verpass = $_SESSION['verifyPass'];
 
 <head>
 
+<style>
+        .close {
+    color: #ffffff !important; /* White color */
+}
+    </style>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -504,7 +510,7 @@ $verpass = $_SESSION['verifyPass'];
                         style="background-color: rgb(28, 35, 47); justify-content: center;">
                         <h5 class="modal-title" id="setPasswordModalLabel">Set New Password</h5>
                         <?php if ($verpass == 1): ?>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="xPass">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         <?php endif; ?>
@@ -536,7 +542,7 @@ $verpass = $_SESSION['verifyPass'];
                     </div>
                     <div class="modal-footer">
                         <?php if ($verpass == 1): ?>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closePass">Cancel</button>
                         <?php endif; ?>
                         <button type="button" class="btn btn-primary" id="savePassword">Save</button>
                     </div>
@@ -752,21 +758,56 @@ $verpass = $_SESSION['verifyPass'];
                     // Log a message before sending AJAX request
                     console.log("Sending AJAX request...");
 
+                    document.getElementById("closePass").disabled = true; 
+                    document.getElementById("savePassword").disabled = true; 
+                    document.getElementById("xPass").disabled = true;
+
                     $.ajax({
-                        type: "POST",
+                        type: 'POST',
                         url: "change_First_Pass.php",
                         data: {
-                            password: password
+                            password: password 
                         },
-                        success: function (response) {
-                            console.log("AJAX request successful:", response);
-                            $('#setPasswordModal').modal('hide');
-                            showSnackbar("Password changed successfully");
+                        success: function(response) {
+                            
+                            Swal.fire({
+                                title: 'Success',
+                                text: 'Password changed successfully.',
+                                type: 'success'
+                            }).then((result) => {
+
+                            });
                         },
-                        error: function (xhr, status, error) {
-                            console.error("AJAX request failed:", error);
+                        error: function(xhr, status, error) {
+                            console.error(xhr.responseText);
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'An error occurred while processing your request.',
+                                type: 'error'
+                            });
+                        },
+                        complete: function() {
+                            location.reload();
                         }
+                        });
                     });
+
+                    // $.ajax({
+                    //     type: "POST",
+                    //     url: "change_First_Pass.php",
+                    //     data: {
+                    //         password: password
+                    //     },
+                    //     success: function (response) {
+                    //         console.log("AJAX request successful:", response);
+                    //         $('#setPasswordModal').modal('hide');
+                    //         showSnackbar("Password changed successfully");
+                    //     },
+                    //     error: function (xhr, status, error) {
+                    //         console.error("AJAX request failed:", error);
+                    //     }
+                    // });
+                    
                 });
             });
         </script>

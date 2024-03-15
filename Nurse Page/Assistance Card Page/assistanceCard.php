@@ -92,8 +92,13 @@ $verpass = $_SESSION['verifyPass'];
             }
         }
         .close {
-    color: #ffffff !important; /* White color */
-}
+            color: #ffffff !important; /* White color */
+        }
+        .clickable-border {
+        border: 2px solid white;
+        padding-right: 10px;
+        cursor: pointer; /* Add margin-bottom to create space between elements */
+    }
     </style>
 
     <meta charset="utf-8">
@@ -184,8 +189,13 @@ $verpass = $_SESSION['verifyPass'];
                                         <i class="fas fa-laugh-wink" style="filter: invert(1);"></i>
                                         <span class="fa-regular fa-hand ml-2" style="filter: invert(1);">Helping Hand</span>
                                     </div>
-                                    <div>
-                                        <h2 class="my-4" style="filter: invert(1);">Unassigned Page</h2>
+                                    <div class="ml-auto"> <!-- Add this div to move the button to the right -->
+                                        <a href="./assistanceCard.php">
+                                            <button type="button" class="btn btn-outline-light btn-lg mr-3">Unassigned</button>
+                                        </a>
+                                        <a href="./inProgressPage.php">
+                                            <button type="button" class="btn btn-outline-light btn-lg">On The Way</button>
+                                        </a>
                                     </div>
                                 </div>
                             </div>

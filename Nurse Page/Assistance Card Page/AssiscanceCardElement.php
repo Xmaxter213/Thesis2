@@ -8,10 +8,11 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
 
     // Check if admission status is "On the way" 
     // Added inProgressPage.php once clicked it will be redirected to 'On the Way' Page
-    $changeStatusButton = "<button type=\"button\" href=\"./inProgressPage.php\" class=\"btn btn-secondary\" disabled>Change Status</button>";
+    $changeStatusButton = "<button type=\"button\" href=\"./inProgressPage.php\" id=\"changeButton\" class=\"btn btn-secondary\" disabled>Change Status</button>";
 
     if ($assistance_Status != "On The Way") {
-        $changeStatusButton = "<button type=\"button\" href=\"#\" class=\"btn btn-info\" data-toggle=\"modal\" data-target=\"#changeStatusModal-{$patient_ID}\">Change Status</button>";
+        //$changeStatusButton = "<button type=\"button\" href=\"#\" class=\"btn btn-info\" data-toggle=\"modal\" data-target=\"#changeStatusModal-{$patient_ID}\">Change Status</button>";
+        $changeStatusButton = "<button type=\"button\" class=\"btn btn-info\" id=\"changeButton\" onclick=\"changeStatus('$patient_ID')\">Change Status</button>";
     }
 
     $element = "
@@ -69,7 +70,7 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
                             </div>
                             <div class=\"modal-footer\">
                                 <button type=\"button\" class=\"btn btn-secondary\" data-dismiss=\"modal\">No</button>
-                                <button type=\"button\" class=\"btn btn-primary\" onclick=\"confirmAssistanceSubmission('$patient_ID')\">Yes</button>
+                                <button type=\"button\" class=\"btn btn-primary\" id=\"submitButton\" onclick=\"confirmAssistanceSubmission('$patient_ID')\">Yes</button>
                             </div>
                         </div>
                     </div>
@@ -91,6 +92,9 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
 <!-- JavaScript for AJAX request and handling form submission -->
 <script>
     function changeStatus(patientID) {
+
+        document.getElementById("changeButton").disabled = true;
+
         $.ajax({
             url: 'assistanceStatusChange.php',
             method: 'POST',
@@ -102,6 +106,7 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
             error: function(xhr, status, error) {
                 // Handle error if needed
                 console.error(xhr.responseText);
+                document.getElementById("changeButton").disabled = false;
             }
         });
     }
@@ -117,14 +122,13 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
 
     function confirmAssistanceSubmission(patientID) {
         var remarks = $('#remarksInput-' + patientID).val().trim();
+        document.getElementById("changeButton").disabled = true;
         $.ajax({
             url: 'assistanceSubmit.php',
             method: 'POST',
             data: { patientID: patientID, remarks: remarks },
             success: function(response) {
-                // Handle response if needed
                 console.log(response);
-                // Reload the page after successful submission
                 location.reload();
             },
             error: function(xhr, status, error) {

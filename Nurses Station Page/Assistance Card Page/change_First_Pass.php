@@ -15,14 +15,20 @@ if (isset($_POST['password']) && !empty($_POST['password'])) {
         $query = "UPDATE userLogin SET password = ?, verifyPassword = ? WHERE ID = ?";
         $stmt_pass = $con->prepare($query);
         $stmt_pass->bind_param("sii", $enc_password, $verPass, $nurseID);
-        $stmt_pass->execute();
+        if ($stmt_pass->execute()) {
+            $response['status'] = 'success';
+            $response['message'] = 'Password updated successfully.';
+            $_SESSION['verifyPass'] = 1;
+        }
         $stmt_pass->close();
-
-        $_SESSION['verifyPass'] = 1;
     } catch (Exception $e) {
+        $response['status'] = 'error';
+        $response['message'] = 'Failed to update password. Please try again.';
         echo json_encode(array("status" => "error", "message" => "Database connection failed!"));
     }
 } else {
+    $response['status'] = 'error';
+    $response['message'] = 'Password is required.';
     echo json_encode(array("status" => "error", "message" => "Password is required."));
 }
 ?>

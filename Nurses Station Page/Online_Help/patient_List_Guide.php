@@ -229,24 +229,85 @@
 
         <main>
             <section id="getting-started">
-                <h2>Step 1</h2>
-                <p>Step one Contents:
-                </p>
-            </section>
+            <h2>Patients List Admitted & Discharged</h2>
+                <img src="./guideImages/PatientsList/1.png"><br>
+                <h5>From the left panel, navigate to "Patients List" page.</h5>
+                <hr>
+                <h5>Patients List - Add Patient</h5>
+                <ul>
+                    <img src="./guideImages/PatientsList/2.png">
+                    <li>Click the "Add Patient" button.</li><br>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/PatientsList/3.png" class="info">
+                    <li>Input the necessary patient information</li>
+                    <li>Click the "Add" button</li>
+                    <hr>
 
-            <section id="features">
-                <h2>Step 2</h2>
-                <p>Step two Contents:</p>
-            </section>
+                    <h5>Refer Patient</h5>
+                    <img src="./guideImages/PatientsList/4.png">
+                    <li>Click the "Refer" button</li><br>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/PatientsList/5.png" class="info">
+                    <li>Choose which ward to refer to on the dropdown list</li>
+                    <li>Choose reason for refer. If "Other" is chosen, state reason in text area</li>
+                    <li>Click the "Refer" button</li>
+                    <hr>
+                    
+                    <h5>Discharge Patient</h5>
+                    <img src="./guideImages/PatientsList/6.png">
+                    <li>Click the "Discharge" button</li><br>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/PatientsList/7.png" class="info">
+                    <li>Choose reason for discharging. If "Other" is chosen, state reason in text area</li>
+                    <li>Click the "Discharge" button</li>
+                    <hr>
 
-            <section id="faq">
-                <h2>Step 3</h2>
-                <p>Step three Contents:</p>
-            </section>
+                    <h5>Patients List - Discharge Patients List - Admit</h5>
+                    <img src="./guideImages/PatientsList/15.png">
+                    <li>Click the "Admit" button</li><br>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/PatientsList/16.png" class="info">
+                    <li>Choose from radio button choices. If "Other" is chosen, input reason in text area</li>
+                    <li>Click the "Admit Patient" button</li>
+                    <hr>
 
-            <section id="contact">
-                <h2>Step 4</h2>
-                <p>Step four Contents:</p>
+                    <h5>Edit Patient</h5>
+                    <img src="./guideImages/PatientsList/8.png">
+                    <li>Click the "Edit" button</li><br>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/PatientsList/9.png" class="info">
+                    <li>Change necessary details</li>
+                    <li>Click the "Save" button</li>
+                    <hr>
+
+                    <h5>Delete Patient</h5>
+                    <img src="./guideImages/PatientsList/10.png">
+                    <li>Click the "Delete" button</li><br>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/PatientsList/11.png">
+                    <li>Choose from radio button choices. If "Other" is chosen, input reason in text area</li>
+                    <li>Press the "Delete" button</li>
+                </ul>
+
+                <h5>Patients List - Restore Patient</h5>
+                <ul>
+                    <img src="./guideImages/PatientsList/12.png">
+                    <li>Navigate to the "Restore Patient" tab</li><br>
+                    <img src="./guideImages/PatientsList/13.png">
+                    <li>Click the "Restore" button</li><br>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/PatientsList/14.png" class="info">
+                    <li>Input the necessary patient information</li>
+                    <li>Click the "Restore" button</li>
+                    <hr>
+                </ul>
             </section>
         </main>
     </div>

@@ -308,14 +308,21 @@
                 </ul>
             </section>
 
-            <section id="faq">
-                <h2>Step 3</h2>
-                <p>Step three Contents:</p>
-            </section>
-
-            <section id="contact">
-                <h2>Step 4</h2>
-                <p>Step four Contents:</p>
+            <section id="features">
+                <h2>Nurses List - Restore Nurse Page</h2>
+                <img src="./guideImages/RestoreNurse/1.png"><br>
+                <h5>Navigate to the "Restore Nurse" tab</h5>
+                <hr>
+                <ul>
+                    <img src="./guideImages/RestoreNurse/2.png">
+                    <li>Click the "Restore" button</li><br>
+                    <hr>
+                    <img src="./guideImages/vereify.png">
+                    <li>Input currently logged in nurse admin's password</li><br>
+                    <img src="./guideImages/RestoreNurse/4.png" class="info">
+                    <li>Click the "Restore" button</li>
+                    <hr>
+                </ul>
             </section>
         </main>
     </div>

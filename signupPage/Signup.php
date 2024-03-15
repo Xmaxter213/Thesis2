@@ -48,7 +48,7 @@ if (isset($_POST['add'])) {
         $query_run = mysqli_query($con, $query);
 
         $queryStaff = "INSERT INTO staff_List (hospital_ID, nurse_Name, assigned_Ward, contact_No, nurse_Sex, nurse_birth_Date, shift_Schedule, employment_Status, date_Employment, activated) 
-        VALUES ($hospital_ID, 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', '1')";
+        VALUES ($hospital_ID, 'HOSPITAL OWNER', 'Medicine Ward', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', 'HOSPITAL OWNER', '1')";
         $query_run = mysqli_query($con, $queryStaff);
 
         $mail = new PHPMailer(true);

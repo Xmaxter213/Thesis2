@@ -118,10 +118,10 @@ if (isset($_POST['add'])) {
     $enc_reason_Admission = encryptthis($reason_Admission, $key);
     if ($device_Assigned == NULL) {
         $query = "INSERT INTO patient_List (patient_ID, hospital_ID, patient_Name, assigned_Ward, room_Number, birth_Date, reason_Admission, admission_Status, assistance_Status, gloves_ID, activated) 
-        VALUES (NULL, '$hospital_ID',  '$enc_patient_Name', '$nurse_Assigned_Ward','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', '$assistance_Status', NULL, $activated)";
+        VALUES (NULL, '$hospital_ID',  '$enc_patient_Name', '$nurse_Assigned_Ward','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', NULL, NULL, $activated)";
     } else if ($device_Assigned != NULL) {
         $query = "INSERT INTO patient_List (patient_ID, hospital_ID, patient_Name, assigned_Ward, room_Number, birth_Date, reason_Admission, admission_Status, assistance_Status, gloves_ID, activated) 
-        VALUES (NULL, '$hospital_ID',  '$enc_patient_Name', '$nurse_Assigned_Ward','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', '$assistance_Status', $device_Assigned, $activated)";
+        VALUES (NULL, '$hospital_ID',  '$enc_patient_Name', '$nurse_Assigned_Ward','$room_Number','$enc_patient_birth_Date', '$enc_reason_Admission', '$admission_Status', NULL, $device_Assigned, $activated)";
     }
     
     $query_run = mysqli_query($con, $query);

@@ -1,20 +1,30 @@
 <?php
 #bg-primary blue, bg-warning yellow, bg-success green, bg-danger red
-function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $reason_Admission, $admission_Status, $nurse_ID, $assistance_Status, $gloves_ID, $nurse_name, $contact_No, $assigned_Ward)
+function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $reason_Admission, $admission_Status, $nurse_ID, $assistance_Status, $gloves_ID, $nurse_name, $contact_No, $assistance_Type, $IMMEDIATE_calls, $ADL_calls, $assigned_Ward)
 {
     $cardClasses = $assistance_Status == "Unassigned" ? "rgba(220,53,69, 0.25)" : "rgba(14,202,240, 0.25)";
     $bgClasses = $assistance_Status == "Unassigned" ? "bg-danger" : "bg-primary";
     $btnClasses = $assistance_Status == "Unassigned" ? "btn-danger" : "btn-primary";
+    $requestBadge = $assistance_Status == "Unassigned" ? "badge-danger" : "badge-primary";
+    $requestCounts = "";
+
+    if ($assistance_Type != "IMMEDIATE") {
+        $requestCounts = "<h6>Call counts <span class=\"badge $requestBadge\">$ADL_calls</span></h6>";
+    } else {
+        $requestCounts = "<h6>Call counts <span class=\"badge $requestBadge\">$IMMEDIATE_calls</span></h6>";
+    }
 
     $element = "
-    <div class=\"col-lg-4\" style=\" max-width: 25rem \">
+    <div class=\"col-lg-4\" style=\"max-width: 25rem\">
     <div class=\"card px-0\" style=\"color: black; background: $cardClasses\">
-        <img src=\"./Images/room.jpg\" class=\"card-img-top\" alt=\"...\">
         <div class=\"card-body\">
             <h5 class=\"font-weight-bold\">Patient Name: <span class=\"font-weight-normal\">$patient_Name</span> <span class=\"badge $bgClasses text-white\">$assistance_Status</span></h5>
             <h5 class=\"font-weight-bold\">Room #: $room_Number</h5>
             <br>
-            <button type=\"button\" href=\"#\" class=\"btn $btnClasses\" data-toggle=\"modal\" data-target=\"#view-{$patient_ID}\" onclick=\"turnOffRefreshImmediate(); turnOffRefreshADL();\">View Details</button>
+            <div class=\"d-flex justify-content-between align-items-center\">
+                <button type=\"button\" class=\"btn $btnClasses\" data-toggle=\"modal\" data-target=\"#view-{$patient_ID}\" onclick=\"turnOffRefreshImmediate(); turnOffRefreshADL();\">View Details</button>
+                $requestCounts
+            </div>
 
             <div class=\"modal fade\" tabindex=\"-1\" id=\"view-{$patient_ID}\" role=\"dialog\" aria-labelledby=\"viewModalLabel\" aria-hidden=\"true\">
                 <div class=\"modal-dialog\" role=\"document\">

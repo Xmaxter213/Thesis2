@@ -15,30 +15,46 @@ $assignedWard = $_SESSION['assignedWard'];
 //$sql = "SELECT * FROM patient_List";
 
 $sql = "SELECT 
-            staff_List.nurse_ID, 
-            staff_List.contact_No, 
-            staff_List.assigned_Ward,
-            patient_List.patient_ID, 
-            patient_List.patient_Name, 
-            patient_List.room_Number, 
-            patient_List.birth_Date, 
-            patient_List.reason_Admission, 
-            patient_List.admission_Status, 
-            patient_List.assistance_Status, 
-            patient_List.gloves_ID 
-        FROM 
-            patient_List 
-        INNER JOIN 
-            staff_List ON patient_List.assigned_Ward = staff_List.assigned_Ward
-        LEFT JOIN
-            arduino_Reports ON patient_List.gloves_ID = arduino_Reports.device_ID
-        WHERE 
-            patient_List.activated = 1 
-            AND patient_List.assigned_Ward = ?
-            AND staff_List.nurse_ID = ?
-            AND patient_List.assistance_Status = 'Unassigned'
-            AND patient_List.admission_Status = 'Admitted'
-            AND (arduino_Reports.assistance_Type = 'IMMEDIATE' AND arduino_Reports.Assitance_Finished IS NULL)";
+staff_List.nurse_ID, 
+staff_List.contact_No, 
+staff_List.assigned_Ward,
+patient_List.patient_ID, 
+patient_List.patient_Name, 
+patient_List.room_Number, 
+patient_List.birth_Date, 
+patient_List.reason_Admission, 
+patient_List.admission_Status, 
+patient_List.assistance_Status, 
+patient_List.gloves_ID,
+arduino_Reports.assistance_Type,
+COALESCE(call_counts.total_calls, 0) AS total_calls,
+COALESCE(call_counts.ADL_calls, 0) AS ADL_calls,
+COALESCE(call_counts.IMMEDIATE_calls, 0) AS IMMEDIATE_calls
+FROM 
+patient_List 
+INNER JOIN 
+staff_List ON patient_List.assigned_Ward = staff_List.assigned_Ward
+LEFT JOIN
+arduino_Reports ON patient_List.gloves_ID = arduino_Reports.device_ID
+LEFT JOIN
+(SELECT 
+    `patient_ID`, 
+    COUNT(*) AS `total_calls`,
+    SUM(CASE WHEN `assistance_Type` = 'ADL' THEN 1 ELSE 0 END) AS `ADL_calls`,
+    SUM(CASE WHEN `assistance_Type` = 'IMMEDIATE' THEN 1 ELSE 0 END) AS `IMMEDIATE_calls`
+FROM 
+    `arduino_Reports`
+WHERE
+    `assistance_Type` IN ('ADL', 'IMMEDIATE')
+GROUP BY 
+    `patient_ID`) AS call_counts ON patient_List.patient_ID = call_counts.patient_ID
+WHERE 
+patient_List.activated = 1 
+AND patient_List.assigned_Ward = ?
+AND staff_List.nurse_ID = ?
+AND patient_List.assistance_Status = 'Unassigned'
+AND patient_List.admission_Status = 'Admitted'
+AND (arduino_Reports.assistance_Type = 'IMMEDIATE' AND arduino_Reports.Assitance_Finished IS NULL)";
 
 
 $stmt = $con->prepare($sql);
@@ -63,7 +79,7 @@ if ($result->num_rows > 0) {
         if ($patient_Age == -1){
             $patient_Age = 0;
         }
-        assistanceCard($row['patient_ID'], $dec_patient_Name, $row['room_Number'], $patient_Age, $admissionReason, $row['admission_Status'], $row['nurse_ID'], $row['assistance_Status'], $row['gloves_ID']);
+        assistanceCard($row['patient_ID'], $dec_patient_Name, $row['room_Number'], $patient_Age, $admissionReason, $row['admission_Status'], $row['nurse_ID'], $row['assistance_Status'], $row['assistance_Type'], $row['ADL_calls'], $row['IMMEDIATE_calls'], $row['gloves_ID']);
         
     }
 } else {

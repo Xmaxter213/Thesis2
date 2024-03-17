@@ -47,20 +47,36 @@ patient_List.reason_Admission,
 patient_List.admission_Status, 
 patient_List.assistance_Status, 
 patient_List.gloves_ID,
-arduino_Reports.critical_sensors
+arduino_Reports.assistance_Type,
+arduino_Reports.critical_sensors,
+subquery.`ADL_calls`,
+subquery.`IMMEDIATE_calls`
 FROM 
 patient_List 
 INNER JOIN 
 staff_List ON patient_List.assigned_Ward = staff_List.assigned_Ward
 LEFT JOIN
 arduino_Reports ON patient_List.gloves_ID = arduino_Reports.device_ID
+LEFT JOIN
+(SELECT 
+    `patient_ID`, 
+    SUM(CASE WHEN `assistance_Type` = 'ADL' THEN 1 ELSE 0 END) AS `ADL_calls`,
+    SUM(CASE WHEN `assistance_Type` = 'IMMEDIATE' THEN 1 ELSE 0 END) AS `IMMEDIATE_calls`
+FROM 
+    `arduino_Reports`
+WHERE
+    `assistance_Type` IN ('ADL', 'IMMEDIATE')
+GROUP BY 
+    `patient_ID`) AS subquery ON patient_List.patient_ID = subquery.`patient_ID`
 WHERE 
 patient_List.activated = 1 
 AND patient_List.assigned_Ward = ?
 AND staff_List.nurse_ID = ?
 AND (patient_List.assistance_Status = 'On the way' OR patient_List.assistance_Status = 'Unassigned')
 AND patient_List.admission_Status = 'Admitted'
-AND (arduino_Reports.assistance_Type = 'IMMEDIATE' AND arduino_Reports.Assitance_Finished IS NULL)";
+AND (arduino_Reports.assistance_Type = 'IMMEDIATE' AND arduino_Reports.Assitance_Finished IS NULL);
+
+";
 
 $stmt = $con->prepare($sql);
 $stmt->bind_param("sd", $assignedWard, $name);
@@ -134,7 +150,7 @@ if ($result->num_rows > 0) {
             }
         }
 
-        assistanceCard($row['patient_ID'], $dec_patient_Name, $row['room_Number'], $patient_Age, $admissionReason, $row['admission_Status'], $row['nurse_ID2'], $row['assistance_Status'], $row['gloves_ID'], $nurse_name, $nurse_contact, $row['assigned_Ward']);
+        assistanceCard($row['patient_ID'], $dec_patient_Name, $row['room_Number'], $patient_Age, $admissionReason, $row['admission_Status'], $row['nurse_ID2'], $row['assistance_Status'], $row['gloves_ID'], $nurse_name, $nurse_contact, $row['assistance_Type'], $row['IMMEDIATE_calls'], $row['ADL_calls'], $row['assigned_Ward']);
     }
 } else {
     echo "<h2>No Requests</h2>";

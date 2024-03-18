@@ -641,10 +641,10 @@ if (isset($_POST['edit'])) {
                                             </div>
                                             <br>
                                             <div>
-                                                <label>Employment Status</label>
+                                                <label>Nurse Status</label>
                                                 <select id="employment_Status" name="employment_Status">
-                                                    <option value="Employed">Employed</option>
-                                                    <option value="Unemployed">Unemployed</option>
+                                                    <option value="Active">Active</option>
+                                                    <option value="Inactive">Inactive</option>
                                                 </select>
                                             </div>
                                             <br>
@@ -915,10 +915,10 @@ if (isset($_POST['edit'])) {
                                                                         </div>
                                                                         <br>
                                                                         <div>
-                                                                            <label>Employment Status</label>
+                                                                            <label>Nurse Status</label>
                                                                             <select id="employment_Status" name="employment_Status" value="<?=  $dec_employment_Status ?>">
-                                                                                <option value="Employed" <?php if ($nurse['employment_Status']  == 'Employed') echo ' selected="selected"'; ?>>Employed</option>
-                                                                                <option value="Unemployed" <?php if ($nurse['employment_Status'] == 'Unemployed') echo ' selected="selected"'; ?>>Unemployed</option>
+                                                                                <option value="Active" <?php if ($nurse['employment_Status']  == 'Active') echo ' selected="selected"'; ?>>Employed</option>
+                                                                                <option value="Inactive" <?php if ($nurse['employment_Status'] == 'Inactive') echo ' selected="selected"'; ?>>Unemployed</option>
                                                                             </select>
                                                                         </div>
                                                                         <br>

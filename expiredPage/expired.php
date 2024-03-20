@@ -12,15 +12,19 @@ if (!isset($_SESSION['selectedHospitalID']))
 }
 else
 {
-    $stmt = $con->prepare("SELECT hospital_Logo FROM Hospital_Table WHERE hospital_ID = ?");
-    $stmt->bind_param("i", $_SESSION['selectedHospitalID']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $logo_path = "../LOGO FOLDER/" . $row['hospital_Logo'];
-    } else {
-        $logo_path = "../LOGO FOLDER/default.png";
+    try {
+        $stmt = $con->prepare("SELECT hospital_Logo FROM Hospital_Table WHERE hospital_ID = ?");
+        $stmt->bind_param("i", $_SESSION['selectedHospitalID']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $logo_path = "../LOGO FOLDER/" . $row['hospital_Logo'];
+        } else {
+            $logo_path = "../LOGO FOLDER/default.png";
+        }
+    } catch (Exception $e) {
+        echo "Server is slow please wait for a few minutes: " . $e->getMessage();
     }
 }
 if(isset($_SESSION['selectedHospitalID']))

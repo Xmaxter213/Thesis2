@@ -18,11 +18,15 @@ $dbname = "dbthesis2";
 // $dbuser = "if0_35733375";
 // $dbpass = "gXGcjb07QLy3";
 // $dbname = "if0_35733375_Thesis2";
-
-if (!$con = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname))
-{
-    die("failed to connect!" . mysqli_connect_error());
+try {
+    if (!$con = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname)) {
+        die("failed to connect!" . mysqli_connect_error());
+    }
+} catch (Exception $e) {
+    echo "The Server is slow please wait for a few minutes, if persists please reload.";
 }
+
+
 
 //This is used on add book.php to add to db using this variable
 //$db = new mysqli($dbhost, $dbuser, $dbpass, $dbname);

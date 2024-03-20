@@ -70,20 +70,25 @@ function generateRandomCode($length = 8)
 }
 
 function sendSMS($message, $phoneNumber)
-{
-    $url = "http://192.168.1.20:8090/SendSMS?username=Mawser&password=1234&phone=" . $phoneNumber . "&message=" . urlencode($message);
-    $curl = curl_init($url);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    $curl_response = curl_exec($curl);
+{   
+    try{
+            
+        $url = "http://192.168.1.20:8090/SendSMS?username=Mawser&password=1234&phone=" . $phoneNumber . "&message=" . urlencode($message);
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        $curl_response = curl_exec($curl);
 
-    if ($curl_response === false) {
-        $info = curl_getinfo($curl);
+        if ($curl_response === false) {
+            $info = curl_getinfo($curl);
+            curl_close($curl);
+            error_log('Error occurred: ' . var_export($info, true));
+        }
+
         curl_close($curl);
-        error_log('Error occurred: ' . var_export($info, true));
+
+        $response = json_decode($curl_response);
+    }catch (Exception $e) {
+        echo "Phone Modem does not have a load or cant send due to different sims. " . $e->getMessage();
     }
-
-    curl_close($curl);
-
-    $response = json_decode($curl_response);
 }
 ?>

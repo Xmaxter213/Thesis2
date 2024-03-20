@@ -10,9 +10,9 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
     $requestCount = "";
 
     if ($assistance_Type != "IMMEDIATE") {
-        $requestCount = "<h6>Call counts <span class=\"badge $requestBadge\">$ADL_calls</span></h6>";
+        $requestCount = "<h6>Time called <span class=\"badge $requestBadge\">$ADL_calls</span></h6>";
     } else {
-        $requestCount = "<h6>Call counts <span class=\"badge $requestBadge\">$IMMEDIATE_calls</span></h6>";
+        $requestCount = "<h6>Time called <span class=\"badge $requestBadge\">$IMMEDIATE_calls</span></h6>";
     }
 
     // Check if admission status is "On the way" 

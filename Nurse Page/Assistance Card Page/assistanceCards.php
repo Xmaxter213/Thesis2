@@ -27,6 +27,7 @@ patient_List.admission_Status,
 patient_List.assistance_Status, 
 patient_List.gloves_ID,
 arduino_Reports.assistance_Type,
+arduino_Reports.date_Called,
 COALESCE(call_counts.total_calls, 0) AS total_calls,
 COALESCE(call_counts.ADL_calls, 0) AS ADL_calls,
 COALESCE(call_counts.IMMEDIATE_calls, 0) AS IMMEDIATE_calls
@@ -54,8 +55,9 @@ AND patient_List.assigned_Ward = ?
 AND staff_List.nurse_ID = ?
 AND patient_List.assistance_Status = 'Unassigned'
 AND patient_List.admission_Status = 'Admitted'
-AND (arduino_Reports.assistance_Type = 'IMMEDIATE' AND arduino_Reports.Assitance_Finished IS NULL)";
-
+AND (arduino_Reports.assistance_Type = 'IMMEDIATE' AND arduino_Reports.Assitance_Finished IS NULL)
+ORDER BY 
+    arduino_Reports.date_Called ASC";
 
 $stmt = $con->prepare($sql);
 $stmt->bind_param("sd", $assignedWard, $name);
@@ -70,6 +72,24 @@ if ($result->num_rows > 0) {
         $dec_nurse_birth_Date = decryptthis($row['birth_Date'], $key);
         $admissionReason = decryptthis($row['reason_Admission'], $key);
 
+        try{
+            if (!empty($row['date_Called'])) {
+                $dateCalled = new DateTime($row['date_Called']);
+                $currentDateTime = new DateTime(); // Current datetime
+                $interval = $currentDateTime->diff($dateCalled);
+                
+                if ($interval->days == 0) {
+                    $diffString = $interval->format('%h:%i:%s');
+                } else {
+                    $diffString = $interval->format('%a days, %h:%i:%s');
+                }
+            } else {
+                $diffString = "";
+            }
+        }catch (exception $e){
+            echo "Invalid Format please call support";
+        }
+
         //get age from date or birthdate
         $birthDate = explode("-", $dec_nurse_birth_Date);
         $patient_Age = (date("md", date("U", mktime(0, 0, 0, $birthDate[0], $birthDate[1], $birthDate[2]))) > date("md")
@@ -79,7 +99,7 @@ if ($result->num_rows > 0) {
         if ($patient_Age == -1){
             $patient_Age = 0;
         }
-        assistanceCard($row['patient_ID'], $dec_patient_Name, $row['room_Number'], $patient_Age, $admissionReason, $row['admission_Status'], $row['nurse_ID'], $row['assistance_Status'], $row['assistance_Type'], $row['ADL_calls'], $row['IMMEDIATE_calls'], $row['gloves_ID']);
+        assistanceCard($row['patient_ID'], $dec_patient_Name, $row['room_Number'], $patient_Age, $admissionReason, $row['admission_Status'], $row['nurse_ID'], $row['assistance_Status'], $row['assistance_Type'], $diffString, $diffString, $row['gloves_ID']);
         
     }
 } else {

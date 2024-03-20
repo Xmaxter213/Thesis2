@@ -2,11 +2,12 @@
 require_once('../../dbConnection/connection.php');
 
 // Initialize variables
+date_default_timezone_set('Asia/Manila');
 $nurseID = $_SESSION['idNUM'] ?? null;
 $patientID = $_POST['patientID'] ?? null;
 $remarks = $_POST['remarks'] ?? null;
 $currentDateTime = date('Y-m-d H:i:s');
-date_default_timezone_set('Asia/Manila');
+
 
 // Initialize variable to store errors
 $errors = [];

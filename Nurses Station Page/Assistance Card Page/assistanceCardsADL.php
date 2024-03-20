@@ -15,20 +15,25 @@ $assignedWard = $_SESSION['assignedWard'];
 // Function to send SMS
 function sendSMS2($message2, $phoneNumber2)
 {
-    $url2 = "http://172.16.79.30:8090/SendSMS?username=Mawser&password=1234&phone=" . $phoneNumber2 . "&message=" . urlencode($message2);
-    $curl2 = curl_init($url2);
-    curl_setopt($curl2, CURLOPT_RETURNTRANSFER, true);
-    $curl_response2 = curl_exec($curl2);
-
-    if ($curl_response2 === false) {
-        $info2 = curl_getinfo($curl2);
+    try{
+            
+        $url2 = "http://172.16.79.30:8090/SendSMS?username=Mawser&password=1234&phone=" . $phoneNumber2 . "&message=" . urlencode($message2);
+        $curl2 = curl_init($url2);
+        curl_setopt($curl2, CURLOPT_RETURNTRANSFER, true);
+        $curl_response2 = curl_exec($curl2);
+    
+        if ($curl_response2 === false) {
+            $info2 = curl_getinfo($curl2);
+            curl_close($curl2);
+            error_log('Error occurred: ' . var_export($info2, true));
+        }
+    
         curl_close($curl2);
-        error_log('Error occurred: ' . var_export($info2, true));
+    
+        $response = json_decode($curl_response2);
+    }catch (Exception $e) {
+        echo "Phone Modem does not have a load or cant send due to different sims. " . $e->getMessage();
     }
-
-    curl_close($curl2);
-
-    $response = json_decode($curl_response2);
 }
 
 // Retrieve SMS setting value from cookie

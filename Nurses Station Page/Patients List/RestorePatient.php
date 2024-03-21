@@ -136,6 +136,7 @@ if (isset($_POST['patientRestore'])) {
 
     <!-- Custom styles for this template -->
     <link href="../css/sb-admin-2.min.css" rel="stylesheet">
+    <link  href="../Assistance Card Page/button.css" rel="stylesheet">
 
     <!-- For the toast messages -->
     <link href="../css/toast.css" rel="stylesheet">
@@ -234,16 +235,16 @@ if (isset($_POST['patientRestore'])) {
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to assistance page'); showBubbleAnimation(event);" class="nav-link"
-                    href="../Assistance Card Page/assistanceCard.php">
+                <a onclick="showSnackbar('redirect to assistance page'); showBubbleAnimation(event);"
+                    class="nav-link menu__link buttonStyle" href="../Assistance Card Page/assistanceCard.php">
                     <i class="bi bi-wallet2"></i>
-                    <span>Assistance Cards</span>
+                    <span>Assistance Page</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);" class="nav-link"
-                    href="../Nurses List/NursesList.php">
+                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);"
+                    class="nav-link menu__link buttonStyle" href="../Nurses List/NursesList.php">
                     <i class="fa-solid fa-user-nurse"></i>
                     <span>Nurses List</span>
                 </a>
@@ -253,7 +254,7 @@ if (isset($_POST['patientRestore'])) {
 
             <li class="nav-item active">
                 <a onclick="showSnackbar('redirect to patients list page'); showBubbleAnimation(event);"
-                    class="nav-link" href="../Patients List/PatientsList.php">
+                    class="nav-link menu__link buttonStyle" href="../Patients List/PatientsList.php">
                     <i class="bi bi-person-lines-fill"></i>
                     <span>Patients List</span>
                 </a>
@@ -261,7 +262,7 @@ if (isset($_POST['patientRestore'])) {
 
             <li class="nav-item">
                 <a onclick="showSnackbar('redirect to patients list page'); showBubbleAnimation(event);"
-                    class="nav-link" href="../Reports Page/overallTest.php">
+                    class="nav-link menu__link buttonStyle" href="../Reports Page/overallTest.php">
                     <i class="fa-solid fa-chart-line"></i>
                     <span>Reports</span>
                 </a>
@@ -270,8 +271,8 @@ if (isset($_POST['patientRestore'])) {
             <!-- Divider -->
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);" class="nav-link"
-                    href="../Logs/Logs.php">
+                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);"
+                    class="nav-link menu__link buttonStyle" href="../Logs/Logs.php">
                     <i class="bi bi-file-ruled"></i>
                     <span>Logs</span>
                 </a>

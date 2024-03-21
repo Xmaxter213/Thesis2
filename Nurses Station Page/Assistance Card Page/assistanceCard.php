@@ -1,9 +1,9 @@
 <?php
-require_once('../../dbConnection/connection.php');
+require_once ('../../dbConnection/connection.php');
 $hospital_ID = $_SESSION['selectedHospitalID'];
 
 // LOGOUT
-if (isset($_GET['logout'])) {
+if (isset ($_GET['logout'])) {
     $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
 
     date_default_timezone_set('Asia/Manila');
@@ -24,7 +24,7 @@ if (isset($_GET['logout'])) {
 }
 
 // USER LOGGED IN
-if (!isset($_SESSION['userID'])) {
+if (!isset ($_SESSION['userID'])) {
     header("location: ../../MainHospital/login_new.php");
 } else {
     $status = $_SESSION['userStatus'];
@@ -38,7 +38,7 @@ if (!isset($_SESSION['userID'])) {
 }
 
 // SELECTED HOSPITAL !EXPIRED
-if (isset($_SESSION['selectedHospitalID'])) {
+if (isset ($_SESSION['selectedHospitalID'])) {
     $hospital_ID = $_SESSION['selectedHospitalID'];
 
     $query = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
@@ -59,14 +59,14 @@ if (isset($_SESSION['selectedHospitalID'])) {
 
 }
 
-if (isset($_POST['ChangeLogo'])) {
+if (isset ($_POST['ChangeLogo'])) {
     $fileToUpload = $_FILES["fileToUpload"]['name']; //Returns array, "name" is to get the file's name
     $target_dir = "../../LOGO FOLDER/"; // Target directory where file will be saved
     $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]); // Path of the file in the target directory
     $uploadOk = 1; // Flag to check if the upload process should proceed
 
     // Check if image file is an actual image or fake image
-    if (isset($_POST["submit"])) {
+    if (isset ($_POST["submit"])) {
         // echo "<script>alert('File content: " . $fileToUpload . "');</script>";
         $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
         if ($check !== false) {
@@ -104,10 +104,11 @@ $verpass = $_SESSION['verifyPass'];
 
 <head>
 
-<style>
+    <style>
         .close {
-    color: #ffffff !important; /* White color */
-}
+            color: #ffffff !important;
+            /* White color */
+        }
     </style>
 
     <meta charset="utf-8">
@@ -128,6 +129,7 @@ $verpass = $_SESSION['verifyPass'];
 
     <!-- Custom styles for this template -->
     <link href="../css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="./button.css" rel="stylesheet">
 
     <!-- For the toast messages -->
     <link href="../css/toast.css" rel="stylesheet">
@@ -274,16 +276,16 @@ $verpass = $_SESSION['verifyPass'];
 
             <!-- Nav Item - Tables -->
             <li class="nav-item active">
-                <a onclick="showSnackbar('redirect to assistance page'); showBubbleAnimation(event);" class="nav-link"
-                    href="../Assistance Card Page/assistanceCard.php">
+                <a onclick="showSnackbar('redirect to assistance page'); showBubbleAnimation(event);"
+                    class="nav-link menu__link buttonStyle" href="../Assistance Card Page/assistanceCard.php">
                     <i class="bi bi-wallet2"></i>
-                    <span>Assistance Cards</span>
+                    <span>Assistance Page</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);" class="nav-link"
-                    href="../Nurses List/NursesList.php">
+                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);"
+                    class="nav-link menu__link buttonStyle" href="../Nurses List/NursesList.php">
                     <i class="fa-solid fa-user-nurse"></i>
                     <span>Nurses List</span>
                 </a>
@@ -293,7 +295,7 @@ $verpass = $_SESSION['verifyPass'];
 
             <li class="nav-item">
                 <a onclick="showSnackbar('redirect to patients list page'); showBubbleAnimation(event);"
-                    class="nav-link" href="../Patients List/PatientsList.php">
+                    class="nav-link menu__link buttonStyle" href="../Patients List/PatientsList.php">
                     <i class="bi bi-person-lines-fill"></i>
                     <span>Patients List</span>
                 </a>
@@ -301,7 +303,7 @@ $verpass = $_SESSION['verifyPass'];
 
             <li class="nav-item">
                 <a onclick="showSnackbar('redirect to patients list page'); showBubbleAnimation(event);"
-                    class="nav-link" href="../Reports Page/overallTest.php">
+                    class="nav-link menu__link buttonStyle" href="../Reports Page/overallTest.php">
                     <i class="fa-solid fa-chart-line"></i>
                     <span>Reports</span>
                 </a>
@@ -310,16 +312,17 @@ $verpass = $_SESSION['verifyPass'];
             <!-- Divider -->
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);" class="nav-link"
-                    href="../Logs/Logs.php">
+                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);"
+                    class="nav-link menu__link buttonStyle" href="../Logs/Logs.php">
                     <i class="bi bi-file-ruled"></i>
                     <span>Logs</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to settings'); showBubbleAnimation(event);" class="nav-link" href="#"
-                    data-toggle="modal" data-target="#smsSettingsModal">
+                <a onclick="showSnackbar('redirect to settings'); showBubbleAnimation(event);"
+                    class="nav-link menu__link buttonStyle" href="#" data-toggle="modal"
+                    data-target="#smsSettingsModal">
                     <i class="fa-solid fa-gear"></i>
                     <span>Settings</span>
                 </a>
@@ -429,14 +432,14 @@ $verpass = $_SESSION['verifyPass'];
                         <h3 class="font-weight-bold">Immediate Assistance</h3>
                     </div>
                     <div id="refreshImmediate" class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
-                        <?php require_once("./assistanceCards.php") ?>
+                        <?php require_once ("./assistanceCards.php") ?>
                     </div>
                     <div class="immediate-assistance-section text-center"
                         style="background-color: rgb(28,35,47); color: white; padding-top: 5px; padding-bottom: 5px; margin-bottom: 20px;">
                         <h3 class="font-weight-bold">ADL Assistance</h3>
                     </div>
                     <div id="refreshADL" class="d-flex flex-wrap custom-padding" style="margin-bottom: 20px;">
-                        <?php require_once("./assistanceCardsADL.php") ?>
+                        <?php require_once ("./assistanceCardsADL.php") ?>
                     </div>
                 </div>
 
@@ -542,7 +545,8 @@ $verpass = $_SESSION['verifyPass'];
                     </div>
                     <div class="modal-footer">
                         <?php if ($verpass == 1): ?>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closePass">Cancel</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                id="closePass">Cancel</button>
                         <?php endif; ?>
                         <button type="button" class="btn btn-primary" id="savePassword">Save</button>
                     </div>
@@ -758,18 +762,18 @@ $verpass = $_SESSION['verifyPass'];
                     // Log a message before sending AJAX request
                     console.log("Sending AJAX request...");
 
-                    document.getElementById("closePass").disabled = true; 
-                    document.getElementById("savePassword").disabled = true; 
+                    document.getElementById("closePass").disabled = true;
+                    document.getElementById("savePassword").disabled = true;
                     document.getElementById("xPass").disabled = true;
 
                     $.ajax({
                         type: 'POST',
                         url: "change_First_Pass.php",
                         data: {
-                            password: password 
+                            password: password
                         },
-                        success: function(response) {
-                            
+                        success: function (response) {
+
                             Swal.fire({
                                 title: 'Success',
                                 text: 'Password changed successfully.',
@@ -778,7 +782,7 @@ $verpass = $_SESSION['verifyPass'];
 
                             });
                         },
-                        error: function(xhr, status, error) {
+                        error: function (xhr, status, error) {
                             console.error(xhr.responseText);
                             Swal.fire({
                                 title: 'Error',
@@ -786,29 +790,29 @@ $verpass = $_SESSION['verifyPass'];
                                 type: 'error'
                             });
                         },
-                        complete: function() {
+                        complete: function () {
                             location.reload();
                         }
-                        });
                     });
-
-                    // $.ajax({
-                    //     type: "POST",
-                    //     url: "change_First_Pass.php",
-                    //     data: {
-                    //         password: password
-                    //     },
-                    //     success: function (response) {
-                    //         console.log("AJAX request successful:", response);
-                    //         $('#setPasswordModal').modal('hide');
-                    //         showSnackbar("Password changed successfully");
-                    //     },
-                    //     error: function (xhr, status, error) {
-                    //         console.error("AJAX request failed:", error);
-                    //     }
-                    // });
-                    
                 });
+
+                // $.ajax({
+                //     type: "POST",
+                //     url: "change_First_Pass.php",
+                //     data: {
+                //         password: password
+                //     },
+                //     success: function (response) {
+                //         console.log("AJAX request successful:", response);
+                //         $('#setPasswordModal').modal('hide');
+                //         showSnackbar("Password changed successfully");
+                //     },
+                //     error: function (xhr, status, error) {
+                //         console.error("AJAX request failed:", error);
+                //     }
+                // });
+
+            });
         </script>
 
 

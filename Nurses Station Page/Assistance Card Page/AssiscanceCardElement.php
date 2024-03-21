@@ -5,14 +5,14 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
     $cardClasses = $assistance_Status == "Unassigned" ? "rgba(220,53,69, 0.25)" : "rgba(14,202,240, 0.25)";
     $bgClasses = $assistance_Status == "Unassigned" ? "bg-danger" : "bg-primary";
     $btnClasses = $assistance_Status == "Unassigned" ? "btn-danger" : "btn-primary";
-    $requestBadge = $assistance_Status == "Unassigned" ? "badge-danger" : "badge-primary";
-    $requestCounts = "";
+    // $requestBadge = $assistance_Status == "Unassigned" ? "badge-danger" : "badge-primary";
+    // $requestCounts = "";
 
-    if ($assistance_Type != "IMMEDIATE") {
-        $requestCounts = "<h6>Call counts <span class=\"badge $requestBadge\">$ADL_calls</span></h6>";
-    } else {
-        $requestCounts = "<h6>Call counts <span class=\"badge $requestBadge\">$IMMEDIATE_calls</span></h6>";
-    }
+    // if ($assistance_Type != "IMMEDIATE") {
+    //     $requestCounts = "<h6>Call counts <span class=\"badge $requestBadge\">$ADL_calls</span></h6>";
+    // } else {
+    //     $requestCounts = "<h6>Call counts <span class=\"badge $requestBadge\">$IMMEDIATE_calls</span></h6>";
+    // }
 
     $element = "
     <div class=\"col-lg-4\" style=\"max-width: 25rem\">
@@ -23,7 +23,6 @@ function assistanceCard($patient_ID, $patient_Name, $room_Number, $birth_Date, $
             <br>
             <div class=\"d-flex justify-content-between align-items-center\">
                 <button type=\"button\" class=\"btn $btnClasses\" data-toggle=\"modal\" data-target=\"#view-{$patient_ID}\" onclick=\"turnOffRefreshImmediate(); turnOffRefreshADL();\">View Details</button>
-                $requestCounts
             </div>
 
             <div class=\"modal fade\" tabindex=\"-1\" id=\"view-{$patient_ID}\" role=\"dialog\" aria-labelledby=\"viewModalLabel\" aria-hidden=\"true\">

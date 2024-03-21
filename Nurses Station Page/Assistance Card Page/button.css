@@ -1,0 +1,57 @@
+
+.menu__link {
+    color: rgb(78,115,223);
+    position: relative;
+}
+
+.menu__link::before {
+    content: '';
+    width: 0;
+    height: 2px;
+    background-color: rgb(78,115,223);
+    position: absolute;
+    bottom: -.25rem;
+    left: 30%;
+    transition: width .4s, left .4s;
+}
+
+.menu__link:hover::before {
+    width: 50%;
+    left: 0;
+}
+
+.buttonStyle {
+    border: none;
+    cursor: pointer;
+    transition: all 500ms;
+    font-size: 15px;
+    width: 90%;
+    height: fit-content;
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    overflow: hidden;
+}
+
+.buttonStyle:hover {
+    color: #ffffff;
+    transform: scale(1.0);
+    box-shadow: 4px 5px 17px -4px rgb(133, 135, 150);
+}
+
+.buttonStyle::before {
+    content: "";
+    position: absolute;
+    left: -20px;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background-color: rgb(133, 135, 150);
+    transform: skewX(45deg);
+    z-index: -1;
+    transition: width 500ms;
+}
+
+.buttonStyle:hover::before {
+    width: 150%;
+}

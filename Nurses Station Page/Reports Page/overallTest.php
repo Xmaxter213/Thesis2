@@ -1,13 +1,13 @@
 <?php
-require_once('../../dbConnection/connection.php');
-require_once('./getWard.php');
+require_once ('../../dbConnection/connection.php');
+require_once ('./getWard.php');
 //include('message.php');http://localhost/thesis2/Nurses%20Station%20Page/Nurses%20List/NursesList.php
 
 //The functions for the encryption
-include('../../dbConnection/AES encryption.php');
+include ('../../dbConnection/AES encryption.php');
 
 // LOGOUT
-if (isset($_GET['logout'])) {
+if (isset ($_GET['logout'])) {
     $userName = $_SESSION['userID'];  // Assuming userName is the correct field you want to store
 
     date_default_timezone_set('Asia/Manila');
@@ -28,7 +28,7 @@ if (isset($_GET['logout'])) {
 }
 
 // USER LOGGED IN
-if (!isset($_SESSION['userID'])) {
+if (!isset ($_SESSION['userID'])) {
     header("location: ../../MainHospital/login_new.php");
 } else {
     $status = $_SESSION['userStatus'];
@@ -42,7 +42,7 @@ if (!isset($_SESSION['userID'])) {
 }
 
 // SELECTED HOSPITAL !EXPIRED
-if (isset($_SESSION['selectedHospitalID'])) {
+if (isset ($_SESSION['selectedHospitalID'])) {
     $hospital_ID = $_SESSION['selectedHospitalID'];
 
     $query = "SELECT Expiration FROM Hospital_Table WHERE hospital_ID = $hospital_ID";
@@ -59,26 +59,24 @@ if (isset($_SESSION['selectedHospitalID'])) {
     } else {
         echo "Error executing the query: " . mysqli_error($con);
     }
-
-
 }
 
-$name = isset($_SESSION['idNUM']) ? $_SESSION['idNUM'] : null;
+$name = isset ($_SESSION['idNUM']) ? $_SESSION['idNUM'] : null;
 $assignedWard = $_SESSION['assignedWard'];
 
-if (isset($_POST["daily"]) || isset($_POST["weekly"]) || isset($_POST["monthly"]) || isset($_POST["yearly"])) {
+if (isset ($_POST["daily"]) || isset ($_POST["weekly"]) || isset ($_POST["monthly"]) || isset ($_POST["yearly"])) {
     $selectedRange = "";
 
-    if (isset($_POST['daily'])) {
+    if (isset ($_POST['daily'])) {
         $selectedRange = "ar.`date_Called` >= now()";
     }
-    if (isset($_POST['weekly'])) {
+    if (isset ($_POST['weekly'])) {
         $selectedRange = "ar.`date_Called` > date_sub(now(), INTERVAL 1 week)";
     }
-    if (isset($_POST['monthly'])) {
+    if (isset ($_POST['monthly'])) {
         $selectedRange = "ar.`date_Called` > date_sub(now(), INTERVAL 1 month)";
     }
-    if (isset($_POST['yearly'])) {
+    if (isset ($_POST['yearly'])) {
         $selectedRange = "ar.`date_Called` > date_sub(now(), INTERVAL 1 year)";
     }
 
@@ -156,7 +154,6 @@ GROUP BY
             array_push($timeArray2, array("y" => $row['Total_Time_IMMEDIATE'], "label" => $patientName));
         }
     }
-
 }
 
 
@@ -189,6 +186,7 @@ GROUP BY
     <!-- Custom styles for this template -->
     <link href="../css/sb-admin-2.min.css" rel="stylesheet">
     <link href="PATH/dist/css/app.css" rel="stylesheet">
+    <link  href="../Assistance Card Page/button.css" rel="stylesheet">
 
     <!-- For the toast messages -->
     <link href="../css/toast.css" rel="stylesheet">
@@ -233,9 +231,14 @@ GROUP BY
                     indexLabel: "{label} = {y}",
                     yValueFormatString: "#",
                     click: explodePie,
-                    dataPoints: [
-                        { y: <?php echo json_encode($ADL_Counts, JSON_NUMERIC_CHECK); ?>, label: "ADL Count" },
-                        { y: <?php echo json_encode($immediate_Counts, JSON_NUMERIC_CHECK); ?>, label: "Immediate Count" },
+                    dataPoints: [{
+                        y: <?php echo json_encode($ADL_Counts, JSON_NUMERIC_CHECK); ?>,
+                        label: "ADL Count"
+                    },
+                    {
+                        y: <?php echo json_encode($immediate_Counts, JSON_NUMERIC_CHECK); ?>,
+                        label: "Immediate Count"
+                    },
                     ]
                 }]
             });
@@ -261,10 +264,18 @@ GROUP BY
                     showInLegend: true,
                     toolTipContent: "{name}: <strong>{y}</strong>",
                     indexLabel: "{name} - {y}",
-                    dataPoints: [
-                        { y: <?php echo json_encode($graveyardCounts, JSON_NUMERIC_CHECK); ?>, name: "Graveyard Shifts" },
-                        { y: <?php echo json_encode($morningCounts, JSON_NUMERIC_CHECK); ?>, name: "Morning Shifts" },
-                        { y: <?php echo json_encode($nightCounts, JSON_NUMERIC_CHECK); ?>, name: "Night Shifts" },
+                    dataPoints: [{
+                        y: <?php echo json_encode($graveyardCounts, JSON_NUMERIC_CHECK); ?>,
+                        name: "Graveyard Shifts"
+                    },
+                    {
+                        y: <?php echo json_encode($morningCounts, JSON_NUMERIC_CHECK); ?>,
+                        name: "Morning Shifts"
+                    },
+                    {
+                        y: <?php echo json_encode($nightCounts, JSON_NUMERIC_CHECK); ?>,
+                        name: "Night Shifts"
+                    },
                     ]
                 }]
             });
@@ -280,28 +291,28 @@ GROUP BY
                 subtitles: [{
                     text: "Average time overall in seconds"
                 }],
-                data: [
-                    {
-                        type: "column",
-                        startAngle: 25,
-                        toolTipContent: "<b>{label}</b>: {y}s",
-                        showInLegend: "true",
-                        legendText: "ADL Total Response Time",
-                        indexLabelFontSize: 16,
-                        indexLabel: "{y}s",
-                        dataPoints: <?php echo json_encode($timeArray, JSON_NUMERIC_CHECK); ?>
-                    },
-                    {
-                        type: "column",
-                        startAngle: 25,
-                        toolTipContent: "<b>{label}</b>: {y}s",
-                        showInLegend: "true",
-                        legendText: "Immediate Total Response Time",
-                        indexLabelFontSize: 16,
-                        indexLabel: "{y}s",
-                        color: "rgb(195,89,87)",
-                        dataPoints: <?php echo json_encode($timeArray2, JSON_NUMERIC_CHECK); ?>
-                    }]
+                data: [{
+                    type: "column",
+                    startAngle: 25,
+                    toolTipContent: "<b>{label}</b>: {y}s",
+                    showInLegend: "true",
+                    legendText: "ADL Total Response Time",
+                    indexLabelFontSize: 16,
+                    indexLabel: "{y}s",
+                    dataPoints: <?php echo json_encode($timeArray, JSON_NUMERIC_CHECK); ?>
+                },
+                {
+                    type: "column",
+                    startAngle: 25,
+                    toolTipContent: "<b>{label}</b>: {y}s",
+                    showInLegend: "true",
+                    legendText: "Immediate Total Response Time",
+                    indexLabelFontSize: 16,
+                    indexLabel: "{y}s",
+                    color: "rgb(195,89,87)",
+                    dataPoints: <?php echo json_encode($timeArray2, JSON_NUMERIC_CHECK); ?>
+                }
+                ]
             });
             overallRates.render();
 
@@ -359,16 +370,16 @@ GROUP BY
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to assistance page'); showBubbleAnimation(event);" class="nav-link"
-                    href="../Assistance Card Page/assistanceCard.php">
+                <a onclick="showSnackbar('redirect to assistance page'); showBubbleAnimation(event);"
+                    class="nav-link menu__link buttonStyle" href="../Assistance Card Page/assistanceCard.php">
                     <i class="bi bi-wallet2"></i>
-                    <span>Assistance Cards</span>
+                    <span>Assistance Page</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);" class="nav-link"
-                    href="../Nurses List/NursesList.php">
+                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);"
+                    class="nav-link menu__link buttonStyle" href="../Nurses List/NursesList.php">
                     <i class="fa-solid fa-user-nurse"></i>
                     <span>Nurses List</span>
                 </a>
@@ -378,7 +389,7 @@ GROUP BY
 
             <li class="nav-item">
                 <a onclick="showSnackbar('redirect to patients list page'); showBubbleAnimation(event);"
-                    class="nav-link" href="../Patients List/PatientsList.php">
+                    class="nav-link menu__link buttonStyle" href="../Patients List/PatientsList.php">
                     <i class="bi bi-person-lines-fill"></i>
                     <span>Patients List</span>
                 </a>
@@ -386,7 +397,7 @@ GROUP BY
 
             <li class="nav-item active">
                 <a onclick="showSnackbar('redirect to patients list page'); showBubbleAnimation(event);"
-                    class="nav-link" href="./overallTest.php">
+                    class="nav-link menu__link buttonStyle" href="../Reports Page/overallTest.php">
                     <i class="fa-solid fa-chart-line"></i>
                     <span>Reports</span>
                 </a>
@@ -395,8 +406,8 @@ GROUP BY
             <!-- Divider -->
 
             <li class="nav-item">
-                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);" class="nav-link"
-                    href="../Logs/Logs.php">
+                <a onclick="showSnackbar('redirect to nurses list page'); showBubbleAnimation(event);"
+                    class="nav-link menu__link buttonStyle" href="../Logs/Logs.php">
                     <i class="bi bi-file-ruled"></i>
                     <span>Logs</span>
                 </a>

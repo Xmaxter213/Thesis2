@@ -149,9 +149,20 @@ GROUP BY
             }
 
             $patientName = decryptthis($row['patient_Name'], $key);
+            $adlPercent = $row['Total_Time_ADL'];
+            $immediatePercent = $row['Total_Time_IMMEDIATE'];
 
-            array_push($timeArray, array("y" => $row['Total_Time_ADL'], "label" => $patientName));
-            array_push($timeArray2, array("y" => $row['Total_Time_IMMEDIATE'], "label" => $patientName));
+            $referenceValue = 24 * 60;
+            // For ADL response rate
+            $adlPercentage = ($adlPercent / $referenceValue) * 100;
+            $adlPercentage = number_format($adlPercentage, 2);
+            // For Immediate response rate
+            $immediatePercentage = ($immediatePercent / $referenceValue) * 100;
+            $immediatePercentage = number_format($immediatePercentage, 2);
+
+
+            array_push($timeArray, array("y" => $adlPercentage, "label" => $patientName));
+            array_push($timeArray2, array("y" => $immediatePercentage, "label" => $patientName));
         }
     }
 }
@@ -286,29 +297,29 @@ GROUP BY
                 exportEnabled: true,
                 animationEnabled: true,
                 title: {
-                    text: "Overall Response Time"
+                    text: "Overall Average Response Rate"
                 },
                 subtitles: [{
-                    text: "Average time overall in seconds"
+                    text: "Average rates overall in seconds"
                 }],
                 data: [{
                     type: "column",
                     startAngle: 25,
-                    toolTipContent: "<b>{label}</b>: {y}s",
+                    toolTipContent: "<b>{label}</b>: {y}%",
                     showInLegend: "true",
-                    legendText: "ADL Total Response Time",
+                    legendText: "ADL Total Response Rate",
                     indexLabelFontSize: 16,
-                    indexLabel: "{y}s",
+                    indexLabel: "{y}%",
                     dataPoints: <?php echo json_encode($timeArray, JSON_NUMERIC_CHECK); ?>
                 },
                 {
                     type: "column",
                     startAngle: 25,
-                    toolTipContent: "<b>{label}</b>: {y}s",
+                    toolTipContent: "<b>{label}</b>: {y}%",
                     showInLegend: "true",
-                    legendText: "Immediate Total Response Time",
+                    legendText: "Immediate Total Response Rate",
                     indexLabelFontSize: 16,
-                    indexLabel: "{y}s",
+                    indexLabel: "{y}%",
                     color: "rgb(195,89,87)",
                     dataPoints: <?php echo json_encode($timeArray2, JSON_NUMERIC_CHECK); ?>
                 }

@@ -727,11 +727,7 @@ if (isset($_POST['edit'])) {
                                                 <th>Nurse ID <input type="text" class="search-input" placeholder="Nurse ID"></th>
                                                 <th>Nurse Name <input type="text" class="search-input" placeholder="Nurse Name"></th>
                                                 <th>Nurse Contract No. <input type="text" class="search-input" placeholder="Nurse Contract No."></th>
-                                                <th>Nurse Sex <input type="text" class="search-input" placeholder="Nurse Sex"></th>
-                                                <th>Nurse Age <input type="text" class="search-input" placeholder="Nurse Age"></th>
                                                 <th>Shift Schedule <input type="text" class="search-input" placeholder="Shift Schedule"></th>
-                                                <th>Employment Status <input type="text" class="search-input" placeholder="Employment Status"></th>
-                                                <th>Date of Employment <input type="text" class="search-input" placeholder="Date of Employment"></th>
                                                 <th>Edit</th>
                                                 <th>Delete</th>
                                             </tr>
@@ -778,11 +774,7 @@ if (isset($_POST['edit'])) {
                                                     <td><?php echo $nurse['nurse_ID'] ?></td>
                                                     <td><?php echo $dec_nurse_Name ?></td>
                                                     <td><?php echo $dec_nurse_Contact_No ?></td>
-                                                    <td><?php echo $dec_nurse_Sex ?></td>
-                                                    <td><?php echo $dec_nurse_Age ?></td>
                                                     <td><?php echo $nurse['shift_Schedule']; ?></td>
-                                                    <td><?php echo $nurse['employment_Status']; ?></td>
-                                                    <td><?php echo $dec_date_Employment ?></td>
                                                     <td>
                                                         <a onclick="showSnackbar('edit nurse')" class="btn btn-info" data-toggle="modal" data-target="#editNursePasswordVerificationModal<?= $nurse['nurse_ID'] ?>">Edit</a>
 <!-- MODAL HERE -->

@@ -89,6 +89,8 @@ if (isset($_POST['search'])) {
     $time_Resolved_Adl = array();
     $time_Resolved_Immediate = array();
 
+    $timeArray = array();
+    $timeArray2 = array();
     // AND patient_List.patient_Name LIKE '$selected_patient_ID'
 
     $sql = "WITH PatientArduinoData AS (
@@ -124,9 +126,11 @@ if (isset($_POST['search'])) {
             `patient_ID`, 
             COUNT(*) AS `total_calls`,
             SUM(CASE WHEN `assistance_Type` = 'ADL' THEN 1 ELSE 0 END) AS `ADL_calls`,
-            SUM(CASE WHEN `assistance_Type` = 'IMMEDIATE' THEN 1 ELSE 0 END) AS `IMMEDIATE_calls`
+            SUM(CASE WHEN `assistance_Type` = 'IMMEDIATE' THEN 1 ELSE 0 END) AS `IMMEDIATE_calls`,
+            SUM(CASE WHEN ar.`assistance_Type` = 'ADL' THEN TIMESTAMPDIFF(SECOND, ar.`date_Called`, ar.`Nurse_Assigned_Status`) ELSE 0 END) AS `Total_Time_ADL`,
+            SUM(CASE WHEN ar.`assistance_Type` = 'IMMEDIATE' THEN TIMESTAMPDIFF(SECOND, ar.`date_Called`, ar.`Nurse_Assigned_Status`) ELSE 0 END) AS `Total_Time_IMMEDIATE`
         FROM 
-            `arduino_Reports`
+            `arduino_Reports` ar
         WHERE
             `assistance_Type` IN ('ADL', 'IMMEDIATE')
         GROUP BY 
@@ -168,7 +172,9 @@ if (isset($_POST['search'])) {
         MAX(CASE WHEN RWDA.assistance_Type = 'ADL' THEN RWDA.response_Time END) AS max_ADL_response_Time,
         MAX(CASE WHEN RWDA.assistance_Type = 'ADL' THEN RWDA.resolve_Time END) AS max_ADL_resolve_Time,
         MAX(CASE WHEN RWDB.assistance_Type = 'IMMEDIATE' THEN RWDB.response_Time END) AS max_IMMEDIATE_response_Time,
-        MAX(CASE WHEN RWDB.assistance_Type = 'IMMEDIATE' THEN RWDB.resolve_Time END) AS max_IMMEDIATE_resolve_Time
+        MAX(CASE WHEN RWDB.assistance_Type = 'IMMEDIATE' THEN RWDB.resolve_Time END) AS max_IMMEDIATE_resolve_Time,
+        MAX(ARD.Total_Time_ADL) AS Total_Time_ADL,
+        MAX(ARD.Total_Time_IMMEDIATE) AS Total_Time_IMMEDIATE
     FROM 
         PatientArduinoData PAD
     LEFT JOIN 
@@ -187,7 +193,7 @@ if (isset($_POST['search'])) {
         PAD.assistance_Status,
         PAD.patient_gloves_ID,
         PAD.activated,
-        PAD.delete_at
+        PAD.delete_at    
     ";
 
     $result = mysqli_query($con, $sql);
@@ -209,6 +215,21 @@ if (isset($_POST['search'])) {
             array_push($time_Response_Immediate, array("label" => $patientName, "y" => $row['max_IMMEDIATE_response_Time']));
             array_push($time_Resolved_Adl, array("label" => $patientName, "y" => $row['max_ADL_resolve_Time']));
             array_push($time_Resolved_Immediate, array("label" => $patientName, "y" => $row['max_IMMEDIATE_resolve_Time']));
+
+            $adlPercent = $row['Total_Time_ADL'];
+            $immediatePercent = $row['Total_Time_IMMEDIATE'];
+
+            $referenceValue = 24 * 60;
+            // For ADL response rate
+            $adlPercentage = ($adlPercent / $referenceValue) * 100;
+            $adlPercentage = number_format($adlPercentage, 2);
+            // For Immediate response rate
+            $immediatePercentage = ($immediatePercent / $referenceValue) * 100;
+            $immediatePercentage = number_format($immediatePercentage, 2);
+
+
+            array_push($timeArray, array("y" => $adlPercentage, "label" => $patientName));
+            array_push($timeArray2, array("y" => $immediatePercentage, "label" => $patientName));
         }
     }
 }
@@ -404,7 +425,7 @@ if ($totalSeconds < 60) {
             });
             chart1.render();
 
-            var chart2 = new CanvasJS.Chart("responseRate", {
+            var chart2 = new CanvasJS.Chart("responseTime", {
                 theme: "light2",
                 exportEnabled: true,
                 animationEnabled: true,
@@ -443,6 +464,7 @@ if ($totalSeconds < 60) {
                     name: "Immediate Response Time",
                     legendText: "Immediate Response Time",
                     axisYType: "secondary",
+                    color: "rgb(195,89,87)",
                     showInLegend: true,
                     dataPoints: <?php echo json_encode($time_Response_Immediate, JSON_NUMERIC_CHECK); ?>
                 }
@@ -451,7 +473,56 @@ if ($totalSeconds < 60) {
             });
             chart2.render();
 
-            var chart3 = new CanvasJS.Chart("resolveTime", {
+            var chart3 = new CanvasJS.Chart("responseOverall", {
+                theme: "light2",
+                exportEnabled: true,
+                animationEnabled: true,
+                title: {
+                    text: "Overall Average Response"
+                },
+                axisY: {
+                    title: "ADL Average"
+                },
+                axisY2: {
+                    title: "Immediate Average"
+                },
+                subtitles: [{
+                    text: "The average time of the patient to receive assistance"
+                }],
+
+                toolTip: {
+                    shared: true
+                },
+                legend: {
+                    cursor: "pointer",
+                    itemclick: toggleDataSeries2
+                },
+
+                data: [{
+                    type: "column",
+                    indexLabel: "{y}",
+                    name: "ADL Average",
+                    legendText: "ADL Average",
+                    color: "rgb(109,120,173)",
+                    showInLegend: true,
+                    dataPoints: <?php echo json_encode($timeArray, JSON_NUMERIC_CHECK); ?>
+                },
+                {
+                    type: "column",
+                    indexLabel: "{y}",
+                    name: "Immediate Average",
+                    legendText: "Immediate Average",
+                    axisYType: "secondary",
+                    color: "rgb(195,89,87)",
+                    showInLegend: true,
+                    dataPoints: <?php echo json_encode($timeArray2, JSON_NUMERIC_CHECK); ?>
+                }
+                ]
+
+            });
+            chart3.render();
+
+            var chart4 = new CanvasJS.Chart("resolveTime", {
                 theme: "light2",
                 exportEnabled: true,
                 animationEnabled: true,
@@ -483,7 +554,7 @@ if ($totalSeconds < 60) {
                     legendText: "ADL Resolved Time",
                     showInLegend: true,
                     color: "rgb(76,156,160)",
-                    dataPoints: <?php echo json_encode($time_Resolved_Adl, JSON_NUMERIC_CHECK); ?> // TODO: Change into resolved time data
+                    dataPoints: <?php echo json_encode($time_Resolved_Adl, JSON_NUMERIC_CHECK); ?>
                 },
                 {
                     type: "column",
@@ -493,12 +564,12 @@ if ($totalSeconds < 60) {
                     axisYType: "secondary",
                     showInLegend: true,
                     color: "rgb(223,121,112)",
-                    dataPoints: <?php echo json_encode($time_Resolved_Immediate, JSON_NUMERIC_CHECK); ?> // TODO: Change into resolved time data
+                    dataPoints: <?php echo json_encode($time_Resolved_Immediate, JSON_NUMERIC_CHECK); ?>
                 }
                 ]
 
             });
-            chart3.render();
+            chart4.render();
 
             function toolTipFormatter(e) {
                 var str = "";
@@ -529,13 +600,22 @@ if ($totalSeconds < 60) {
                 chart2.render();
             }
 
-            function toggleDataSeries3(e) {
+            function toggleDataSeries2(e) {
                 if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
                     e.dataSeries.visible = false;
                 } else {
                     e.dataSeries.visible = true;
                 }
                 chart3.render();
+            }
+
+            function toggleDataSeries3(e) {
+                if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+                    e.dataSeries.visible = false;
+                } else {
+                    e.dataSeries.visible = true;
+                }
+                chart4.render();
             }
 
         }
@@ -816,7 +896,12 @@ if ($totalSeconds < 60) {
                     </div>
                     <div class="card shadow mb-3">
                         <div class="card-body">
-                            <div id="responseRate" style="height: 400px; width: 100%;"></div>
+                            <div id="responseTime" style="height: 400px; width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="card shadow mb-3">
+                        <div class="card-body">
+                            <div id="responseOverall" style="height: 400px; width: 100%;"></div>
                         </div>
                     </div>
                     <div class="card shadow mb-3">

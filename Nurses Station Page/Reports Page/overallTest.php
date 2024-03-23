@@ -89,43 +89,46 @@ if (isset ($_POST["daily"]) || isset ($_POST["weekly"]) || isset ($_POST["monthl
     $morningCounts = 0;
     $firstProcessedShifts = false;
 
-    $timeArray = array();
-    $timeArray2 = array();
+    $firstTotal = false;
 
     // Query for overall response rates
     $sql = "WITH arduino_sums AS (
+        SELECT 
+            SUM(CASE WHEN assistance_Type = 'IMMEDIATE' THEN 1 ELSE 0 END) AS immediate_count,
+            SUM(CASE WHEN assistance_Type = 'ADL' THEN 1 ELSE 0 END) AS adl_count,
+            SUM(CASE WHEN assistance_Type = 'ADL' THEN TIMESTAMPDIFF(SECOND, `date_Called`, `Nurse_Assigned_Status`) ELSE 0 END) AS total_time_adl,
+            SUM(CASE WHEN assistance_Type = 'IMMEDIATE' THEN TIMESTAMPDIFF(SECOND, `date_Called`, `Nurse_Assigned_Status`) ELSE 0 END) AS total_time_immediate
+        FROM 
+            arduino_Reports
+    ),
+    shift_sums AS (
+        SELECT 
+            SUM(CASE WHEN `shift_Schedule` = 'Graveyard Shift' THEN 1 ELSE 0 END) AS `Total_Graveyard_Shift_Count`,
+            SUM(CASE WHEN `shift_Schedule` = 'Morning Shift' THEN 1 ELSE 0 END) AS `Total_Morning_Shift_Count`,
+            SUM(CASE WHEN `shift_Schedule` = 'Night Shift' THEN 1 ELSE 0 END) AS `Total_Night_Shift_Count`
+        FROM 
+            staff_List
+    )
     SELECT 
-        SUM(CASE WHEN assistance_Type = 'IMMEDIATE' THEN 1 ELSE 0 END) AS immediate_count,
-        SUM(CASE WHEN assistance_Type = 'ADL' THEN 1 ELSE 0 END) AS adl_count
+        pl.`patient_ID`, 
+        pl.`patient_Name`,
+        SUM(CASE WHEN ar.`assistance_Type` = 'ADL' THEN TIMESTAMPDIFF(SECOND, ar.`date_Called`, ar.`Nurse_Assigned_Status`) ELSE 0 END) AS `Total_Time_ADL`,
+        SUM(CASE WHEN ar.`assistance_Type` = 'IMMEDIATE' THEN TIMESTAMPDIFF(SECOND, ar.`date_Called`, ar.`Nurse_Assigned_Status`) ELSE 0 END) AS `Total_Time_IMMEDIATE`,
+        (SELECT immediate_count FROM arduino_sums) AS immediate_count,
+        (SELECT adl_count FROM arduino_sums) AS adl_count,
+        (SELECT Total_Graveyard_Shift_Count FROM shift_sums) AS Total_Graveyard_Shift_Count,
+        (SELECT Total_Morning_Shift_Count FROM shift_sums) AS Total_Morning_Shift_Count,
+        (SELECT Total_Night_Shift_Count FROM shift_sums) AS Total_Night_Shift_Count,
+        (SELECT total_time_adl FROM arduino_sums) AS total_time_adl_all,
+        (SELECT total_time_immediate FROM arduino_sums) AS total_time_immediate_all
     FROM 
-        arduino_Reports
-),
-shift_sums AS (
-    SELECT 
-        SUM(CASE WHEN `shift_Schedule` = 'Graveyard Shift' THEN 1 ELSE 0 END) AS `Total_Graveyard_Shift_Count`,
-        SUM(CASE WHEN `shift_Schedule` = 'Morning Shift' THEN 1 ELSE 0 END) AS `Total_Morning_Shift_Count`,
-        SUM(CASE WHEN `shift_Schedule` = 'Night Shift' THEN 1 ELSE 0 END) AS `Total_Night_Shift_Count`
-    FROM 
-        staff_List
-)
-SELECT 
-    pl.`patient_ID`, 
-    pl.`patient_Name`,
-    SUM(CASE WHEN ar.`assistance_Type` = 'ADL' THEN TIMESTAMPDIFF(SECOND, ar.`date_Called`, ar.`Nurse_Assigned_Status`) ELSE 0 END) AS `Total_Time_ADL`,
-    SUM(CASE WHEN ar.`assistance_Type` = 'IMMEDIATE' THEN TIMESTAMPDIFF(SECOND, ar.`date_Called`, ar.`Nurse_Assigned_Status`) ELSE 0 END) AS `Total_Time_IMMEDIATE`,
-    (SELECT immediate_count FROM arduino_sums) AS immediate_count,
-    (SELECT adl_count FROM arduino_sums) AS adl_count,
-    (SELECT Total_Graveyard_Shift_Count FROM shift_sums) AS Total_Graveyard_Shift_Count,
-    (SELECT Total_Morning_Shift_Count FROM shift_sums) AS Total_Morning_Shift_Count,
-    (SELECT Total_Night_Shift_Count FROM shift_sums) AS Total_Night_Shift_Count
-FROM 
-    `arduino_Reports` AS ar
-INNER JOIN 
-    `patient_List` AS pl ON ar.`patient_ID` = pl.`patient_ID`
-WHERE $selectedRange
-GROUP BY
-    pl.`patient_ID`, 
-    pl.`patient_Name`
+        `arduino_Reports` AS ar
+    INNER JOIN 
+        `patient_List` AS pl ON ar.`patient_ID` = pl.`patient_ID`
+    WHERE $selectedRange
+    GROUP BY
+        pl.`patient_ID`, 
+        pl.`patient_Name`    
 ";
 
     // Add WHERE clause to calculate for the $nurse_Assigned_Ward
@@ -149,20 +152,21 @@ GROUP BY
             }
 
             $patientName = decryptthis($row['patient_Name'], $key);
-            $adlPercent = $row['Total_Time_ADL'];
-            $immediatePercent = $row['Total_Time_IMMEDIATE'];
 
-            $referenceValue = 24 * 60;
-            // For ADL response rate
-            $adlPercentage = ($adlPercent / $referenceValue) * 100;
-            $adlPercentage = number_format($adlPercentage, 2);
-            // For Immediate response rate
-            $immediatePercentage = ($immediatePercent / $referenceValue) * 100;
-            $immediatePercentage = number_format($immediatePercentage, 2);
+            if (!$firstTotal) {
+                $adlPercent = $row['total_time_adl_all'];
+                $immediatePercent = $row['total_time_immediate_all'];
+    
+                $referenceValue = 24 * 60;
+                // For ADL response rate
+                $adlPercentage = ($adlPercent / $referenceValue) * 100;
+                $adlPercentage = number_format($adlPercentage, 2);
+                // For Immediate response rate
+                $immediatePercentage = ($immediatePercent / $referenceValue) * 100;
+                $immediatePercentage = number_format($immediatePercentage, 2);
 
-
-            array_push($timeArray, array("y" => $adlPercentage, "label" => $patientName));
-            array_push($timeArray2, array("y" => $immediatePercentage, "label" => $patientName));
+                $firstTotal = true;
+            }
         }
     }
 }
@@ -197,7 +201,7 @@ GROUP BY
     <!-- Custom styles for this template -->
     <link href="../css/sb-admin-2.min.css" rel="stylesheet">
     <link href="PATH/dist/css/app.css" rel="stylesheet">
-    <link  href="../Assistance Card Page/button.css" rel="stylesheet">
+    <link href="../Assistance Card Page/button.css" rel="stylesheet">
 
     <!-- For the toast messages -->
     <link href="../css/toast.css" rel="stylesheet">
@@ -294,39 +298,32 @@ GROUP BY
 
             var overallRates = new CanvasJS.Chart("containerRate", {
                 theme: "light2",
-                exportEnabled: true,
                 animationEnabled: true,
                 title: {
-                    text: "Overall Average Response Rate"
+                    text: "Overall Response Time"
                 },
                 subtitles: [{
-                    text: "Average rates overall in seconds"
+                    text: "Total average time in seconds"
                 }],
-                data: [{
-                    type: "column",
-                    startAngle: 25,
-                    toolTipContent: "<b>{label}</b>: {y}%",
-                    showInLegend: "true",
-                    legendText: "ADL Total Response Rate",
-                    indexLabelFontSize: 16,
-                    indexLabel: "{y}%",
-                    dataPoints: <?php echo json_encode($timeArray, JSON_NUMERIC_CHECK); ?>
+                axisX: {
+                    interval: 1
                 },
-                {
-                    type: "column",
-                    startAngle: 25,
-                    toolTipContent: "<b>{label}</b>: {y}%",
-                    showInLegend: "true",
-                    legendText: "Immediate Total Response Rate",
-                    indexLabelFontSize: 16,
-                    indexLabel: "{y}%",
-                    color: "rgb(195,89,87)",
-                    dataPoints: <?php echo json_encode($timeArray2, JSON_NUMERIC_CHECK); ?>
-                }
-                ]
+                axisY2: {
+                    interlacedColor: "rgba(1,77,101,.2)",
+                    gridColor: "rgba(1,77,101,.1)",
+                },
+                data: [{
+                    type: "bar",
+                    color: "rgb(108,117,125)",
+                    axisYType: "secondary",
+                    dataPoints: [
+                        { y: <?php echo json_encode($adlPercentage, JSON_NUMERIC_CHECK); ?>, label: "ADL Average", color: "rgb(109,120,173)" },
+                        { y: <?php echo json_encode($immediatePercentage, JSON_NUMERIC_CHECK); ?>, label: "Immediate Average", color: "rgb(223,121,112)" },
+                    ]
+                }]
             });
             overallRates.render();
-
+            
             function explodePie(e) {
                 for (var i = 0; i < e.dataSeries.dataPoints.length; i++) {
                     if (i !== e.dataPointIndex)

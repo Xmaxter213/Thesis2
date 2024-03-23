@@ -728,6 +728,7 @@ if (isset($_POST['edit'])) {
                                                 <th>Nurse Name <input type="text" class="search-input" placeholder="Nurse Name"></th>
                                                 <th>Nurse Contract No. <input type="text" class="search-input" placeholder="Nurse Contract No."></th>
                                                 <th>Shift Schedule <input type="text" class="search-input" placeholder="Shift Schedule"></th>
+                                                <th>View Details</th>
                                                 <th>Edit</th>
                                                 <th>Delete</th>
                                             </tr>
@@ -775,6 +776,32 @@ if (isset($_POST['edit'])) {
                                                     <td><?php echo $dec_nurse_Name ?></td>
                                                     <td><?php echo $dec_nurse_Contact_No ?></td>
                                                     <td><?php echo $nurse['shift_Schedule']; ?></td>
+                                                    <td>
+                                                        <a class="btn btn-info" data-toggle="modal" data-target="#ViewNurseDetails<?= $nurse['nurse_ID'] ?>">View Details</a>
+
+                                                        <div class="modal fade" id="ViewNurseDetails<?= $nurse['nurse_ID'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="exampleModalLabel">Nurse Details</h5>
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <label>Name: <?php echo $dec_nurse_Name ?></label><br>
+                                                                        <label>Contact Number: <?php echo $dec_nurse_Contact_No ?></label><br>
+                                                                        <label>Sex: <?php echo $dec_nurse_Sex ?></label><br>
+                                                                        <label>birhtday: <?php echo $dec_nurse_birth_Date ?></label><br>
+                                                                        <label>Age: <?php echo $dec_nurse_Age ?></label><br>
+                                                                        <label>Shift Schedule: <?php echo $nurse['shift_Schedule']; ?></label><br>
+                                                                        <label>Date of Emploment: <?php echo $dec_date_Employment ?></label><br>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
                                                     <td>
                                                         <a onclick="showSnackbar('edit nurse')" class="btn btn-info" data-toggle="modal" data-target="#editNursePasswordVerificationModal<?= $nurse['nurse_ID'] ?>">Edit</a>
 <!-- MODAL HERE -->

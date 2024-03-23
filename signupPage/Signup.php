@@ -97,6 +97,9 @@ if (isset($_POST['add'])) {
     <meta name="author" content="">
     <title>Helping Hand - Tables</title>
 
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
@@ -303,13 +306,15 @@ if (isset($_POST['add'])) {
                                         <h1>$30</h1>
                                     </div>
                                     <ul>
-                                        <li><b>15</b> website</li>
-                                        <li><b>50GB</b> Disk Space</li>
-                                        <li><b>50</b> Email</li>
-                                        <li><b>50GB</b> Bandwidth</li>
-                                        <li><b>10</b> Subdomains</li>
-                                        <li><b>Unlimited</b> Support</li>
+                                        <li>Inclusions : </li>
+                                        <li><b>1</b> Month Subscription</li>
+                                        <li><b>1</b> Device (Helping Hand)</li>
+                                        <li><b>100</b> Free SMS</li>
+                                        <li><b>250</b> Patient Account</li>
+                                        <li><b>Unlimited</b> Nurse Account</li>
+                                        <li> </li>
                                     </ul>
+                                    <br>
                                     <div class="pricing-price">
                                         <a class="price_btn" onclick="setSubscription(1); showAddHospitalModal();">Get Started</a>
                                     </div>
@@ -324,12 +329,12 @@ if (isset($_POST['add'])) {
                                         <h1>$35</h1>
                                     </div>
                                     <ul>
-                                        <li><b>30</b> website</li>
-                                        <li><b>70GB</b> Disk Space</li>
-                                        <li><b>70</b> Email</li>
-                                        <li><b>70GB</b> Bandwidth</li>
-                                        <li><b>15</b> Subdomains</li>
-                                        <li><b>Unlimited</b> Support</li>
+                                    <li>Inclusions : </li>
+                                        <li><b>2 + 1(free)</b> Months Subscription</li>
+                                        <li><b>1</b> Device (Helping Hand)</li>
+                                        <li><b>100</b> Free SMS</li>
+                                        <li><b>250</b> Patient Account</li>
+                                        <li><b>Unlimited</b> Nurse Account</li>
                                     </ul>
                                     <div class="pricing-price">
                                         <a class="price_btn" onclick="setSubscription(3); showAddHospitalModal();">Get Started</a>
@@ -345,12 +350,12 @@ if (isset($_POST['add'])) {
                                         <h1>$80</h1>
                                     </div>
                                     <ul>
-                                        <li><b>40</b> website</li>
-                                        <li><b>90GB</b> Disk Space</li>
-                                        <li><b>90</b> Email</li>
-                                        <li><b>90GB</b> Bandwidth</li>
-                                        <li><b>20</b> Subdomains</li>
-                                        <li><b>Unlimited</b> Support</li>
+                                    <li>Inclusions : </li>
+                                        <li><b>8 + 4(free)</b> Months Subscription</li>
+                                        <li><b>1</b> Device (Helping Hand)</li>
+                                        <li><b>100</b> Free SMS</li>
+                                        <li><b>250</b> Patient Account</li>
+                                        <li><b>Unlimited</b> Nurse Account</li>
                                     </ul>
                                     <div class="pricing-price">
                                         <a class="price_btn" onclick="setSubscription(12); showAddHospitalModal();">Get Started</a>
@@ -442,6 +447,10 @@ if (isset($_POST['add'])) {
 >
         </div>
     </div>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
     <!-- Scripts and Additional JavaScript for the pricing section -->
     <script>

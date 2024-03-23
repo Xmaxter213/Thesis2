@@ -193,7 +193,7 @@ if (isset($_POST['add'])) {
          if ($query_run_logs) 
         {
             $_SESSION['message'] = "Catagory Added Successfully";
-            header('Location: NursesList.php');
+            header('Location: NursesListInactive.php');
             exit(0);
         } 
         else 
@@ -204,7 +204,7 @@ if (isset($_POST['add'])) {
         
     } else {
         $_SESSION['message'] = "Someting Went Wrong !";
-        header('Location: NursesList.php');
+        header('Location: NursesListInactive.php');
         exit(0);
     }
 
@@ -513,8 +513,8 @@ if (isset($_POST['edit'])) {
 
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">Tables</h1>
-                    <a href="NursesList.php" class="btn btn-secondary float-end active">Active Nurses List</a>
-                    <a href="NursesListInactive.php" class="btn btn-secondary float-end">Inactive Nurses List</a>
+                    <a href="NursesList.php" class="btn btn-secondary float-end">Active Nurses List</a>
+                    <a href="NursesListInactive.php" class="btn btn-secondary float-end active">Inactive Nurses List</a>
                     <a href="EditShiftSchedule.php" class="btn btn-secondary float-end">Shift Schedules List</a>
                     <a href="RestoreNurse.php" class="btn btn-secondary float-end">Restore Nurse</a>
                     <a href="DeletedNursesList.php" class="btn btn-secondary float-end">Deleted Nurses List</a>
@@ -701,17 +701,17 @@ if (isset($_POST['edit'])) {
                                     // Close the statement
                                     $getNurseAssignedWard->close();
 
-                                $sql = "SELECT * FROM staff_List WHERE activated = 1 AND assigned_Ward = '$nurse_Assigned_Ward' AND employment_Status = 'Active'";
+                                $sql = "SELECT * FROM staff_List WHERE activated = 1 AND assigned_Ward = '$nurse_Assigned_Ward' AND employment_Status = 'Inactive'";
                                 $result = mysqli_query($con, $sql);
 
                                 //This is for pagination
                                 $limit = isset($_POST["limit-records"]) ? $_POST["limit-records"] : 10;
                                 $page = isset($_GET['page']) ? $_GET['page'] : 1;
                                 $start = ($page - 1) * $limit;
-                                $result = $con->query("SELECT * FROM staff_List  WHERE activated = 1 AND assigned_Ward = '$nurse_Assigned_Ward' AND hospital_ID = '$hospital_ID' AND employment_Status = 'Active' LIMIT $start, $limit");
+                                $result = $con->query("SELECT * FROM staff_List  WHERE activated = 1 AND assigned_Ward = '$nurse_Assigned_Ward' AND hospital_ID = '$hospital_ID' AND employment_Status = 'Inactive' LIMIT $start, $limit");
                                 $nurses = $result->fetch_all(MYSQLI_ASSOC);
 
-                                $result1 = $con->query("SELECT count(nurse_ID) AS nurse_ID FROM staff_List WHERE activated = 1 AND assigned_Ward = '$nurse_Assigned_Ward' AND hospital_ID = '$hospital_ID' AND employment_Status = 'Active'");
+                                $result1 = $con->query("SELECT count(nurse_ID) AS nurse_ID FROM staff_List WHERE activated = 1 AND assigned_Ward = '$nurse_Assigned_Ward' AND hospital_ID = '$hospital_ID' AND employment_Status = 'Inactive'");
                                 $custCount = $result1->fetch_all(MYSQLI_ASSOC);
                                 $total = $custCount[0]['nurse_ID'];
                                 $pages = ceil( $total / $limit );
